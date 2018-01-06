@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.canvas.Canvas?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.RowConstraints?>
+<GridPane fx:id="root" hgap="10.0" vgap="10.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
+          fx:controller="zkl.scienceFX.wave.fx.WaveController">
+	<columnConstraints>
+		<ColumnConstraints/>
+		<ColumnConstraints/>
+	</columnConstraints>
+	<rowConstraints>
+		<RowConstraints/>
+		<RowConstraints/>
+	</rowConstraints>
+	<padding>
+		<Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+	</padding>
+	<HBox>
+		<Button fx:id="b_start" mnemonicParsing="false" onMouseClicked="#onStartButtonClicked" text="Start">
+			<HBox.margin>
+				<Insets left="10.0" right="10.0"/>
+			</HBox.margin>
+		</Button>
+		<Button fx:id="b_invoke" mnemonicParsing="false" onMouseClicked="#onInvokeButtonClicked" text="Invoke">
+			<HBox.margin>
+				<Insets left="10.0" right="10.0"/>
+			</HBox.margin>
+		</Button>
+		<Button fx:id="b_export" mnemonicParsing="false" onMouseClicked="#onExportButtonCLicked" text="Export">
+			<HBox.margin>
+				<Insets left="10.0" right="10.0"/>
+			</HBox.margin>
+		</Button>
+	</HBox>
+	<Pane fx:id="canvasPane" prefHeight="600.0" prefWidth="900.0" GridPane.columnSpan="2" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1"
+	      GridPane.vgrow="ALWAYS">
+		<Canvas fx:id="canvas" height="600" width="800"/>
+	</Pane>
+	<Label fx:id="mainLabel" text="here shows time" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS"/>
+</GridPane>
