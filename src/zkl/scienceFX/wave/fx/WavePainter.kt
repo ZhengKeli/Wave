@@ -7,7 +7,8 @@ import javafx.scene.paint.Paint
 import zkl.scienceFX.wave.physics.abstracts.WaveLink
 import zkl.scienceFX.wave.physics.abstracts.WaveUnit
 import zkl.scienceFX.wave.physics.abstracts.WaveWorld
-import zkl.tools.math.InstantPoint2D
+import zkl.tools.math.geometry.pointOf
+import zkl.tools.math.geometry.zeroPoint2D
 
 //abstracts
 
@@ -15,17 +16,19 @@ abstract class WavePainter {
 	
 	lateinit var conf: Conf
 		private set
-	fun initialize(conf:Conf){
+	
+	fun initialize(conf: Conf) {
 		this.conf = conf
 		onInitialized()
 	}
-	open fun onInitialized(){}
+	
+	open fun onInitialized() {}
 	
 	fun release() = onRelease()
-	open fun onRelease(){}
+	open fun onRelease() {}
 	
 	
-	val visualConf:Conf.VisualConf get() = conf.visualConf
+	val visualConf: Conf.VisualConf get() = conf.visualConf
 	val drawPort by lazy { visualConf.drawAera ?: Rectangle2D(0.0, 0.0, visualConf.canvasWidth, visualConf.canvasHeight) }
 	val world: WaveWorld get() = conf.physicsConf.world
 	
@@ -34,6 +37,7 @@ abstract class WavePainter {
 		paintBackground(graphicsContext)
 		refresh(graphicsContext)
 	}
+	
 	open fun onPaint(graphicsContext: GraphicsContext) {}
 	
 	open val backgroundFill: Paint get() = Color.BLACK
@@ -49,14 +53,14 @@ abstract class WavePainter {
 	abstract fun onRefresh(graphicsContext: GraphicsContext)
 }
 
-abstract class WavePainter2D : WavePainter(){
+abstract class WavePainter2D : WavePainter() {
 	
-	val conf2D:Conf2D get() = conf as Conf2D
-	val visualConf2D:Conf2D.VisualConf2D get() = visualConf as Conf2D.VisualConf2D
+	val conf2D: Conf2D get() = conf as Conf2D
+	val visualConf2D: Conf2D.VisualConf2D get() = visualConf as Conf2D.VisualConf2D
 	val physicsConf2D get() = conf.physicsConf as Conf2D.PhysicsConf2D
 	
 	
-	var samplingSize:Double = 1.0
+	var samplingSize: Double = 1.0
 	var columnCount: Int = -1
 	var rowCount: Int = -1
 	override fun onInitialized() {
@@ -94,10 +98,9 @@ abstract class WavePainter2D : WavePainter(){
 		}
 	}
 	
-	abstract fun getUnitColor(unit: WaveUnit):Color
+	abstract fun getUnitColor(unit: WaveUnit): Color
 	
 }
-
 
 
 //classes
@@ -105,29 +108,29 @@ abstract class WavePainter2D : WavePainter(){
 /**
  * 一维线条的波动渲染
  */
-class LinePainter(val offsetScale:Double=1.0) : WavePainter(){
+class LinePainter(val offsetScale: Double = 1.0) : WavePainter() {
 	override val backgroundFill: Paint get() = Color.BLACK
 	
-	var startPosition = InstantPoint2D()
-	var interval:Double=0.0
-	var radius:Double=0.0
-	var lineWidth:Double = 0.0
+	var startPosition = zeroPoint2D()
+	var interval: Double = 0.0
+	var radius: Double = 0.0
+	var lineWidth: Double = 0.0
 	
 	override fun onPaint(graphicsContext: GraphicsContext) {
 		//先计算必要数据
 		val padding = drawPort.width * 0.05
-		startPosition.set(drawPort.minX + padding, drawPort.minY + drawPort.height / 2.0)
+		startPosition = pointOf(drawPort.minX + padding, drawPort.minY + drawPort.height / 2.0)
 		interval = (drawPort.width - padding * 2.0) / world.units.size
 		radius = interval / 3.0
-		lineWidth = radius/1.5
-		if(lineWidth<3.0){
-			lineWidth=5.0
-			radius=0.0
+		lineWidth = radius / 1.5
+		if (lineWidth < 3.0) {
+			lineWidth = 5.0
+			radius = 0.0
 		}
 	}
 	
 	override fun onRefresh(graphicsContext: GraphicsContext) {
-		for (i in 0..world.links.size -1) {
+		for (i in 0..world.links.size - 1) {
 			graphicsContext.paintLink(world.links[i])
 		}
 		for (i in 0..world.units.size - 1) {
@@ -135,8 +138,8 @@ class LinePainter(val offsetScale:Double=1.0) : WavePainter(){
 		}
 	}
 	
-	val WaveUnit.x:Double get()= startPosition.x + interval * id
-	val WaveUnit.y:Double get()= startPosition.y - offset*offsetScale
+	val WaveUnit.x: Double get() = startPosition.x + interval * id
+	val WaveUnit.y: Double get() = startPosition.y - offset * offsetScale
 	fun GraphicsContext.paintUnit(unit: WaveUnit) {
 		if (radius <= 0.0) return
 		fill = unit.color
@@ -160,7 +163,7 @@ class LinePainter(val offsetScale:Double=1.0) : WavePainter(){
 /**
  * 位移渲染
  */
-class ColorOffsetPainter(val offsetScale:Double=0.5) : WavePainter2D(){
+class ColorOffsetPainter(val offsetScale: Double = 0.5) : WavePainter2D() {
 	override val backgroundFill: Color get() = Color.GRAY
 	override fun getUnitColor(unit: WaveUnit): Color {
 		unit.color?.let { return it }
@@ -176,7 +179,7 @@ class ColorOffsetPainter(val offsetScale:Double=0.5) : WavePainter2D(){
 /**
  * 水波渲染
  */
-class WaterSurfacePainter(val scale:Double=3.0) : WavePainter2D(){
+class WaterSurfacePainter(val scale: Double = 3.0) : WavePainter2D() {
 	override val backgroundFill: Color get() = Color.GRAY
 	override fun getUnitColor(unit: WaveUnit): Color {
 		unit.color?.let { return it }
@@ -186,7 +189,7 @@ class WaterSurfacePainter(val scale:Double=3.0) : WavePainter2D(){
 			val dzx = unit.offset - world.units[(row + 1) * columnCount + column].offset
 			val dzy = unit.offset - world.units[row * columnCount + column + 1].offset
 			
-			val s = (dzx * 0.6 + dzy * 0.8)*scale
+			val s = (dzx * 0.6 + dzy * 0.8) * scale
 			if (s < 0) {
 				val rate = Math.atan(-s) / (Math.PI / 2)
 				return colorMix(backgroundFill, Color.BLACK, 1.0 - rate, rate)
@@ -203,7 +206,7 @@ class WaterSurfacePainter(val scale:Double=3.0) : WavePainter2D(){
 /**
  * 波能量渲染
  */
-open class WaveEnergyPainter(val scale:Float=10.0f) : WavePainter2D(){
+open class WaveEnergyPainter(val scale: Float = 10.0f) : WavePainter2D() {
 	override val backgroundFill: Color get() = Color.BLACK
 	val energyFill: Color = Color.WHITE
 	override fun getUnitColor(unit: WaveUnit): Color {
@@ -219,29 +222,29 @@ open class WaveEnergyPainter(val scale:Float=10.0f) : WavePainter2D(){
 /**
  * 平滑的波能量渲染
  */
-class SmoothedEnergyPainter(scale: Float=50f) : WaveEnergyPainter(scale){
+class SmoothedEnergyPainter(scale: Float = 50f) : WaveEnergyPainter(scale) {
 	
-	lateinit var colorMap:Array<Color>
+	lateinit var colorMap: Array<Color>
 	override fun onInitialized() {
 		super.onInitialized()
-		colorMap=Array(rowCount * columnCount) { unitId -> getUnitColor(world.units[unitId]) }
+		colorMap = Array(rowCount * columnCount) { unitId -> getUnitColor(world.units[unitId]) }
 	}
 	
 	override fun onRefresh(graphicsContext: GraphicsContext) {
-		for(x in startX until startX+paintWidth){
+		for (x in startX until startX + paintWidth) {
 			for (y in startY until startY + paintHeight) {
-				val column = Math.round((x-startX)*samplingSize).toInt()
-				val row = Math.round((y-startY)*samplingSize).toInt()
+				val column = Math.round((x - startX) * samplingSize).toInt()
+				val row = Math.round((y - startY) * samplingSize).toInt()
 				
-				if(row !in 0 until rowCount) continue
-				if(column !in 0 until columnCount) continue
+				if (row !in 0 until rowCount) continue
+				if (column !in 0 until columnCount) continue
 				
-				val unitId=(conf.physicsConf as Conf2D.PhysicsConf2D).getUnitId(row,column)
+				val unitId = (conf.physicsConf as Conf2D.PhysicsConf2D).getUnitId(row, column)
 				val thisColor = getUnitColor(world.units[unitId])
 				val oldColor = colorMap[unitId]
 				val newColor = colorMix(thisColor, oldColor, 0.01, 0.99)
 				colorMap[unitId] = newColor
-				graphicsContext.pixelWriter.setColor(x, y,newColor)
+				graphicsContext.pixelWriter.setColor(x, y, newColor)
 			}
 		}
 	}
@@ -249,10 +252,9 @@ class SmoothedEnergyPainter(scale: Float=50f) : WaveEnergyPainter(scale){
 }
 
 
-
 //tools
-internal fun colorMix(color1: Color, color2: Color, weight1:Double=1.0, weight2:Double=1.0): Color {
-	val weightSum=weight1+weight2
+internal fun colorMix(color1: Color, color2: Color, weight1: Double = 1.0, weight2: Double = 1.0): Color {
+	val weightSum = weight1 + weight2
 	return Color(
 		(color1.red * weight1 + color2.red * weight2) / weightSum,
 		(color1.green * weight1 + color2.green * weight2) / weightSum,
