@@ -18,6 +18,8 @@ import javafx.scene.transform.Transform
 import javafx.stage.Stage
 import javafx.stage.Window
 import javafx.stage.WindowEvent
+import zkl.scienceFX.wave.DEFAULT_CONF
+import zkl.scienceFX.wave.conf.Conf
 import zkl.scienceFX.wave.physics.abstracts.WaveWorld
 import java.awt.image.BufferedImage
 import java.io.File
@@ -32,7 +34,8 @@ import kotlin.concurrent.withLock
 fun main(args: Array<String>) {
 	Application.launch(WaveApplication::class.java, *args)
 }
-class WaveApplication :Application(){
+
+class WaveApplication : Application() {
 	override fun start(stage: Stage) {
 		val root = FXMLLoader.load<Pane>(WaveController::class.java.getResource("wave.fxml"))
 		stage.title = "wave"
@@ -44,11 +47,12 @@ class WaveApplication :Application(){
 class WaveController {
 	
 	//configurations
-	val conf:Conf = DEFAULT_CONF
+	val conf: Conf = DEFAULT_CONF
 	
 	
 	//threads
 	enum class AppState { infant, initializing, timeOffsetting, looping, pausing, paused, stopping, stopped }
+	
 	var appState: AppState = AppState.infant
 	val stateLock = ReentrantLock(true)
 	
@@ -60,7 +64,7 @@ class WaveController {
 			}
 			showWords("initializing ...")
 			
-			world.deploy(conf.physicsConf.draftConf.draftWorld())
+			world.deploy(conf.physics.waveWorldDrafter())
 			
 			val future = FutureTask<Boolean>({
 				initializePainter()
@@ -75,7 +79,8 @@ class WaveController {
 			startTimeOffset()
 		}
 	}
-	fun startInitialization(){
+	
+	fun startInitialization() {
 		stateLock.withLock {
 			if (appState == AppState.stopping) return
 			appState = AppState.initializing
@@ -86,7 +91,7 @@ class WaveController {
 	val timeOffsetThread = object : Thread("thread_timeOffset") {
 		override fun run() {
 			if (offsetTargetTime > 0f || isAutoModeOn) {
-				conf.physicsConf.invokeConf?.invoke(world)
+				conf.physics.onInvoke.forEach { it.invoke(world) }
 			}
 			if (offsetTargetTime > 0f) {
 				showWords("computing timeOffset ...")
@@ -96,10 +101,10 @@ class WaveController {
 			}
 			stateLock.withLock {
 				startLoop()
-				if(!isAutoModeOn && offsetTargetTime>0f) pauseLoop()
+				if (!isAutoModeOn && offsetTargetTime > 0f) pauseLoop()
 			}
 			Platform.runLater {
-				b_start.isDisable=false
+				b_start.isDisable = false
 				b_invoke.isDisable = false
 			}
 		}
@@ -112,7 +117,8 @@ class WaveController {
 			}
 		}
 	}
-	fun startTimeOffset(){
+	
+	fun startTimeOffset() {
 		stateLock.withLock {
 			if (appState == AppState.stopping) return
 			appState = AppState.timeOffsetting
@@ -121,7 +127,7 @@ class WaveController {
 		}
 	}
 	
-	private fun newLoopThread(id:Int) = object :Thread("thread_loop$id"){
+	private fun newLoopThread(id: Int) = object : Thread("thread_loop$id") {
 		override fun run() {
 			while (true) {
 				
@@ -131,7 +137,7 @@ class WaveController {
 				doCompute()
 				
 				//draw
-				if (appState != AppState.looping){
+				if (appState != AppState.looping) {
 					worldChan.put(true)
 					break
 				}
@@ -141,13 +147,13 @@ class WaveController {
 				worldChan.put(true)
 				
 				//check export
-				if (!checkAutoExport()){
+				if (!checkAutoExport()) {
 					canvasChan.put(true)
 					continue
 				}
 				
 				//snapshot
-				if (appState != AppState.looping){
+				if (appState != AppState.looping) {
 					canvasChan.put(true)
 					break
 				}
@@ -156,7 +162,7 @@ class WaveController {
 				canvasChan.put(true)
 				
 				//io
-				if (appState != AppState.looping){
+				if (appState != AppState.looping) {
 					imageChan.put(true)
 					break
 				}
@@ -166,16 +172,18 @@ class WaveController {
 			}
 		}
 		
-		fun doCompute(){
-			processPhysics(conf.physicsConf.timeUnit * conf.physicsConf.processCount)
+		fun doCompute() {
+			processPhysics(conf.physics.timeUnit * conf.physics.processCount)
 		}
-		fun sleepUntilNextDraw():Long {
+		
+		fun sleepUntilNextDraw(): Long {
 			val sleepTime = lastDrawTime + conf.visualConf.framePeriod - System.currentTimeMillis()
 			if (sleepTime > 0) Thread.sleep(sleepTime, 0)
 			lastDrawTime = System.currentTimeMillis()
 			return sleepTime
 		}
-		fun doDrawCanvas(sleepTime:Long){
+		
+		fun doDrawCanvas(sleepTime: Long) {
 			val message = when {
 				appState == AppState.paused -> "paused"
 				exporting -> "exporting"
@@ -193,6 +201,7 @@ class WaveController {
 			Platform.runLater { drawTask.run() }
 			drawTask.get()
 		}
+		
 		fun doSnapshot(): BufferedImage {
 			val snapshotTask = FutureTask {
 				takeSnapshot()
@@ -200,7 +209,8 @@ class WaveController {
 			Platform.runLater { snapshotTask.run() }
 			return snapshotTask.get() //保证snapshot已经完成
 		}
-		fun doImageIO(bufferedImage: BufferedImage){
+		
+		fun doImageIO(bufferedImage: BufferedImage) {
 			try {
 				exportImage(bufferedImage)
 			} catch (e: Exception) {
@@ -209,10 +219,11 @@ class WaveController {
 			}
 		}
 	}
+	
 	val loopThreads = ArrayList<Thread>()
 	fun startLoop() {
 		stateLock.withLock {
-			if(appState== AppState.stopping) return
+			if (appState == AppState.stopping) return
 			appState = AppState.looping
 			
 			worldChan.put(true)
@@ -220,7 +231,7 @@ class WaveController {
 			imageChan.put(true)
 			lastDrawTime = System.currentTimeMillis()
 			
-			repeat(3){ id->
+			repeat(3) { id ->
 				newLoopThread(id)
 					.also { loopThreads.add(it) }
 					.start()
@@ -229,6 +240,7 @@ class WaveController {
 		}
 		Platform.runLater { b_start.text = "pause" }
 	}
+	
 	fun pauseLoop() {
 		stateLock.withLock {
 			if (appState == AppState.stopping) return
@@ -242,15 +254,16 @@ class WaveController {
 		}
 		Platform.runLater { b_start.text = "resume" }
 	}
-	fun stopLoop(){
+	
+	fun stopLoop() {
 		stateLock.withLock {
-			loopThreads.forEach{ it.join() }
+			loopThreads.forEach { it.join() }
 			loopThreads.clear()
 		}
-		Platform.runLater { b_start.isDisable=true }
+		Platform.runLater { b_start.isDisable = true }
 	}
 	
-	var lastDrawTime:Long = 0L
+	var lastDrawTime: Long = 0L
 	val worldChan = ArrayBlockingQueue<Boolean>(1)
 	val canvasChan = ArrayBlockingQueue<Boolean>(1)
 	val imageChan = ArrayBlockingQueue<Boolean>(1)
@@ -259,10 +272,10 @@ class WaveController {
 	var exporting = false
 		set(value) {
 			exportingLock.withLock {
-				field=value
+				field = value
 				if (value) {
 					Platform.runLater { b_export.text = "StopExport" }
-				}else{
+				} else {
 					Platform.runLater { b_export.text = "Export" }
 				}
 			}
@@ -284,7 +297,7 @@ class WaveController {
 		}
 	}
 	
-	fun stopAll(){
+	fun stopAll() {
 		if (exporting) {
 			exporting = false
 			isAutoModeOn = false
@@ -292,21 +305,22 @@ class WaveController {
 		}
 		val oldState = appState
 		stateLock.withLock { appState = AppState.stopping }
-		when(oldState){
+		when (oldState) {
 			AppState.initializing -> initializeThread.join()
-			AppState.timeOffsetting-> timeOffsetThread.join()
+			AppState.timeOffsetting -> timeOffsetThread.join()
 			AppState.looping -> stopLoop()
-			else ->{}
+			else -> {
+			}
 		}
 		stateLock.withLock { appState = AppState.stopped }
 	}
 	
 	
-	
-	
 	//control
 	lateinit var stage: Window
-	@FXML fun initialize(){
+	
+	@FXML
+	fun initialize() {
 		root.sceneProperty().addListener { _, _, newScene ->
 			newScene?.windowProperty()?.addListener { _, _, newWindow ->
 				newWindow?.setOnCloseRequest { onRequestedClose(it) }
@@ -318,26 +332,37 @@ class WaveController {
 		}
 	}
 	
-	@FXML private lateinit var root: Pane
-	@FXML lateinit var b_start: Button
-	@FXML lateinit var b_invoke: Button
-	@FXML lateinit var b_export:Button
-	@FXML fun onStartButtonClicked() {
+	@FXML
+	private lateinit var root: Pane
+	@FXML
+	lateinit var b_start: Button
+	@FXML
+	lateinit var b_invoke: Button
+	@FXML
+	lateinit var b_export: Button
+	
+	@FXML
+	fun onStartButtonClicked() {
 		thread {
 			stateLock.withLock {
 				when (appState) {
 					AppState.infant -> startInitialization()
 					AppState.looping -> pauseLoop()
 					AppState.paused -> startLoop()
-					else -> { }
+					else -> {
+					}
 				}
 			}
 		}
 	}
-	@FXML fun onInvokeButtonClicked() {
-		conf.physicsConf.invokeConf?.invoke(world)
+	
+	@FXML
+	fun onInvokeButtonClicked() {
+		conf.physics.onInvoke.forEach { it.invoke(world) }
 	}
-	@FXML fun onExportButtonCLicked(){
+	
+	@FXML
+	fun onExportButtonCLicked() {
 		isAutoModeOn = false
 		if (exporting) {
 			exporting = false
@@ -346,6 +371,7 @@ class WaveController {
 			exporting = true
 		}
 	}
+	
 	fun onRequestedClose(windowEvent: WindowEvent) {
 		windowEvent.consume()
 		stateLock.withLock {
@@ -362,15 +388,17 @@ class WaveController {
 	
 	
 	//label & canvas
-	private val painter:WavePainter = conf.visualConf.painter
-	@FXML lateinit var canvas: Canvas
-	@FXML lateinit var canvasPane:Pane
-	private var paneScale:Scale?=null
+	private val painter: WavePainter = conf.visualConf.painter
+	@FXML
+	lateinit var canvas: Canvas
+	@FXML
+	lateinit var canvasPane: Pane
+	private var paneScale: Scale? = null
 	private fun initializePainter() {
 		showWords("initializing painter ...")
-		canvas.width=conf.visualConf.canvasWidth
-		canvas.height=conf.visualConf.canvasHeight
-		painter.initialize(conf)
+		canvas.width = conf.visualConf.canvasWidth
+		canvas.height = conf.visualConf.canvasHeight
+		painter.initialize(conf, world)
 		
 		val scale = Math.min(canvasPane.width / canvas.width, canvasPane.height / canvas.height)
 		Platform.runLater {
@@ -392,6 +420,7 @@ class WaveController {
 			stage.sizeToScene()
 		}
 	}
+	
 	fun paintWaveWorld() {
 		canvas.graphicsContext2D.run {
 			painter.paint(this@run)
@@ -403,20 +432,24 @@ class WaveController {
 		}
 	}
 	
-	@FXML lateinit var mainLabel:Label
-	fun showWords(words:String){
+	@FXML
+	lateinit var mainLabel: Label
+	
+	fun showWords(words: String) {
 		println(words)
 		Platform.runLater { mainLabel.text = words }
 	}
-	val offsetTargetTime = Math.max(conf.physicsConf.timeOffset,conf.exportConf?.exportTimeRange?.start?: 0f)
-	fun showOffsetTime(targetTime:Float){
+	
+	val offsetTargetTime = Math.max(conf.physics.timeOffset, conf.exportConf?.exportTimeRange?.start ?: 0f)
+	fun showOffsetTime(targetTime: Float) {
 		val showingTime = String.format("%.2f", world.time)
-		val words="time: $showingTime/$targetTime  [computing...]"
+		val words = "time: $showingTime/$targetTime  [computing...]"
 		showWords(words)
 	}
-	fun showProcessedTime(message:String?=null){
-		var words="time: " + String.format("%.2f", world.time)
-		if(message!=null) words += "  ($message)"
+	
+	fun showProcessedTime(message: String? = null) {
+		var words = "time: " + String.format("%.2f", world.time)
+		if (message != null) words += "  ($message)"
 		showWords(words)
 	}
 	
@@ -424,14 +457,15 @@ class WaveController {
 	//image export
 	var imageId: Int = 0
 	var snapshotImage: WritableImage? = null
-	val snapshotParameters = SnapshotParameters().apply { viewport=conf.exportConf?.exportViewPort }
+	val snapshotParameters = SnapshotParameters().apply { viewport = conf.exportConf?.exportViewPort }
 	fun takeSnapshot(): BufferedImage {
 		val snapshotImage = canvas.snapshot(snapshotParameters, snapshotImage)
 		val bufferedImage = SwingFXUtils.fromFXImage(snapshotImage!!, null)!!
 		System.gc()
 		return bufferedImage
 	}
-	fun exportImage(bufferedImage:BufferedImage){
+	
+	fun exportImage(bufferedImage: BufferedImage) {
 		conf.exportConf!!.run {
 			if (imageId == 0) {
 				exportDir.deleteRecursively()
@@ -444,19 +478,22 @@ class WaveController {
 			println("exported ${imageFile.name}")
 		}
 	}
-	fun openExportDir(){
+	
+	fun openExportDir() {
 		try {
 			conf.exportConf?.exportDir?.path?.let {
 				Runtime.getRuntime().exec("explorer \"$it\"")
 			}
-		} catch (e: Exception) { }
+		} catch (e: Exception) {
+		}
 	}
 	
 	
 	//physics
-	val world: WaveWorld = conf.physicsConf.world
+	val world: WaveWorld = conf.physics.waveWorldCreator()
+	
 	fun processPhysics(span: Float) {
-		world.process(conf.physicsConf.timeUnit, (span / conf.physicsConf.timeUnit).toInt())
+		world.process(conf.physics.timeUnit, (span / conf.physics.timeUnit).toInt())
 	}
 	
 }

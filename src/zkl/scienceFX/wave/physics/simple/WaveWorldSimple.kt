@@ -4,20 +4,21 @@ import zkl.scienceFX.wave.physics.abstracts.*
 import java.util.*
 
 class WaveWorldSimple:WaveWorld{
+	
 	override var isDeployed: Boolean = false
 		private set
 	
 	@Synchronized override fun deploy(draft: WaveWorldDraft) {
 		println("constructing world ...")
-		units = draft.units.mapIndexed { index, unitDraft ->
-			InstantWaveUnit(index,unitDraft.offset,unitDraft.velocity,unitDraft.mass,unitDraft.damping,unitDraft.extra)
+		units = draft.units.map { unitDraft ->
+			InstantWaveUnit(unitDraft.id, unitDraft.offset, unitDraft.velocity, unitDraft.mass, unitDraft.damping, unitDraft.extra)
 		}
-		links = draft.links.mapIndexed { index, linkDraft ->
-			InstantWaveLink(index, linkDraft.unitId1, linkDraft.unitId2, linkDraft.strength, linkDraft.extra)
+		links = draft.links.map { linkDraft ->
+			InstantWaveLink(linkDraft.unitId1, linkDraft.unitId2, linkDraft.strength, linkDraft.extra)
 		}
-		extra= draft.extra
+		extra = draft.extra
 		time = 0.0f
-		isDeployed =true
+		isDeployed = true
 	}
 	@Synchronized override fun release() {
 		isDeployed =false

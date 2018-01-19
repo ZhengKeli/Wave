@@ -1,24 +1,22 @@
 package zkl.scienceFX.wave.physics.abstracts
 
 
-interface WaveWorld{
+interface WaveWorld {
 	
-	val isDeployed:Boolean
+	val isDeployed: Boolean
 	fun deploy(draft: WaveWorldDraft)
 	fun release()
 	
-	val time:Float
+	val time: Float
 	fun process(timeUnit: Float, count: Int = 1)
 	
-	val units:List<WaveUnit>
-	val links:List<WaveLink>
+	val units: List<WaveUnit>
+	val links: List<WaveLink>
 	fun addInvoker(invoker: WaveInvoker)
 	
-	var extra:Any?
-	
+	var extra: Any?
 	
 }
-
 
 interface WaveUnit {
 	val id: Int
@@ -28,7 +26,8 @@ interface WaveUnit {
 	var damping: Float
 	var extra: Any?
 }
-open class InstantWaveUnit(
+
+data class InstantWaveUnit(
 	override val id: Int,
 	override var offset: Float,
 	override var velocity: Float,
@@ -36,17 +35,14 @@ open class InstantWaveUnit(
 	override var damping: Float,
 	override var extra: Any?) : WaveUnit
 
-
-
 interface WaveLink {
-	val id:Int
-	val unitId1:Int
-	val unitId2:Int
-	var strength:Float
-	var extra:Any?
+	val unitId1: Int
+	val unitId2: Int
+	var strength: Float
+	var extra: Any?
 }
-open class InstantWaveLink(
-	override val id: Int,
+
+data class InstantWaveLink(
 	override val unitId1: Int,
 	override val unitId2: Int,
 	override var strength: Float,

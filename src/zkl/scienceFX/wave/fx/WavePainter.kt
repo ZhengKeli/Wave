@@ -4,6 +4,10 @@ import javafx.geometry.Rectangle2D
 import javafx.scene.canvas.GraphicsContext
 import javafx.scene.paint.Color
 import javafx.scene.paint.Paint
+import zkl.scienceFX.wave.conf.Conf
+import zkl.scienceFX.wave.conf.RectDrafter
+import zkl.scienceFX.wave.conf.VisualConf
+import zkl.scienceFX.wave.conf.VisualConf2D
 import zkl.scienceFX.wave.physics.abstracts.WaveLink
 import zkl.scienceFX.wave.physics.abstracts.WaveUnit
 import zkl.scienceFX.wave.physics.abstracts.WaveWorld
@@ -16,21 +20,25 @@ abstract class WavePainter {
 	
 	lateinit var conf: Conf
 		private set
+	lateinit var world: WaveWorld
+		private set
 	
-	fun initialize(conf: Conf) {
+	fun initialize(conf: Conf, world: WaveWorld) {
 		this.conf = conf
+		this.world = world
 		onInitialized()
 	}
 	
 	open fun onInitialized() {}
 	
 	fun release() = onRelease()
+	
 	open fun onRelease() {}
 	
-	
-	val visualConf: Conf.VisualConf get() = conf.visualConf
-	val drawPort by lazy { visualConf.drawAera ?: Rectangle2D(0.0, 0.0, visualConf.canvasWidth, visualConf.canvasHeight) }
-	val world: WaveWorld get() = conf.physicsConf.world
+	val visualConf: VisualConf get() = conf.visualConf
+	val drawPort by lazy {
+		visualConf.drawArea ?: Rectangle2D(0.0, 0.0, visualConf.canvasWidth, visualConf.canvasHeight)
+	}
 	
 	fun paint(graphicsContext: GraphicsContext) {
 		onPaint(graphicsContext)
@@ -55,21 +63,12 @@ abstract class WavePainter {
 
 abstract class WavePainter2D : WavePainter() {
 	
-	val conf2D: Conf2D get() = conf as Conf2D
-	val visualConf2D: Conf2D.VisualConf2D get() = visualConf as Conf2D.VisualConf2D
-	val physicsConf2D get() = conf.physicsConf as Conf2D.PhysicsConf2D
+	val visualConf2D: VisualConf2D get() = visualConf as VisualConf2D
+	val drafter2D: RectDrafter get() = conf.physics.waveWorldDrafter as RectDrafter
 	
-	
-	var samplingSize: Double = 1.0
-	var columnCount: Int = -1
-	var rowCount: Int = -1
-	override fun onInitialized() {
-		conf2D.let {
-			columnCount = physicsConf2D.columnCount
-			rowCount = physicsConf2D.rowCount
-			samplingSize = visualConf2D.samplingSize
-		}
-	}
+	var samplingSize: Double = visualConf2D.samplingSize
+	var columnCount: Int = drafter2D.columnCount
+	var rowCount: Int = drafter2D.rowCount
 	
 	var startX = 0
 	var startY = 0
@@ -91,7 +90,7 @@ abstract class WavePainter2D : WavePainter() {
 				if (row !in 0 until rowCount) continue
 				if (column !in 0 until columnCount) continue
 				
-				val unitId = physicsConf2D.getUnitId(row, column)
+				val unitId = drafter2D.getUnitId(row, column)
 				val color = getUnitColor(world.units[unitId])
 				graphicsContext.pixelWriter.setColor(x, y, color)
 			}
@@ -239,7 +238,7 @@ class SmoothedEnergyPainter(scale: Float = 50f) : WaveEnergyPainter(scale) {
 				if (row !in 0 until rowCount) continue
 				if (column !in 0 until columnCount) continue
 				
-				val unitId = (conf.physicsConf as Conf2D.PhysicsConf2D).getUnitId(row, column)
+				val unitId = drafter2D.getUnitId(row, column)
 				val thisColor = getUnitColor(world.units[unitId])
 				val oldColor = colorMap[unitId]
 				val newColor = colorMix(thisColor, oldColor, 0.01, 0.99)
