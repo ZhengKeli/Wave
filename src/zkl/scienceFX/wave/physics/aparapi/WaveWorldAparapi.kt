@@ -58,11 +58,10 @@ class WaveWorldAparapi:WaveWorld {
 		override val size: Int get() = kernel!!.linksCount
 		override fun get(index: Int): WaveLink = kernel!!.run {
 			object: WaveLink {
-				override val id: Int = index
 				override val unitId1: Int
-					get() = kernel.run { impactsFromUnitId[linksImpactId2[id]] }
+					get() = kernel.run { impactsFromUnitId[linksImpactId2[index]] }
 				override val unitId2: Int
-					get() = kernel.run { impactsFromUnitId[linksImpactId1[id]] }
+					get() = kernel.run { impactsFromUnitId[linksImpactId1[index]] }
 				override var strength: Float
 					get() = impactsStrength[linksImpactId1[index]]
 					set(value) {
@@ -70,8 +69,8 @@ class WaveWorldAparapi:WaveWorld {
 						impactsStrength[linksImpactId2[index]] = value
 					}
 				override var extra: Any?
-					get() = linksExtra[id]
-					set(value) { linksExtra[id] = value }
+					get() = linksExtra[index]
+					set(value) { linksExtra[index] = value }
 			}
 		}
 	}
