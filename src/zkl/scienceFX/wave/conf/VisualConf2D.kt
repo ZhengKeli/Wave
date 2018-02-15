@@ -5,9 +5,11 @@ class VisualConf2D : VisualConf() {
 }
 
 fun Conf.visualConf2D(body: VisualConf2D.() -> Unit) {
-	this.visualConf = VisualConf2D().also {
-		body.invoke(it)
-	}.apply {
+	this.visualConf = VisualConf2D()
+		.also {
+			body.invoke(it)
+		}
+		.apply {
 			val drafter = physics.waveWorldDrafter as RectDrafter
 			canvasHeight = drafter.rowCount.toDouble() / samplingSize
 			canvasWidth = drafter.columnCount.toDouble() / samplingSize

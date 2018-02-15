@@ -66,9 +66,9 @@ abstract class WavePainter2D : WavePainter() {
 	val visualConf2D: VisualConf2D get() = visualConf as VisualConf2D
 	val drafter2D: RectDrafter get() = conf.physics.waveWorldDrafter as RectDrafter
 	
-	var samplingSize: Double = visualConf2D.samplingSize
-	var columnCount: Int = drafter2D.columnCount
-	var rowCount: Int = drafter2D.rowCount
+	val samplingSize: Double get() = visualConf2D.samplingSize
+	val columnCount: Int get() = drafter2D.columnCount
+	val rowCount: Int get() = drafter2D.rowCount
 	
 	var startX = 0
 	var startY = 0
