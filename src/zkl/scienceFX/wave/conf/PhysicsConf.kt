@@ -13,15 +13,15 @@ open class PhysicsConf {
 	var timeOffset: Float = 0.0f
 	var processCount: Int = 5
 	
-	lateinit var waveWorldCreator: () -> WaveWorld
+	lateinit var waveWorldCreator: WaveWorldCreator
 	
-	lateinit var waveWorldDrafter: () -> WaveWorldDraft
+	lateinit var waveWorldDrafter: WaveWorldDrafter
 	
 	val onInvoke = ArrayList<WaveWorld.() -> Unit>()
 	
 }
 
-typealias WaveWorldCreator = () -> WaveWorld
+typealias WaveWorldCreator = (WaveWorldDraft) -> WaveWorld
 
 typealias WaveWorldDrafter = () -> WaveWorldDraft
 

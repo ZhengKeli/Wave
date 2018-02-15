@@ -64,7 +64,7 @@ class WaveController {
 			}
 			showWords("initializing ...")
 			
-			world.deploy(conf.physics.waveWorldDrafter())
+			initPhysics()
 			
 			val future = FutureTask<Boolean>({
 				initializePainter()
@@ -192,10 +192,8 @@ class WaveController {
 			}
 			val drawTask = FutureTask {
 				synchronized(world) {
-					if (world.isDeployed) {
-						paintWaveWorld()
-						showProcessedTime(message)
-					}
+					paintWaveWorld()
+					showProcessedTime(message)
 				}
 			}
 			Platform.runLater { drawTask.run() }
@@ -379,7 +377,6 @@ class WaveController {
 				thread {
 					stopAll()
 					conf.visualConf.painter.release()
-					world.release()
 					Platform.exit()
 				}
 			}
@@ -490,7 +487,13 @@ class WaveController {
 	
 	
 	//physics
-	val world: WaveWorld = conf.physics.waveWorldCreator()
+	lateinit var world: WaveWorld
+	
+	fun initPhysics() {
+		world = conf.physics.run {
+			waveWorldCreator(waveWorldDrafter())
+		}
+	}
 	
 	fun processPhysics(span: Float) {
 		world.process(conf.physics.timeUnit, (span / conf.physics.timeUnit).toInt())
