@@ -8,7 +8,7 @@ import java.io.File
 import java.util.*
 import kotlin.math.PI
 
-val DEFAULT_CONF_FOR_VIDEO = ConfsForVideo.firstOutput()
+val DEFAULT_CONF_FOR_VIDEO = ConfsForVideo.zonePlate()
 
 /**
  * 用于拍摄视频的Conf

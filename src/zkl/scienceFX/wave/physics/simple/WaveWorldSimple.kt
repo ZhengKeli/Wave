@@ -39,37 +39,20 @@ class WaveWorldSimple:WaveWorld{
 	private val WaveLink.unit1: WaveUnit get()=units[unitId1]
 	private val WaveLink.unit2: WaveUnit get()=units[unitId2]
 	@Synchronized override fun process(timeUnit: Float, count: Int) {
-		for (c in 1..count) {
+		repeat(count) {
 			//invokers
 			synchronized(invokers) {
-				val invokerIterator= invokers.iterator()
-				while (invokerIterator.hasNext()) {
-					invokerIterator.next().also {invoker->
-						if (time >= invoker.startTime) {
-							if (time<=invoker.startTime + invoker.span) {
-								invokeUnit(invoker, units[invoker.invokedUnitId],timeUnit)
-							} else {
-								invokerIterator.remove()
-							}
-						}
-					}
+				invokers.removeIf { invoker->
+					if (time < invoker.startTime) return@removeIf false
+					if (time > invoker.startTime + invoker.span) return@removeIf true
+					invokeUnit(invoker, units[invoker.invokedUnitId], timeUnit)
+					false
 				}
 			}
 			
 			//process
-			for (link in links) {
-				link.apply {
-					val impact=(unit1.offset-unit2.offset)*strength* timeUnit
-					unit1.velocity-=impact/unit1.mass
-					unit2.velocity+=impact/unit2.mass
-				}
-			}
-			for (unit in units) {
-				unit.run {
-					offset += velocity * timeUnit
-					velocity -= velocity * damping * timeUnit
-				}
-			}
+			links.forEach { WavePhysics.processLink(it, it.unit1, it.unit2, timeUnit) }
+			units.forEach { WavePhysics.processUnit(it,timeUnit) }
 			
 			//time
 			this.time += timeUnit
