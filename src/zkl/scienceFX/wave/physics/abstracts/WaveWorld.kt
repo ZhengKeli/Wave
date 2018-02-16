@@ -1,11 +1,11 @@
 package zkl.scienceFX.wave.physics.abstracts
 
 
-interface WaveWorld : WaveWorldDraft {
+interface WaveWorld {
 	
-	override val units: List<WaveUnit>
-	override val links: List<WaveLink>
-	override var extra: Any?
+	val units: List<WaveUnit>
+	val links: List<WaveLink>
+	var extra: Any?
 	
 	val invokers:MutableList<WaveInvoker>
 	

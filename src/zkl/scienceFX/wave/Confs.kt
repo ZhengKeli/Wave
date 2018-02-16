@@ -252,7 +252,7 @@ object Confs {
 				val sourceUnitId1 = getUnitId(rowCount / 3, columnCount / 3)
 				val sourceUnitId2 = getUnitId(rowCount / 3, columnCount / 3 + 30)
 				
-				onCreateUnitDraft { row, column ->
+				onCreateUnitDraft { row, _ ->
 					if ((row > rowCount / 2) == direction) {
 						mass *= massScale
 					}
