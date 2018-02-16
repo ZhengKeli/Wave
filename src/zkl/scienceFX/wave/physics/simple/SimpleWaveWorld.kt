@@ -3,7 +3,7 @@ package zkl.scienceFX.wave.physics.simple
 import zkl.scienceFX.wave.physics.abstracts.*
 import java.util.*
 
-class WaveWorldSimple(draft: WaveWorldDraft) : WaveWorld {
+class SimpleWaveWorld(draft: WaveWorldDraft) : WaveWorld {
 	
 	override var units: List<WaveUnit> = draft.units.map { unitDraft ->
 		InstantWaveUnit(unitDraft.id, unitDraft.offset, unitDraft.velocity, unitDraft.mass, unitDraft.damping, unitDraft.extra)
@@ -13,13 +13,8 @@ class WaveWorldSimple(draft: WaveWorldDraft) : WaveWorld {
 	}
 	override var extra: Any? = draft.extra
 	
+	override val invokers:MutableList<WaveInvoker> = LinkedList()
 	
-	private val invokers = ArrayList<WaveInvoker>()
-	override fun addInvoker(invoker: WaveInvoker) {
-		synchronized(invokers) {
-			invokers.add(invoker)
-		}
-	}
 	
 	
 	override var time: Float = 0.0f
@@ -46,7 +41,6 @@ class WaveWorldSimple(draft: WaveWorldDraft) : WaveWorld {
 			this.time += timeUnit
 		}
 	}
-	
 	
 }
 

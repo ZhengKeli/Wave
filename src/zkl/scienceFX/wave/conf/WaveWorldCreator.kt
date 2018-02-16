@@ -1,12 +1,12 @@
 package zkl.scienceFX.wave.conf
 
-import zkl.scienceFX.wave.physics.aparapi.WaveWorldAparapi
-import zkl.scienceFX.wave.physics.simple.WaveWorldSimple
+import zkl.scienceFX.wave.physics.aparapi.AparapiWaveWorld
+import zkl.scienceFX.wave.physics.simple.SimpleWaveWorld
 
 fun PhysicsConf.simpleWaveWorld() {
-	waveWorldCreator = { WaveWorldSimple(it) }
+	waveWorldCreator = { SimpleWaveWorld(it) }
 }
 
 fun PhysicsConf.aparapiWaveWorld() {
-	waveWorldCreator = { WaveWorldAparapi(it) }
+	waveWorldCreator = { AparapiWaveWorld(it) }
 }

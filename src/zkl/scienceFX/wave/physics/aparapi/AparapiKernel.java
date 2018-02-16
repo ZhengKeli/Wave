@@ -5,14 +5,13 @@ import com.aparapi.Kernel;
 import java.util.ArrayList;
 import java.util.List;
 
-import zkl.scienceFX.wave.physics.abstracts.InvokeType;
 import zkl.scienceFX.wave.physics.abstracts.SinWaveInvoker;
 import zkl.scienceFX.wave.physics.abstracts.WaveInvoker;
 import zkl.scienceFX.wave.physics.abstracts.WaveLinkDraft;
 import zkl.scienceFX.wave.physics.abstracts.WaveUnitDraft;
 import zkl.scienceFX.wave.physics.abstracts.WaveWorldDraft;
 
-public class WaveWorldKernel extends Kernel {
+public class AparapiKernel extends Kernel {
 	/**
 	 * 为了避免不同计算单元的 unitOffset 互相影响（在 intel 的运算平台上会互相影响），
 	 * 将 unitOffset 分为两部分，交替地用于存储每次计算的源数据和计算结果，
@@ -52,17 +51,17 @@ public class WaveWorldKernel extends Kernel {
 	private static final float PI= (float) Math.PI;
 	private static final int INVOKER_TYPE_FORCE=0;
 	private static final int INVOKER_TYPE_POSITION=1;
-	private static int getInvokerTypeCode(InvokeType invokeType){
-		if(invokeType==InvokeType.force){
+	private static int getInvokerTypeCode(WaveInvoker.Type invokeType){
+		if(invokeType==WaveInvoker.Type.FORCE){
 			return INVOKER_TYPE_FORCE;
-		}else if(invokeType==InvokeType.position){
+		}else if(invokeType==WaveInvoker.Type.POSITION){
 			return INVOKER_TYPE_POSITION;
 		}else{
 			return -1;
 		}
 	}
 	
-	public WaveWorldKernel(WaveWorldDraft worldDraft) {
+	public AparapiKernel(WaveWorldDraft worldDraft) {
 		//排入unit信息
 		List<WaveUnitDraft> units = worldDraft.getUnits();
 		unitsCount = units.size();
@@ -161,7 +160,7 @@ public class WaveWorldKernel extends Kernel {
 					sinInvokersType[sinInvokerId] = getInvokerTypeCode(sinInvoker.getType());
 					sinInvokersInvokedUnitId[sinInvokerId] = sinInvoker.getInvokedUnitId();
 					sinInvokersStartTime[sinInvokerId] = sinInvoker.getStartTime();
-					sinInvokersEndTime[sinInvokerId] = sinInvoker.getStartTime() + sinInvoker.getSpan();
+					sinInvokersEndTime[sinInvokerId] = sinInvoker.getEndTime();
 					sinInvokersScale[sinInvokerId] = sinInvoker.getScale();
 					sinInvokersPeriod[sinInvokerId] = sinInvoker.getPeriod();
 					sinInvokersInitialPhase[sinInvokerId] = sinInvoker.getInitialPhase();
@@ -176,13 +175,13 @@ public class WaveWorldKernel extends Kernel {
 				int setPositionUnitId = -1;
 				float setPosition = 0.0f;
 				for (WaveInvoker invoker : invokers) {
-					if (time > invoker.getStartTime() + invoker.getSpan()) continue;
+					if (time > invoker.getEndTime()) continue;
 					int invokedUnitId = invoker.getInvokedUnitId();
 					float time = this.time - invoker.getStartTime();
 					
-					if (invoker.getType() == InvokeType.force) {
+					if (invoker.getType() == WaveInvoker.Type.FORCE) {
 						unitsVelocity[invokedUnitId] += invoker.getValue(time) * this.timeUnit / unitsMass[invokedUnitId];
-					} else if (invoker.getType() == InvokeType.position) {
+					} else if (invoker.getType() == WaveInvoker.Type.POSITION) {
 						setPositionUnitId = invokedUnitId;
 						setPosition = invoker.getValue(time);
 					}

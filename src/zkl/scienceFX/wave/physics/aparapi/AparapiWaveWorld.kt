@@ -3,7 +3,7 @@ package zkl.scienceFX.wave.physics.aparapi
 import zkl.scienceFX.wave.physics.abstracts.*
 import java.util.*
 
-class WaveWorldAparapi(draft: WaveWorldDraft):WaveWorld {
+class AparapiWaveWorld(draft: WaveWorldDraft):WaveWorld {
 	
 	override val units: List<WaveUnit> = object :AbstractList<WaveUnit>(){
 		override val size: Int get() = kernel.unitsCount
@@ -50,16 +50,11 @@ class WaveWorldAparapi(draft: WaveWorldDraft):WaveWorld {
 	}
 	override var extra: Any? =  draft.extra
 	
-	private val invokers = ArrayList<WaveInvoker>()
-	override fun addInvoker(invoker: WaveInvoker) {
-		synchronized(invokers) {
-			invokers.add(invoker)
-		}
-	}
+	override val invokers:MutableList<WaveInvoker> = LinkedList()
 	
-	val kernel: WaveWorldKernel = kotlin.run {
+	val kernel: AparapiKernel = kotlin.run {
 		println("launching OpenCL ...")
-		val kernel = WaveWorldKernel(draft)
+		val kernel = AparapiKernel(draft)
 		
 		println("warming up OpenCL ...")
 		kernel.process(1, 0f, emptyList())

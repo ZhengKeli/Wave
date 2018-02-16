@@ -7,7 +7,7 @@ interface WaveWorld : WaveWorldDraft {
 	override val links: List<WaveLink>
 	override var extra: Any?
 	
-	fun addInvoker(invoker: WaveInvoker)
+	val invokers:MutableList<WaveInvoker>
 	
 	
 	val time: Float
@@ -33,8 +33,8 @@ interface WaveWorld : WaveWorldDraft {
 		val targetUnit = units[invoker.invokedUnitId]
 		val invokerValue = invoker.getValue(time - invoker.startTime)
 		when (invoker.type) {
-			InvokeType.force -> targetUnit.velocity += invokerValue / targetUnit.mass * timeUnit
-			InvokeType.position -> targetUnit.offset = invokerValue
+			WaveInvoker.Type.FORCE -> targetUnit.velocity += invokerValue / targetUnit.mass * timeUnit
+			WaveInvoker.Type.POSITION -> targetUnit.offset = invokerValue
 		}
 	}
 	

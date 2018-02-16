@@ -1,8 +1,8 @@
 package zkl.scienceFX.wave.conf
 
-import zkl.scienceFX.wave.physics.abstracts.InvokeType
 import zkl.scienceFX.wave.physics.abstracts.SinWaveInvoker
 import zkl.scienceFX.wave.physics.abstracts.SquareWaveInvoker
+import zkl.scienceFX.wave.physics.abstracts.WaveInvoker
 import zkl.scienceFX.wave.physics.abstracts.WaveWorld
 import kotlin.math.PI
 
@@ -11,7 +11,7 @@ class SinInvokeConf : (WaveWorld) -> Unit {
 	
 	var targetUnitId: Int = 0
 	var delay: Float = 0.0f
-	var type: InvokeType = InvokeType.force
+	var type: WaveInvoker.Type = WaveInvoker.Type.FORCE
 	var scale: Float = 10.0f
 	var period: Float = 40.0f
 	var repeat: Float = 1.0f
@@ -26,7 +26,7 @@ class SinInvokeConf : (WaveWorld) -> Unit {
 			period = period,
 			repeat = repeat,
 			initialPhase = initialPhase
-		).let { world.addInvoker(it) }
+		).let { world.invokers.add(it) }
 	}
 	
 }
@@ -58,7 +58,7 @@ class SquareInvokeConf : (WaveWorld) -> Unit {
 			scale = scale,
 			period = period,
 			repeat = repeat
-		).let { world.addInvoker(it) }
+		).let { world.invokers.add(it) }
 	}
 	
 }
