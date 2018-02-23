@@ -5,9 +5,10 @@ import com.aparapi.Kernel;
 import java.util.ArrayList;
 import java.util.List;
 
+import zkl.scienceFX.wave.physics.abstracts.Invoking;
 import zkl.scienceFX.wave.physics.abstracts.LinkDraft;
 import zkl.scienceFX.wave.physics.abstracts.NodeDraft;
-import zkl.scienceFX.wave.physics.abstracts.SinSource;
+import zkl.scienceFX.wave.physics.abstracts.SinInvoking;
 import zkl.scienceFX.wave.physics.abstracts.Source;
 import zkl.scienceFX.wave.physics.abstracts.WorldDraft;
 
@@ -37,26 +38,27 @@ public class AparapiKernel extends Kernel {
 	int[] linksImpactId1;
 	int[] linksImpactId2;
 	
-	float time =0.0f;
+	float time = 0.0f;
 	float timeUnit;
 	
-	private int sinInvokersCount = 0;
-	private int[] sinInvokersType = new int[1];
-	private int[] sinInvokersInvokedUnitId = new int[1];
-	private float[] sinInvokersStartTime = new float[1];
-	private float[] sinInvokersEndTime = new float[1];
-	private float[] sinInvokersScale = new float[1];
-	private float[] sinInvokersPeriod = new float[1];
-	private float[] sinInvokersInitialPhase = new float[1];
-	private static final float PI= (float) Math.PI;
-	private static final int INVOKER_TYPE_FORCE=0;
-	private static final int INVOKER_TYPE_POSITION=1;
-	private static int getInvokerTypeCode(Source.Type invokeType){
-		if(invokeType== Source.Type.FORCE){
+	private int sinSourcesCount = 0;
+	private int[] sinSourcesType = new int[1];
+	private int[] sinSourcesInvokedUnitId = new int[1];
+	private float[] sinSourcesStartTime = new float[1];
+	private float[] sinSourcesEndTime = new float[1];
+	private float[] sinSourcesScale = new float[1];
+	private float[] sinSourcesPeriod = new float[1];
+	private float[] sinSourcesInitialPhase = new float[1];
+	private static final float PI = (float) Math.PI;
+	private static final int INVOKER_TYPE_FORCE = 0;
+	private static final int INVOKER_TYPE_POSITION = 1;
+	
+	private static int getInvokerTypeCode(Invoking.Type invokeType) {
+		if (invokeType == Invoking.Type.FORCE) {
 			return INVOKER_TYPE_FORCE;
-		}else if(invokeType== Source.Type.POSITION){
+		} else if (invokeType == Invoking.Type.POSITION) {
 			return INVOKER_TYPE_POSITION;
-		}else{
+		} else {
 			return -1;
 		}
 	}
@@ -82,14 +84,14 @@ public class AparapiKernel extends Kernel {
 		
 		//排入link信息
 		List<LinkDraft> links = worldDraft.getLinks();
-		linksCount=links.size();
+		linksCount = links.size();
 		linksExtra = new Object[linksCount];
 		//构建 unit-links 映射表
 		ArrayList<ArrayList<Integer>> unitsLinksId = new ArrayList<>(unitsCount);
-		for(int unitId = 0; unitId< unitsCount; unitId++) {
+		for (int unitId = 0; unitId < unitsCount; unitId++) {
 			unitsLinksId.add(new ArrayList<>(4));
 		}
-		for(int linkId=0;linkId<linksCount;linkId++) {
+		for (int linkId = 0; linkId < linksCount; linkId++) {
 			LinkDraft linkDraft = links.get(linkId);
 			linksExtra[linkId] = linkDraft.getExtra();
 			unitsLinksId.get(linkDraft.getUnitId1()).add(linkId);
@@ -123,74 +125,76 @@ public class AparapiKernel extends Kernel {
 		
 	}
 	
-	private boolean canNotAccelerateWarned=false;
-	public void process(int count,float timeUnit, List<Source> invokers){
-		boolean invokerLegal=true;
-		for (Source invoker : invokers) {
-			if (!(invoker instanceof SinSource)) {
-				invokerLegal=false;
-				if(!canNotAccelerateWarned) {
+	private boolean canNotAccelerateWarned = false;
+	
+	public void process(int count, float timeUnit, List<Source<Integer>> sources) {
+		boolean invokerLegal = true;
+		for (Source source : sources) {
+			if (!(source.getInvoking() instanceof SinInvoking)) {
+				invokerLegal = false;
+				if (!canNotAccelerateWarned) {
 					System.err.println(
-						"Warn: The WorldAparapi can NOT accelerate with such type of invoker working:" +
-							invoker.getClass().getName());
-					canNotAccelerateWarned=true;
+						"Warn: The WorldAparapi can NOT accelerate with such type of invoking working:" +
+							source.getClass().getName());
+					canNotAccelerateWarned = true;
 				}
 				break;
 			}
 		}
 		this.timeUnit = timeUnit;
 		if (invokerLegal) {
-			ArrayList<SinSource> sinInvokers = new ArrayList<>();
-			for (Source invoker : invokers) {
-				if (invoker instanceof SinSource) {
-					sinInvokers.add((SinSource) invoker);
+			ArrayList<Source<Integer>> sinSources = new ArrayList<>();
+			for (Source<Integer> source : sources) {
+				if (source.getInvoking() instanceof SinInvoking) {
+					sinSources.add(source);
 				}
 			}
-			sinInvokersCount=sinInvokers.size();
-			if (sinInvokersCount > 0) {
-				sinInvokersType = new int[sinInvokersCount];
-				sinInvokersInvokedUnitId = new int[sinInvokersCount];
-				sinInvokersStartTime = new float[sinInvokersCount];
-				sinInvokersEndTime = new float[sinInvokersCount];
-				sinInvokersScale = new float[sinInvokersCount];
-				sinInvokersPeriod = new float[sinInvokersCount];
-				sinInvokersInitialPhase = new float[sinInvokersCount];
-				for(int sinInvokerId=0;sinInvokerId<sinInvokers.size();sinInvokerId++) {
-					SinSource sinInvoker = sinInvokers.get(sinInvokerId);
-					sinInvokersType[sinInvokerId] = getInvokerTypeCode(sinInvoker.getType());
-					sinInvokersInvokedUnitId[sinInvokerId] = sinInvoker.getNodeId();
-					sinInvokersStartTime[sinInvokerId] = sinInvoker.getStartTime();
-					sinInvokersEndTime[sinInvokerId] = sinInvoker.getEndTime();
-					sinInvokersScale[sinInvokerId] = sinInvoker.getScale();
-					sinInvokersPeriod[sinInvokerId] = sinInvoker.getPeriod();
-					sinInvokersInitialPhase[sinInvokerId] = sinInvoker.getInitialPhase();
+			sinSourcesCount = sinSources.size();
+			if (sinSourcesCount > 0) {
+				sinSourcesType = new int[sinSourcesCount];
+				sinSourcesInvokedUnitId = new int[sinSourcesCount];
+				sinSourcesStartTime = new float[sinSourcesCount];
+				sinSourcesEndTime = new float[sinSourcesCount];
+				sinSourcesScale = new float[sinSourcesCount];
+				sinSourcesPeriod = new float[sinSourcesCount];
+				sinSourcesInitialPhase = new float[sinSourcesCount];
+				for (int sinSourceId = 0; sinSourceId < sinSources.size(); sinSourceId++) {
+					Source<Integer> source = sinSources.get(sinSourceId);
+					SinInvoking sinInvoking = (SinInvoking) source.getInvoking();
+					sinSourcesType[sinSourceId] = getInvokerTypeCode(sinInvoking.getType());
+					sinSourcesInvokedUnitId[sinSourceId] = source.getNodeId();
+					sinSourcesStartTime[sinSourceId] = sinInvoking.getStartTime();
+					sinSourcesEndTime[sinSourceId] = sinInvoking.getEndTime();
+					sinSourcesScale[sinSourceId] = sinInvoking.getScale();
+					sinSourcesPeriod[sinSourceId] = sinInvoking.getPeriod();
+					sinSourcesInitialPhase[sinSourceId] = sinInvoking.getInitialPhase();
 				}
 			}
 			execute(unitsCount, count);
 			computeCount += count;
 			time += this.timeUnit * count;
-			sinInvokersCount=0;
-		}else {
-			for(int i=0;i<count;i++) {
+			sinSourcesCount = 0;
+		} else {
+			for (int i = 0; i < count; i++) {
 				int setPositionUnitId = -1;
 				float setPosition = 0.0f;
-				for (Source invoker : invokers) {
-					if (time > invoker.getEndTime()) continue;
-					int invokedUnitId = invoker.getNodeId();
-					float time = this.time - invoker.getStartTime();
+				for (Source<Integer> source : sources) {
+					if (time > source.getEndTime()) continue;
+					int nodeId = source.getNodeId();
+					float time = this.time - source.getStartTime();
 					
-					if (invoker.getType() == Source.Type.FORCE) {
-						unitsVelocity[invokedUnitId] += invoker.getValue(time) * this.timeUnit / unitsMass[invokedUnitId];
-					} else if (invoker.getType() == Source.Type.POSITION) {
-						setPositionUnitId = invokedUnitId;
-						setPosition = invoker.getValue(time);
+					if (source.getType() == Invoking.Type.FORCE) {
+						unitsVelocity[nodeId] += source.getValue(time) * this.timeUnit / unitsMass[nodeId];
+					} else if (source.getType() == Invoking.Type.POSITION) {
+						setPositionUnitId = nodeId;
+						setPosition = source.getValue(time);
 					}
 				}
 				execute(unitsCount);
-				if (setPositionUnitId!=-1) {
-					if (computeCount%2 == 0) {
+				if (setPositionUnitId != -1) {
+					if (computeCount % 2 == 0) {
 						unitsOffset_s1[setPositionUnitId] = setPosition;
-					}else {
+					} else {
 						unitsOffset_s0[setPositionUnitId] = setPosition;
 					}
 				}
@@ -202,44 +206,45 @@ public class AparapiKernel extends Kernel {
 	}
 	
 	
-	@Override public void run() {
-		int unitId=getGlobalId();
+	@Override
+	public void run() {
+		int unitId = getGlobalId();
 		int thisComputeCount = computeCount + getPassId();
 		float force = 0.0f;
 		
 		//计算invokers
-		boolean positionSet=false;
+		boolean positionSet = false;
 		float nowProcessedTime = time + getPassId() * timeUnit;
-		for (int sinInvokerId = 0; sinInvokerId < sinInvokersCount; sinInvokerId++) {
-			if (sinInvokersInvokedUnitId[sinInvokerId] != unitId) continue;
-			if (nowProcessedTime < sinInvokersStartTime[sinInvokerId]) continue;
-			if (nowProcessedTime > sinInvokersEndTime[sinInvokerId]) continue;
-			float time = nowProcessedTime - sinInvokersStartTime[sinInvokerId];
-			float phase = time / sinInvokersPeriod[sinInvokerId] * 2.0f * PI
-				+ sinInvokersInitialPhase[sinInvokerId];
-			float invokeValue = sinInvokersScale[sinInvokerId] * sin(phase);
+		for (int sinSourceId = 0; sinSourceId < sinSourcesCount; sinSourceId++) {
+			if (sinSourcesInvokedUnitId[sinSourceId] != unitId) continue;
+			if (nowProcessedTime < sinSourcesStartTime[sinSourceId]) continue;
+			if (nowProcessedTime > sinSourcesEndTime[sinSourceId]) continue;
+			float time = nowProcessedTime - sinSourcesStartTime[sinSourceId];
+			float phase = time / sinSourcesPeriod[sinSourceId] * 2.0f * PI
+				+ sinSourcesInitialPhase[sinSourceId];
+			float invokeValue = sinSourcesScale[sinSourceId] * sin(phase);
 			
-			if (sinInvokersType[sinInvokerId] == INVOKER_TYPE_FORCE) {
+			if (sinSourcesType[sinSourceId] == INVOKER_TYPE_FORCE) {
 				force += invokeValue;
-			}else if (sinInvokersType[sinInvokerId] == INVOKER_TYPE_POSITION){
-				if (thisComputeCount%2 == 0) {
+			} else if (sinSourcesType[sinSourceId] == INVOKER_TYPE_POSITION) {
+				if (thisComputeCount % 2 == 0) {
 					unitsOffset_s1[unitId] = invokeValue;
-				}else {
+				} else {
 					unitsOffset_s0[unitId] = invokeValue;
 				}
-				positionSet=true;
+				positionSet = true;
 			}
 		}
 		
 		//计算由link产生的force
 		int linkedId = unitsImpactStartId[unitId];
 		int linkedEndId = unitsImpactEndId[unitId];
-		if (thisComputeCount%2 == 0) {
+		if (thisComputeCount % 2 == 0) {
 			while (linkedId < linkedEndId) {
 				force += (unitsOffset_s0[impactsFromUnitId[linkedId]] - unitsOffset_s0[unitId]) * impactsStrength[linkedId];
 				linkedId++;
 			}
-		}else{
+		} else {
 			while (linkedId < linkedEndId) {
 				force += (unitsOffset_s1[impactsFromUnitId[linkedId]] - unitsOffset_s1[unitId]) * impactsStrength[linkedId];
 				linkedId++;
@@ -250,10 +255,10 @@ public class AparapiKernel extends Kernel {
 		//由 force 算出新速度和新位移
 		unitsVelocity[unitId] += force / unitsMass[unitId] * timeUnit;
 		if (!positionSet) {
-			if (thisComputeCount%2 == 0) {
-				unitsOffset_s1[unitId] = unitsOffset_s0[unitId]+unitsVelocity[unitId] * timeUnit;
-			}else {
-				unitsOffset_s0[unitId] = unitsOffset_s1[unitId]+unitsVelocity[unitId] * timeUnit;
+			if (thisComputeCount % 2 == 0) {
+				unitsOffset_s1[unitId] = unitsOffset_s0[unitId] + unitsVelocity[unitId] * timeUnit;
+			} else {
+				unitsOffset_s0[unitId] = unitsOffset_s1[unitId] + unitsVelocity[unitId] * timeUnit;
 			}
 		}
 		

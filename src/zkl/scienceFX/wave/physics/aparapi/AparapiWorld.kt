@@ -3,67 +3,61 @@ package zkl.scienceFX.wave.physics.aparapi
 import zkl.scienceFX.wave.physics.abstracts.*
 import java.util.*
 
-class AparapiWorld(draft: WorldDraft) : World {
+class AparapiWorld(draft: WorldDraft) : World<Int, Int> {
 	
-	override val nodes: List<Node> = object : AbstractList<Node>() {
-		override val size: Int get() = kernel.unitsCount
-		override fun get(index: Int): Node = kernel.run {
-			object : Node {
-				override val id: Int get() = index
-				override var offset: Float
-					get() = if (computeCount % 2 == 0) unitsOffset_s0[id] else unitsOffset_s1[id]
-					set(value) {
-						if (computeCount % 2 == 0) unitsOffset_s0[id] = value else unitsOffset_s1[id] = value
-					}
-				override var velocity: Float
-					get() = unitsVelocity[id]
-					set(value) {
-						unitsVelocity[id] = value
-					}
-				override var mass: Float
-					get() = unitsMass[id]
-					set(value) {
-						unitsMass[id] = value
-					}
-				override var damping: Float
-					get() = unitsDamping[id]
-					set(value) {
-						unitsDamping[id] = value
-					}
-				override var extra: Any?
-					get() = unitsExtra[id]
-					set(value) {
-						unitsExtra[id] = value
-					}
-			}
+	override fun getNode(id: Int): Node = kernel.run {
+		object : Node {
+			override var offset: Float
+				get() = if (computeCount % 2 == 0) unitsOffset_s0[id] else unitsOffset_s1[id]
+				set(value) {
+					if (computeCount % 2 == 0) unitsOffset_s0[id] = value else unitsOffset_s1[id] = value
+				}
+			override var velocity: Float
+				get() = unitsVelocity[id]
+				set(value) {
+					unitsVelocity[id] = value
+				}
+			override var mass: Float
+				get() = unitsMass[id]
+				set(value) {
+					unitsMass[id] = value
+				}
+			override var damping: Float
+				get() = unitsDamping[id]
+				set(value) {
+					unitsDamping[id] = value
+				}
+			override var extra: Any?
+				get() = unitsExtra[id]
+				set(value) {
+					unitsExtra[id] = value
+				}
 		}
 	}
-	override val links: List<Link> = object : AbstractList<Link>() {
-		override val size: Int get() = kernel.linksCount
-		override fun get(index: Int): Link = kernel.run {
-			object : Link {
-				override val unitId1: Int
-					get() = kernel.run { impactsFromUnitId[linksImpactId2[index]] }
-				override val unitId2: Int
-					get() = kernel.run { impactsFromUnitId[linksImpactId1[index]] }
-				override var strength: Float
-					get() = impactsStrength[linksImpactId1[index]]
-					set(value) {
-						impactsStrength[linksImpactId1[index]] = value
-						impactsStrength[linksImpactId2[index]] = value
-					}
-				override var extra: Any?
-					get() = linksExtra[index]
-					set(value) {
-						linksExtra[index] = value
-					}
-			}
+	
+	override fun getLink(id: Int): Link<Int> = kernel.run {
+		object : Link<Int> {
+			override val unitId1: Int
+				get() = kernel.run { impactsFromUnitId[linksImpactId2[id]] }
+			override val unitId2: Int
+				get() = kernel.run { impactsFromUnitId[linksImpactId1[id]] }
+			override var strength: Float
+				get() = impactsStrength[linksImpactId1[id]]
+				set(value) {
+					impactsStrength[linksImpactId1[id]] = value
+					impactsStrength[linksImpactId2[id]] = value
+				}
+			override var extra: Any?
+				get() = linksExtra[id]
+				set(value) {
+					linksExtra[id] = value
+				}
 		}
 	}
+	
+	override val invokers: MutableList<Source<Int>> = LinkedList()
+	
 	override var extra: Any? = draft.extra
-	
-	override val invokers: MutableList<Source> = LinkedList()
-	
 	
 	val kernel: AparapiKernel = kotlin.run {
 		println("launching OpenCL ...")
