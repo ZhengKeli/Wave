@@ -7,7 +7,6 @@ interface GenericWorldDraft {
 }
 
 interface GenericNodeDraft {
-	val id: Int
 	val offset: Float
 	val velocity: Float
 	val mass: Float

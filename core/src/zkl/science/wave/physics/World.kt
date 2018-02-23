@@ -20,10 +20,10 @@ interface World<NodeId, in LinkId> {
 	
 	fun getNode(id: NodeId): Node
 	fun getLink(id: LinkId): Link<NodeId>
-	val invokers: MutableList<Source<NodeId>>
+	val sources: MutableList<Source<NodeId>>
 	var extra: Any?
 	
 	val time: Float
-	fun process(timeUnit: Float, count: Int = 1)
+	fun process(timeUnit: Float, repeat: Int = 1)
 	
 }

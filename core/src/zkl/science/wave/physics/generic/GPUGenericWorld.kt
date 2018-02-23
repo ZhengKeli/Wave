@@ -55,7 +55,7 @@ class GPUGenericWorld(draft: GenericWorldDraft) : World<Int, Int> {
 		}
 	}
 	
-	override val invokers: MutableList<Source<Int>> = LinkedList()
+	override val sources: MutableList<Source<Int>> = LinkedList()
 	
 	override var extra: Any? = draft.extra
 	
@@ -77,9 +77,9 @@ class GPUGenericWorld(draft: GenericWorldDraft) : World<Int, Int> {
 		}
 	
 	@Synchronized
-	override fun process(timeUnit: Float, count: Int) {
-		kernel.process(count, timeUnit, invokers)
-		synchronized(invokers) { invokers.removeIf { time > it.startTime + it.span } }
+	override fun process(timeUnit: Float, repeat: Int) {
+		kernel.process(repeat, timeUnit, sources)
+		synchronized(sources) { sources.removeIf { time > it.startTime + it.span } }
 	}
 	
 }
