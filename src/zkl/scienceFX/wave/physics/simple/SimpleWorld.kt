@@ -3,17 +3,17 @@ package zkl.scienceFX.wave.physics.simple
 import zkl.scienceFX.wave.physics.abstracts.*
 import java.util.*
 
-class SimpleWaveWorld(draft: WaveWorldDraft) : WaveWorld {
+class SimpleWorld(draft: WorldDraft) : World {
 	
-	override var units: List<WaveUnit> = draft.units.map { unitDraft ->
-		InstantWaveUnit(unitDraft.id, unitDraft.offset, unitDraft.velocity, unitDraft.mass, unitDraft.damping, unitDraft.extra)
+	override var nodes: List<Node> = draft.nodes.map { unitDraft ->
+		InstantNode(unitDraft.id, unitDraft.offset, unitDraft.velocity, unitDraft.mass, unitDraft.damping, unitDraft.extra)
 	}
-	override var links: List<WaveLink> = draft.links.map { linkDraft ->
-		InstantWaveLink(linkDraft.unitId1, linkDraft.unitId2, linkDraft.strength, linkDraft.extra)
+	override var links: List<Link> = draft.links.map { linkDraft ->
+		InstantLink(linkDraft.unitId1, linkDraft.unitId2, linkDraft.strength, linkDraft.extra)
 	}
 	override var extra: Any? = draft.extra
 	
-	override val invokers:MutableList<WaveInvoker> = LinkedList()
+	override val invokers:MutableList<Source> = LinkedList()
 	
 	
 	
@@ -35,7 +35,7 @@ class SimpleWaveWorld(draft: WaveWorldDraft) : WaveWorld {
 			
 			//process
 			links.forEach { processLink(it, timeUnit) }
-			units.forEach { processUnit(it, timeUnit) }
+			nodes.forEach { processUnit(it, timeUnit) }
 			
 			//time
 			this.time += timeUnit

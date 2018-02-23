@@ -271,7 +271,7 @@ object ConfsForVideo {
 			}
 			
 		}
-		visualConf2D { painter = WaveEnergyPainter(60f) }
+		visualConf2D { painter = EnergyPainter(60f) }
 		export {
 			exportDir = File("D:/scienceFX/diffraction")
 			exportPrefix = "diffraction_"
@@ -312,7 +312,7 @@ object ConfsForVideo {
 			}
 		}
 		visualConf2D {
-			painter = WaveEnergyPainter(7f)
+			painter = EnergyPainter(7f)
 		}
 		export {
 			exportDir = File("D:/scienceFX/interference")
@@ -379,7 +379,7 @@ object ConfsForVideo {
 			}
 		}
 		visualConf2D {
-			painter = WaveEnergyPainter(15f)
+			painter = EnergyPainter(15f)
 		}
 		export {
 			exportDir = File("D:/scienceFX/zonePlate")

@@ -1,24 +1,24 @@
 package zkl.scienceFX.wave.conf
 
-import zkl.scienceFX.wave.physics.abstracts.SinWaveInvoker
-import zkl.scienceFX.wave.physics.abstracts.SquareWaveInvoker
-import zkl.scienceFX.wave.physics.abstracts.WaveInvoker
-import zkl.scienceFX.wave.physics.abstracts.WaveWorld
+import zkl.scienceFX.wave.physics.abstracts.SinSource
+import zkl.scienceFX.wave.physics.abstracts.Source
+import zkl.scienceFX.wave.physics.abstracts.SquareSource
+import zkl.scienceFX.wave.physics.abstracts.World
 import kotlin.math.PI
 
 
-class SinInvokeConf : (WaveWorld) -> Unit {
+class SinInvokeConf : (World) -> Unit {
 	
 	var targetUnitId: Int = 0
 	var delay: Float = 0.0f
-	var type: WaveInvoker.Type = WaveInvoker.Type.FORCE
+	var type: Source.Type = Source.Type.FORCE
 	var scale: Float = 10.0f
 	var period: Float = 40.0f
 	var repeat: Float = 1.0f
 	var initialPhase: Float = 0.0f
 	
-	override fun invoke(world: WaveWorld) {
-		SinWaveInvoker(
+	override fun invoke(world: World) {
+		SinSource(
 			invokedUnitId = targetUnitId,
 			startTime = world.time + delay,
 			type = type,
@@ -43,7 +43,7 @@ fun PhysicsConf.cosInvoke(body: SinInvokeConf.() -> Unit) {
 }
 
 
-class SquareInvokeConf : (WaveWorld) -> Unit {
+class SquareInvokeConf : (World) -> Unit {
 	
 	var targetUnitId: Int = 0
 	var delay: Float = 0.0f
@@ -51,8 +51,8 @@ class SquareInvokeConf : (WaveWorld) -> Unit {
 	var period: Float = 40.0f
 	var repeat: Float = 1.0f
 	
-	override fun invoke(world: WaveWorld) {
-		SquareWaveInvoker(
+	override fun invoke(world: World) {
+		SquareSource(
 			invokedUnitId = targetUnitId,
 			startTime = world.time + delay,
 			scale = scale,

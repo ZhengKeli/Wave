@@ -1,7 +1,7 @@
 package zkl.scienceFX.wave.conf
 
-import zkl.scienceFX.wave.physics.abstracts.WaveWorld
-import zkl.scienceFX.wave.physics.abstracts.WaveWorldDraft
+import zkl.scienceFX.wave.physics.abstracts.World
+import zkl.scienceFX.wave.physics.abstracts.WorldDraft
 
 fun Conf.physics(body: PhysicsConf.() -> Unit) {
 	this.physics = PhysicsConf().also { body.invoke(it) }
@@ -17,16 +17,16 @@ open class PhysicsConf {
 	
 	lateinit var waveWorldDrafter: WaveWorldDrafter
 	
-	val onInvoke = ArrayList<WaveWorld.() -> Unit>()
+	val onInvoke = ArrayList<World.() -> Unit>()
 	
 }
 
-typealias WaveWorldCreator = (WaveWorldDraft) -> WaveWorld
+typealias WaveWorldCreator = (WorldDraft) -> World
 
-typealias WaveWorldDrafter = () -> WaveWorldDraft
+typealias WaveWorldDrafter = () -> WorldDraft
 
 
-fun PhysicsConf.onInvoke(body: WaveWorld.() -> Unit) {
+fun PhysicsConf.onInvoke(body: World.() -> Unit) {
 	this.onInvoke.add(body)
 }
 

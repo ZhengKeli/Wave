@@ -276,7 +276,7 @@ object Confs {
 			}
 		}
 		visualConf2D {
-			painter = WaveEnergyPainter()
+			painter = EnergyPainter()
 		}
 	}
 	
@@ -309,7 +309,7 @@ object Confs {
 			}
 			
 		}
-		visualConf2D { painter = WaveEnergyPainter(30f) }
+		visualConf2D { painter = EnergyPainter(30f) }
 	}
 	
 	/**
@@ -344,7 +344,7 @@ object Confs {
 			}
 		}
 		visualConf2D {
-			painter = WaveEnergyPainter()
+			painter = EnergyPainter()
 		}
 	}
 	
@@ -385,7 +385,7 @@ object Confs {
 							setAsWall()
 						}
 					}
-					//if ((row-rowCount/2)<2*(column-columnCount/2)) waveUnit.mass *= 2.0f
+					//if ((row-rowCount/2)<2*(column-columnCount/2)) node.mass *= 2.0f
 				}
 				
 				this@physics.cosInvoke {
@@ -398,7 +398,7 @@ object Confs {
 		}
 		visualConf2D {
 			samplingSize = 2.0
-			painter = WaveEnergyPainter()
+			painter = EnergyPainter()
 		}
 	}
 	
@@ -461,7 +461,7 @@ object Confs {
 			
 		}
 		visualConf2D {
-			painter = WaveEnergyPainter()
+			painter = EnergyPainter()
 		}
 	}
 	

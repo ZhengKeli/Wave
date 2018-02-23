@@ -1,12 +1,12 @@
 package zkl.scienceFX.wave.physics.abstracts
 
-interface WaveWorldDraft {
-	val units: List<WaveUnitDraft>
-	val links: List<WaveLinkDraft>
+interface WorldDraft {
+	val nodes: List<NodeDraft>
+	val links: List<LinkDraft>
 	val extra: Any?
 }
 
-interface WaveUnitDraft {
+interface NodeDraft {
 	val id: Int
 	val offset: Float
 	val velocity: Float
@@ -15,7 +15,7 @@ interface WaveUnitDraft {
 	val extra: Any?
 }
 
-interface WaveLinkDraft {
+interface LinkDraft {
 	val unitId1: Int
 	val unitId2: Int
 	val strength: Float

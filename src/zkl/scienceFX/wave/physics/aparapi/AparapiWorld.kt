@@ -3,12 +3,12 @@ package zkl.scienceFX.wave.physics.aparapi
 import zkl.scienceFX.wave.physics.abstracts.*
 import java.util.*
 
-class AparapiWaveWorld(draft: WaveWorldDraft) : WaveWorld {
+class AparapiWorld(draft: WorldDraft) : World {
 	
-	override val units: List<WaveUnit> = object : AbstractList<WaveUnit>() {
+	override val nodes: List<Node> = object : AbstractList<Node>() {
 		override val size: Int get() = kernel.unitsCount
-		override fun get(index: Int): WaveUnit = kernel.run {
-			object : WaveUnit {
+		override fun get(index: Int): Node = kernel.run {
+			object : Node {
 				override val id: Int get() = index
 				override var offset: Float
 					get() = if (computeCount % 2 == 0) unitsOffset_s0[id] else unitsOffset_s1[id]
@@ -38,10 +38,10 @@ class AparapiWaveWorld(draft: WaveWorldDraft) : WaveWorld {
 			}
 		}
 	}
-	override val links: List<WaveLink> = object : AbstractList<WaveLink>() {
+	override val links: List<Link> = object : AbstractList<Link>() {
 		override val size: Int get() = kernel.linksCount
-		override fun get(index: Int): WaveLink = kernel.run {
-			object : WaveLink {
+		override fun get(index: Int): Link = kernel.run {
+			object : Link {
 				override val unitId1: Int
 					get() = kernel.run { impactsFromUnitId[linksImpactId2[index]] }
 				override val unitId2: Int
@@ -62,7 +62,7 @@ class AparapiWaveWorld(draft: WaveWorldDraft) : WaveWorld {
 	}
 	override var extra: Any? = draft.extra
 	
-	override val invokers: MutableList<WaveInvoker> = LinkedList()
+	override val invokers: MutableList<Source> = LinkedList()
 	
 	
 	val kernel: AparapiKernel = kotlin.run {

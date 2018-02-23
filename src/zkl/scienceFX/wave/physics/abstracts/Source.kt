@@ -1,9 +1,9 @@
 package zkl.scienceFX.wave.physics.abstracts
 
-import zkl.scienceFX.wave.physics.abstracts.WaveInvoker.Type
+import zkl.scienceFX.wave.physics.abstracts.Source.Type
 
 
-interface WaveInvoker {
+interface Source {
 	enum class Type { FORCE, POSITION }
 	val type: Type
 	val invokedUnitId: Int
@@ -12,10 +12,10 @@ interface WaveInvoker {
 	fun getValue(time: Float): Float
 }
 
-val WaveInvoker.span get() = endTime - startTime
+val Source.span get() = endTime - startTime
 
 
-class SinWaveInvoker(
+class SinSource(
 	override val startTime: Float,
 	override val type: Type,
 	override val invokedUnitId: Int,
@@ -23,18 +23,18 @@ class SinWaveInvoker(
 	val period: Float,
 	repeat: Float,
 	val initialPhase: Float = 0.0f
-) : WaveInvoker {
+) : Source {
 	override val endTime: Float = startTime + period * repeat
 	override fun getValue(time: Float): Float = (scale * Math.sin(time / period * 2.0 * Math.PI + initialPhase)).toFloat()
 }
 
-class SquareWaveInvoker(
+class SquareSource(
 	override val startTime: Float,
 	override val invokedUnitId: Int,
 	val scale: Float,
 	val period: Float,
 	repeat: Float
-) : WaveInvoker {
+) : Source {
 	override val type: Type = Type.POSITION
 	override val endTime: Float = startTime + period * repeat
 	override fun getValue(time: Float): Float = if (time % period < period / 2.0) scale else -scale

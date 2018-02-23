@@ -1,7 +1,7 @@
 package zkl.scienceFX.wave.conf
 
 import javafx.geometry.Rectangle2D
-import zkl.scienceFX.wave.fx.WavePainter
+import zkl.scienceFX.wave.fx.Painter
 
 
 fun Conf.visual(body: VisualConf.() -> Unit) {
@@ -10,7 +10,7 @@ fun Conf.visual(body: VisualConf.() -> Unit) {
 
 open class VisualConf {
 	
-	lateinit var painter: WavePainter
+	lateinit var painter: Painter
 	var canvasWidth: Double = 4000.0
 	var canvasHeight: Double = 3000.0
 	

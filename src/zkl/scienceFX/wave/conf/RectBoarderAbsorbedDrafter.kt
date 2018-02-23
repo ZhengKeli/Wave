@@ -28,9 +28,9 @@ class RectBoarderAbsorbedDrafter : RectDrafter() {
 		}
 	}
 	
-	private fun InstantWaveUnitDraft.setAsSoftWall(rate: Float) {
+	private fun InstantNodeDraft.setAsSoftWall(rate: Float) {
 		this.damping = defaultDamping + absorbDamping * rate
-		//waveUnit.visualExtra2D.color = Color.GREEN
+		//node.visualExtra2D.color = Color.GREEN
 		
 	}
 	

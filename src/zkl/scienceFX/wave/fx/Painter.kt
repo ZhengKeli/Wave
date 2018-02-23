@@ -8,22 +8,22 @@ import zkl.scienceFX.wave.conf.Conf
 import zkl.scienceFX.wave.conf.RectDrafter
 import zkl.scienceFX.wave.conf.VisualConf
 import zkl.scienceFX.wave.conf.VisualConf2D
-import zkl.scienceFX.wave.physics.abstracts.WaveLink
-import zkl.scienceFX.wave.physics.abstracts.WaveUnit
-import zkl.scienceFX.wave.physics.abstracts.WaveWorld
+import zkl.scienceFX.wave.physics.abstracts.Link
+import zkl.scienceFX.wave.physics.abstracts.Node
+import zkl.scienceFX.wave.physics.abstracts.World
 import zkl.tools.math.geometry.pointOf
 import zkl.tools.math.geometry.zeroPoint2D
 
 //abstracts
 
-abstract class WavePainter {
+abstract class Painter {
 	
 	lateinit var conf: Conf
 		private set
-	lateinit var world: WaveWorld
+	lateinit var world: World
 		private set
 	
-	fun initialize(conf: Conf, world: WaveWorld) {
+	fun initialize(conf: Conf, world: World) {
 		this.conf = conf
 		this.world = world
 		onInitialized()
@@ -61,7 +61,7 @@ abstract class WavePainter {
 	abstract fun onRefresh(graphicsContext: GraphicsContext)
 }
 
-abstract class WavePainter2D : WavePainter() {
+abstract class Painter2D : Painter() {
 	
 	val visualConf2D: VisualConf2D get() = visualConf as VisualConf2D
 	val drafter2D: RectDrafter get() = conf.physics.waveWorldDrafter as RectDrafter
@@ -91,13 +91,13 @@ abstract class WavePainter2D : WavePainter() {
 				if (column !in 0 until columnCount) continue
 				
 				val unitId = drafter2D.getUnitId(row, column)
-				val color = getUnitColor(world.units[unitId])
+				val color = getUnitColor(world.nodes[unitId])
 				graphicsContext.pixelWriter.setColor(x, y, color)
 			}
 		}
 	}
 	
-	abstract fun getUnitColor(unit: WaveUnit): Color
+	abstract fun getUnitColor(unit: Node): Color
 	
 }
 
@@ -107,7 +107,7 @@ abstract class WavePainter2D : WavePainter() {
 /**
  * 一维线条的波动渲染
  */
-class LinePainter(val offsetScale: Double = 1.0) : WavePainter() {
+class LinePainter(val offsetScale: Double = 1.0) : Painter() {
 	override val backgroundFill: Paint get() = Color.BLACK
 	
 	var startPosition = zeroPoint2D()
@@ -119,7 +119,7 @@ class LinePainter(val offsetScale: Double = 1.0) : WavePainter() {
 		//先计算必要数据
 		val padding = drawPort.width * 0.05
 		startPosition = pointOf(drawPort.minX + padding, drawPort.minY + drawPort.height / 2.0)
-		interval = (drawPort.width - padding * 2.0) / world.units.size
+		interval = (drawPort.width - padding * 2.0) / world.nodes.size
 		radius = interval / 3.0
 		lineWidth = radius / 1.5
 		if (lineWidth < 3.0) {
@@ -132,14 +132,14 @@ class LinePainter(val offsetScale: Double = 1.0) : WavePainter() {
 		for (i in 0..world.links.size - 1) {
 			graphicsContext.paintLink(world.links[i])
 		}
-		for (i in 0..world.units.size - 1) {
-			graphicsContext.paintUnit(world.units[i])
+		for (i in 0..world.nodes.size - 1) {
+			graphicsContext.paintUnit(world.nodes[i])
 		}
 	}
 	
-	val WaveUnit.x: Double get() = startPosition.x + interval * id
-	val WaveUnit.y: Double get() = startPosition.y - offset * offsetScale
-	fun GraphicsContext.paintUnit(unit: WaveUnit) {
+	val Node.x: Double get() = startPosition.x + interval * id
+	val Node.y: Double get() = startPosition.y - offset * offsetScale
+	fun GraphicsContext.paintUnit(unit: Node) {
 		if (radius <= 0.0) return
 		fill = unit.color
 		fillOval(
@@ -148,9 +148,9 @@ class LinePainter(val offsetScale: Double = 1.0) : WavePainter() {
 			radius * 2, radius * 2)
 	}
 	
-	val WaveLink.unit1: WaveUnit get() = world.units[unitId1]
-	val WaveLink.unit2: WaveUnit get() = world.units[unitId2]
-	fun GraphicsContext.paintLink(link: WaveLink) {
+	val Link.unit1: Node get() = world.nodes[unitId1]
+	val Link.unit2: Node get() = world.nodes[unitId2]
+	fun GraphicsContext.paintLink(link: Link) {
 		link.run {
 			stroke = colorMix(unit1.color ?: Color.WHITE, unit2.color ?: Color.WHITE)
 			lineWidth = this@LinePainter.lineWidth
@@ -162,9 +162,9 @@ class LinePainter(val offsetScale: Double = 1.0) : WavePainter() {
 /**
  * 位移渲染
  */
-class ColorOffsetPainter(val offsetScale: Double = 0.5) : WavePainter2D() {
+class ColorOffsetPainter(val offsetScale: Double = 0.5) : Painter2D() {
 	override val backgroundFill: Color get() = Color.GRAY
-	override fun getUnitColor(unit: WaveUnit): Color {
+	override fun getUnitColor(unit: Node): Color {
 		unit.color?.let { return it }
 		return unit.run {
 			var rate = Math.abs(offset * offsetScale)
@@ -178,15 +178,15 @@ class ColorOffsetPainter(val offsetScale: Double = 0.5) : WavePainter2D() {
 /**
  * 水波渲染
  */
-class WaterSurfacePainter(val scale: Double = 3.0) : WavePainter2D() {
+class WaterSurfacePainter(val scale: Double = 3.0) : Painter2D() {
 	override val backgroundFill: Color get() = Color.GRAY
-	override fun getUnitColor(unit: WaveUnit): Color {
+	override fun getUnitColor(unit: Node): Color {
 		unit.color?.let { return it }
 		val row = unit.id / columnCount
 		val column = unit.id % columnCount
 		if (row < rowCount - 1 && column < columnCount - 1) {
-			val dzx = unit.offset - world.units[(row + 1) * columnCount + column].offset
-			val dzy = unit.offset - world.units[row * columnCount + column + 1].offset
+			val dzx = unit.offset - world.nodes[(row + 1) * columnCount + column].offset
+			val dzy = unit.offset - world.nodes[row * columnCount + column + 1].offset
 			
 			val s = (dzx * 0.6 + dzy * 0.8) * scale
 			if (s < 0) {
@@ -205,10 +205,10 @@ class WaterSurfacePainter(val scale: Double = 3.0) : WavePainter2D() {
 /**
  * 波能量渲染
  */
-open class WaveEnergyPainter(val scale: Float = 10.0f) : WavePainter2D() {
+open class EnergyPainter(val scale: Float = 10.0f) : Painter2D() {
 	override val backgroundFill: Color get() = Color.BLACK
 	val energyFill: Color = Color.WHITE
-	override fun getUnitColor(unit: WaveUnit): Color {
+	override fun getUnitColor(unit: Node): Color {
 		unit.color?.let { return it }
 		return unit.run {
 			var rate = mass * velocity * velocity / 2.0f * scale
@@ -221,12 +221,12 @@ open class WaveEnergyPainter(val scale: Float = 10.0f) : WavePainter2D() {
 /**
  * 平滑的波能量渲染
  */
-class SmoothedEnergyPainter(scale: Float = 50f) : WaveEnergyPainter(scale) {
+class SmoothedEnergyPainter(scale: Float = 50f) : EnergyPainter(scale) {
 	
 	lateinit var colorMap: Array<Color>
 	override fun onInitialized() {
 		super.onInitialized()
-		colorMap = Array(rowCount * columnCount) { unitId -> getUnitColor(world.units[unitId]) }
+		colorMap = Array(rowCount * columnCount) { unitId -> getUnitColor(world.nodes[unitId]) }
 	}
 	
 	override fun onRefresh(graphicsContext: GraphicsContext) {
@@ -239,7 +239,7 @@ class SmoothedEnergyPainter(scale: Float = 50f) : WaveEnergyPainter(scale) {
 				if (column !in 0 until columnCount) continue
 				
 				val unitId = drafter2D.getUnitId(row, column)
-				val thisColor = getUnitColor(world.units[unitId])
+				val thisColor = getUnitColor(world.nodes[unitId])
 				val oldColor = colorMap[unitId]
 				val newColor = colorMix(thisColor, oldColor, 0.01, 0.99)
 				colorMap[unitId] = newColor

@@ -20,7 +20,7 @@ import javafx.stage.Window
 import javafx.stage.WindowEvent
 import zkl.scienceFX.wave.DEFAULT_CONF
 import zkl.scienceFX.wave.conf.Conf
-import zkl.scienceFX.wave.physics.abstracts.WaveWorld
+import zkl.scienceFX.wave.physics.abstracts.World
 import java.awt.image.BufferedImage
 import java.io.File
 import java.util.concurrent.ArrayBlockingQueue
@@ -385,7 +385,7 @@ class WaveController {
 	
 	
 	//label & canvas
-	private val painter: WavePainter = conf.visualConf.painter
+	private val painter: Painter = conf.visualConf.painter
 	@FXML
 	lateinit var canvas: Canvas
 	@FXML
@@ -487,7 +487,7 @@ class WaveController {
 	
 	
 	//physics
-	lateinit var world: WaveWorld
+	lateinit var world: World
 	
 	fun initPhysics() {
 		world = conf.physics.run {

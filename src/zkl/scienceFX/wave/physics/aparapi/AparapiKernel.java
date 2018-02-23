@@ -5,11 +5,11 @@ import com.aparapi.Kernel;
 import java.util.ArrayList;
 import java.util.List;
 
-import zkl.scienceFX.wave.physics.abstracts.SinWaveInvoker;
-import zkl.scienceFX.wave.physics.abstracts.WaveInvoker;
-import zkl.scienceFX.wave.physics.abstracts.WaveLinkDraft;
-import zkl.scienceFX.wave.physics.abstracts.WaveUnitDraft;
-import zkl.scienceFX.wave.physics.abstracts.WaveWorldDraft;
+import zkl.scienceFX.wave.physics.abstracts.LinkDraft;
+import zkl.scienceFX.wave.physics.abstracts.NodeDraft;
+import zkl.scienceFX.wave.physics.abstracts.SinSource;
+import zkl.scienceFX.wave.physics.abstracts.Source;
+import zkl.scienceFX.wave.physics.abstracts.WorldDraft;
 
 public class AparapiKernel extends Kernel {
 	/**
@@ -51,19 +51,19 @@ public class AparapiKernel extends Kernel {
 	private static final float PI= (float) Math.PI;
 	private static final int INVOKER_TYPE_FORCE=0;
 	private static final int INVOKER_TYPE_POSITION=1;
-	private static int getInvokerTypeCode(WaveInvoker.Type invokeType){
-		if(invokeType==WaveInvoker.Type.FORCE){
+	private static int getInvokerTypeCode(Source.Type invokeType){
+		if(invokeType== Source.Type.FORCE){
 			return INVOKER_TYPE_FORCE;
-		}else if(invokeType==WaveInvoker.Type.POSITION){
+		}else if(invokeType== Source.Type.POSITION){
 			return INVOKER_TYPE_POSITION;
 		}else{
 			return -1;
 		}
 	}
 	
-	public AparapiKernel(WaveWorldDraft worldDraft) {
+	public AparapiKernel(WorldDraft worldDraft) {
 		//排入unit信息
-		List<WaveUnitDraft> units = worldDraft.getUnits();
+		List<NodeDraft> units = worldDraft.getNodes();
 		unitsCount = units.size();
 		unitsOffset_s0 = new float[unitsCount];
 		unitsOffset_s1 = new float[unitsCount];
@@ -72,7 +72,7 @@ public class AparapiKernel extends Kernel {
 		unitsDamping = new float[unitsCount];
 		unitsExtra = new Object[unitsCount];
 		for (int unitId = 0; unitId < unitsCount; unitId++) {
-			WaveUnitDraft unitDraft = units.get(unitId);
+			NodeDraft unitDraft = units.get(unitId);
 			unitsOffset_s0[unitId] = unitDraft.getOffset();
 			unitsVelocity[unitId] = unitDraft.getVelocity();
 			unitsMass[unitId] = unitDraft.getMass();
@@ -81,7 +81,7 @@ public class AparapiKernel extends Kernel {
 		}
 		
 		//排入link信息
-		List<WaveLinkDraft> links = worldDraft.getLinks();
+		List<LinkDraft> links = worldDraft.getLinks();
 		linksCount=links.size();
 		linksExtra = new Object[linksCount];
 		//构建 unit-links 映射表
@@ -90,7 +90,7 @@ public class AparapiKernel extends Kernel {
 			unitsLinksId.add(new ArrayList<>(4));
 		}
 		for(int linkId=0;linkId<linksCount;linkId++) {
-			WaveLinkDraft linkDraft = links.get(linkId);
+			LinkDraft linkDraft = links.get(linkId);
 			linksExtra[linkId] = linkDraft.getExtra();
 			unitsLinksId.get(linkDraft.getUnitId1()).add(linkId);
 			unitsLinksId.get(linkDraft.getUnitId2()).add(linkId);
@@ -107,7 +107,7 @@ public class AparapiKernel extends Kernel {
 		for (int unitId = 0; unitId < unitsCount; unitId++) {
 			unitsImpactStartId[unitId] = impactId;
 			for (int linkId : unitsLinksId.get(unitId)) {
-				WaveLinkDraft link = links.get(linkId);
+				LinkDraft link = links.get(linkId);
 				if (unitId == link.getUnitId1()) {
 					impactsFromUnitId[impactId] = link.getUnitId2();
 					linksImpactId1[linkId] = impactId;
@@ -124,14 +124,14 @@ public class AparapiKernel extends Kernel {
 	}
 	
 	private boolean canNotAccelerateWarned=false;
-	public void process(int count,float timeUnit, List<WaveInvoker> invokers){
+	public void process(int count,float timeUnit, List<Source> invokers){
 		boolean invokerLegal=true;
-		for (WaveInvoker invoker : invokers) {
-			if (!(invoker instanceof SinWaveInvoker)) {
+		for (Source invoker : invokers) {
+			if (!(invoker instanceof SinSource)) {
 				invokerLegal=false;
 				if(!canNotAccelerateWarned) {
 					System.err.println(
-						"Warn: The WaveWorldAparapi can NOT accelerate with such type of invoker working:" +
+						"Warn: The WorldAparapi can NOT accelerate with such type of invoker working:" +
 							invoker.getClass().getName());
 					canNotAccelerateWarned=true;
 				}
@@ -140,10 +140,10 @@ public class AparapiKernel extends Kernel {
 		}
 		this.timeUnit = timeUnit;
 		if (invokerLegal) {
-			ArrayList<SinWaveInvoker> sinInvokers = new ArrayList<>();
-			for (WaveInvoker invoker : invokers) {
-				if (invoker instanceof SinWaveInvoker) {
-					sinInvokers.add((SinWaveInvoker) invoker);
+			ArrayList<SinSource> sinInvokers = new ArrayList<>();
+			for (Source invoker : invokers) {
+				if (invoker instanceof SinSource) {
+					sinInvokers.add((SinSource) invoker);
 				}
 			}
 			sinInvokersCount=sinInvokers.size();
@@ -156,7 +156,7 @@ public class AparapiKernel extends Kernel {
 				sinInvokersPeriod = new float[sinInvokersCount];
 				sinInvokersInitialPhase = new float[sinInvokersCount];
 				for(int sinInvokerId=0;sinInvokerId<sinInvokers.size();sinInvokerId++) {
-					SinWaveInvoker sinInvoker = sinInvokers.get(sinInvokerId);
+					SinSource sinInvoker = sinInvokers.get(sinInvokerId);
 					sinInvokersType[sinInvokerId] = getInvokerTypeCode(sinInvoker.getType());
 					sinInvokersInvokedUnitId[sinInvokerId] = sinInvoker.getInvokedUnitId();
 					sinInvokersStartTime[sinInvokerId] = sinInvoker.getStartTime();
@@ -174,14 +174,14 @@ public class AparapiKernel extends Kernel {
 			for(int i=0;i<count;i++) {
 				int setPositionUnitId = -1;
 				float setPosition = 0.0f;
-				for (WaveInvoker invoker : invokers) {
+				for (Source invoker : invokers) {
 					if (time > invoker.getEndTime()) continue;
 					int invokedUnitId = invoker.getInvokedUnitId();
 					float time = this.time - invoker.getStartTime();
 					
-					if (invoker.getType() == WaveInvoker.Type.FORCE) {
+					if (invoker.getType() == Source.Type.FORCE) {
 						unitsVelocity[invokedUnitId] += invoker.getValue(time) * this.timeUnit / unitsMass[invokedUnitId];
-					} else if (invoker.getType() == WaveInvoker.Type.POSITION) {
+					} else if (invoker.getType() == Source.Type.POSITION) {
 						setPositionUnitId = invokedUnitId;
 						setPosition = invoker.getValue(time);
 					}
