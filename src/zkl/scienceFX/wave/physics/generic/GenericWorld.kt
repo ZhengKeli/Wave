@@ -1,10 +1,10 @@
-package zkl.scienceFX.wave.physics.simple
+package zkl.scienceFX.wave.physics.generic
 
-import zkl.scienceFX.wave.physics.abstracts.*
+import zkl.scienceFX.wave.physics.*
 import java.util.*
 
 
-class SimpleNode(
+class GenericNode(
 	override var offset: Float,
 	override var velocity: Float,
 	override var mass: Float,
@@ -12,7 +12,7 @@ class SimpleNode(
 	override var extra: Any?
 ) : Node
 
-class SimpleLink(
+class GenericLink(
 	override val unitId1: Int,
 	override val unitId2: Int,
 	override var strength: Float,
@@ -43,17 +43,17 @@ fun <NodeId> Source<NodeId>.process(world: World<NodeId, *>, timeUnit: Float) {
 	}
 }
 
-class SimpleWorld(draft: WorldDraft) : World<Int, Int> {
+class GenericWorld(draft: GenericWorldDraft) : World<Int, Int> {
 	
-	private var _nodes: List<SimpleNode> = draft.nodes.map { unitDraft ->
-		SimpleNode(unitDraft.offset, unitDraft.velocity, unitDraft.mass, unitDraft.damping, unitDraft.extra)
+	private var _nodes: List<GenericNode> = draft.nodes.map { unitDraft ->
+		GenericNode(unitDraft.offset, unitDraft.velocity, unitDraft.mass, unitDraft.damping, unitDraft.extra)
 	}
-	private var _links: List<SimpleLink> = draft.links.map { linkDraft ->
-		SimpleLink(linkDraft.unitId1, linkDraft.unitId2, linkDraft.strength, linkDraft.extra)
+	private var _links: List<GenericLink> = draft.links.map { linkDraft ->
+		GenericLink(linkDraft.unitId1, linkDraft.unitId2, linkDraft.strength, linkDraft.extra)
 	}
 	
-	override fun getNode(id: Int): SimpleNode = _nodes[id]
-	override fun getLink(id: Int): SimpleLink = _links[id]
+	override fun getNode(id: Int): GenericNode = _nodes[id]
+	override fun getLink(id: Int): GenericLink = _links[id]
 	override var extra: Any? = draft.extra
 	override val invokers: MutableList<Source<Int>> = LinkedList()
 	

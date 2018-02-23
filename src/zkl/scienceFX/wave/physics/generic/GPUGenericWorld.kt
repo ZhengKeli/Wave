@@ -1,9 +1,9 @@
-package zkl.scienceFX.wave.physics.aparapi
+package zkl.scienceFX.wave.physics.generic
 
-import zkl.scienceFX.wave.physics.abstracts.*
+import zkl.scienceFX.wave.physics.*
 import java.util.*
 
-class AparapiWorld(draft: WorldDraft) : World<Int, Int> {
+class GPUGenericWorld(draft: GenericWorldDraft) : World<Int, Int> {
 	
 	override fun getNode(id: Int): Node = kernel.run {
 		object : Node {
@@ -59,9 +59,9 @@ class AparapiWorld(draft: WorldDraft) : World<Int, Int> {
 	
 	override var extra: Any? = draft.extra
 	
-	val kernel: AparapiKernel = kotlin.run {
+	val kernel: GPUKernel = kotlin.run {
 		println("launching OpenCL ...")
-		val kernel = AparapiKernel(draft)
+		val kernel = GPUKernel(draft)
 		
 		println("warming up OpenCL ...")
 		kernel.process(1, 0f, emptyList())

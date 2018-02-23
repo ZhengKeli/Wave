@@ -1,18 +1,15 @@
-package zkl.scienceFX.wave.physics.aparapi;
+package zkl.scienceFX.wave.physics.generic;
 
 import com.aparapi.Kernel;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import zkl.scienceFX.wave.physics.abstracts.Invoking;
-import zkl.scienceFX.wave.physics.abstracts.LinkDraft;
-import zkl.scienceFX.wave.physics.abstracts.NodeDraft;
-import zkl.scienceFX.wave.physics.abstracts.SinInvoking;
-import zkl.scienceFX.wave.physics.abstracts.Source;
-import zkl.scienceFX.wave.physics.abstracts.WorldDraft;
+import zkl.scienceFX.wave.physics.Invoking;
+import zkl.scienceFX.wave.physics.SinInvoking;
+import zkl.scienceFX.wave.physics.Source;
 
-public class AparapiKernel extends Kernel {
+public class GPUKernel extends Kernel {
 	/**
 	 * 为了避免不同计算单元的 unitOffset 互相影响（在 intel 的运算平台上会互相影响），
 	 * 将 unitOffset 分为两部分，交替地用于存储每次计算的源数据和计算结果，
@@ -63,9 +60,9 @@ public class AparapiKernel extends Kernel {
 		}
 	}
 	
-	public AparapiKernel(WorldDraft worldDraft) {
+	public GPUKernel(GenericWorldDraft worldDraft) {
 		//排入unit信息
-		List<NodeDraft> units = worldDraft.getNodes();
+		List<GenericNodeDraft> units = worldDraft.getNodes();
 		unitsCount = units.size();
 		unitsOffset_s0 = new float[unitsCount];
 		unitsOffset_s1 = new float[unitsCount];
@@ -74,7 +71,7 @@ public class AparapiKernel extends Kernel {
 		unitsDamping = new float[unitsCount];
 		unitsExtra = new Object[unitsCount];
 		for (int unitId = 0; unitId < unitsCount; unitId++) {
-			NodeDraft unitDraft = units.get(unitId);
+			GenericNodeDraft unitDraft = units.get(unitId);
 			unitsOffset_s0[unitId] = unitDraft.getOffset();
 			unitsVelocity[unitId] = unitDraft.getVelocity();
 			unitsMass[unitId] = unitDraft.getMass();
@@ -83,7 +80,7 @@ public class AparapiKernel extends Kernel {
 		}
 		
 		//排入link信息
-		List<LinkDraft> links = worldDraft.getLinks();
+		List<GenericLinkDraft> links = worldDraft.getLinks();
 		linksCount = links.size();
 		linksExtra = new Object[linksCount];
 		//构建 unit-links 映射表
@@ -92,7 +89,7 @@ public class AparapiKernel extends Kernel {
 			unitsLinksId.add(new ArrayList<>(4));
 		}
 		for (int linkId = 0; linkId < linksCount; linkId++) {
-			LinkDraft linkDraft = links.get(linkId);
+			GenericLinkDraft linkDraft = links.get(linkId);
 			linksExtra[linkId] = linkDraft.getExtra();
 			unitsLinksId.get(linkDraft.getUnitId1()).add(linkId);
 			unitsLinksId.get(linkDraft.getUnitId2()).add(linkId);
@@ -109,7 +106,7 @@ public class AparapiKernel extends Kernel {
 		for (int unitId = 0; unitId < unitsCount; unitId++) {
 			unitsImpactStartId[unitId] = impactId;
 			for (int linkId : unitsLinksId.get(unitId)) {
-				LinkDraft link = links.get(linkId);
+				GenericLinkDraft link = links.get(linkId);
 				if (unitId == link.getUnitId1()) {
 					impactsFromUnitId[impactId] = link.getUnitId2();
 					linksImpactId1[linkId] = impactId;

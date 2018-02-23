@@ -1,12 +1,12 @@
-package zkl.scienceFX.wave.physics.abstracts
+package zkl.scienceFX.wave.physics.generic
 
-interface WorldDraft {
-	val nodes: List<NodeDraft>
-	val links: List<LinkDraft>
+interface GenericWorldDraft {
+	val nodes: List<GenericNodeDraft>
+	val links: List<GenericLinkDraft>
 	val extra: Any?
 }
 
-interface NodeDraft {
+interface GenericNodeDraft {
 	val id: Int
 	val offset: Float
 	val velocity: Float
@@ -15,7 +15,7 @@ interface NodeDraft {
 	val extra: Any?
 }
 
-interface LinkDraft {
+interface GenericLinkDraft {
 	val unitId1: Int
 	val unitId2: Int
 	val strength: Float

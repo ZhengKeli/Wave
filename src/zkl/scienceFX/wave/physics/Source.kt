@@ -1,6 +1,7 @@
-package zkl.scienceFX.wave.physics.abstracts
+package zkl.scienceFX.wave.physics
 
-import zkl.scienceFX.wave.physics.abstracts.Invoking.Type
+import zkl.scienceFX.wave.physics.Invoking.Type
+
 
 interface Invoking {
 	
