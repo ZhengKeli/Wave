@@ -1,35 +1,28 @@
 package zkl.science.wave.physics.line
 
-import zkl.science.wave.physics.AbstractWorld
-import zkl.science.wave.physics.Link
-import zkl.science.wave.physics.generic.GenericNode
+import zkl.science.wave.physics.World
+import zkl.science.wave.physics.generic.GenericNodeDraft
 
-typealias LineNode = GenericNode
+typealias LineNodeDraft = GenericNodeDraft
 
-class LineLink(
-	private val x: Int,
-	override var strength: Float,
-	override var extra: Any?
-) : Link<Int> {
-	override val unitId1: Int get() = x
-	override val unitId2: Int get() = x + 1
+interface LineLinkDraft {
+	val strength: Float
+	val extra: Any?
 }
 
-class LineWorld(draft: LineWorldDraft) : AbstractWorld<Int, Int>() {
+interface LineWorldDraft {
+	val length: Int
 	
-	val length get() = links.size
-	override val nodes = draft.run {
-		Array(noteCount) {
-			getNode(it).run { LineNode(offset, velocity, mass, damping, extra) }
-		}.toMutableList()
-	}
-	override val links = draft.run {
-		Array(linkCount) {
-			getLink(it).run { LineLink(it, strength, extra) }
-		}.toMutableList()
-	}
+	val noteCount get() = length + 1
+	fun getNode(x: Int): LineNodeDraft
 	
-	override fun getNode(id: Int): LineNode = nodes[id]
-	override fun getLink(id: Int): LineLink = links[id]
+	val linkCount get() = length
+	fun getLink(x: Int): LineLinkDraft
 	
+	val extra: Any?
+	
+}
+
+interface LineWorld : World<Int, Int> {
+	val length: Int
 }

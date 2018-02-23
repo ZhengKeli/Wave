@@ -9,29 +9,29 @@ import zkl.science.wave.physics.Invoking;
 import zkl.science.wave.physics.SinInvoking;
 import zkl.science.wave.physics.Source;
 
-public class GPUKernel extends Kernel {
+public class GPUGenericKernel extends Kernel {
 	/**
-	 * 为了避免不同计算单元的 unitOffset 互相影响（在 intel 的运算平台上会互相影响），
-	 * 将 unitOffset 分为两部分，交替地用于存储每次计算的源数据和计算结果，
+	 * 为了避免不同计算单元的 nodeOffset 互相影响（在 intel 的运算平台上会互相影响），
+	 * 将 nodeOffset 分为两部分，交替地用于存储每次计算的源数据和计算结果，
 	 * 用computeCount的奇偶来判断用哪个
 	 */
 	int computeCount = 0;
 	
-	int unitsCount;
-	float[] unitsOffset_s0;
-	float[] unitsOffset_s1;
-	float[] unitsVelocity;
-	float[] unitsMass;
-	float[] unitsDamping;
-	Object[] unitsExtra;
+	int nodesCount;
+	float[] nodesOffset_s0;
+	float[] nodesOffset_s1;
+	float[] nodesVelocity;
+	float[] nodesMass;
+	float[] nodesDamping;
+	Object[] nodesExtra;
 	
 	int linksCount;
 	Object[] linksExtra;
 	
-	int[] impactsFromUnitId;
+	int[] impactsFromNodeId;
 	float[] impactsStrength;
-	private int[] unitsImpactStartId;
-	private int[] unitsImpactEndId;
+	private int[] nodesImpactStartId;
+	private int[] nodesImpactEndId;
 	int[] linksImpactId1;
 	int[] linksImpactId2;
 	
@@ -40,7 +40,7 @@ public class GPUKernel extends Kernel {
 	
 	private int sinSourcesCount = 0;
 	private int[] sinSourcesType = new int[1];
-	private int[] sinSourcesInvokedUnitId = new int[1];
+	private int[] sinSourcesInvokedNodeId = new int[1];
 	private float[] sinSourcesStartTime = new float[1];
 	private float[] sinSourcesEndTime = new float[1];
 	private float[] sinSourcesScale = new float[1];
@@ -60,64 +60,64 @@ public class GPUKernel extends Kernel {
 		}
 	}
 	
-	public GPUKernel(GenericWorldDraft worldDraft) {
-		//排入unit信息
-		List<GenericNodeDraft> units = worldDraft.getNodes();
-		unitsCount = units.size();
-		unitsOffset_s0 = new float[unitsCount];
-		unitsOffset_s1 = new float[unitsCount];
-		unitsVelocity = new float[unitsCount];
-		unitsMass = new float[unitsCount];
-		unitsDamping = new float[unitsCount];
-		unitsExtra = new Object[unitsCount];
-		for (int unitId = 0; unitId < unitsCount; unitId++) {
-			GenericNodeDraft unitDraft = units.get(unitId);
-			unitsOffset_s0[unitId] = unitDraft.getOffset();
-			unitsVelocity[unitId] = unitDraft.getVelocity();
-			unitsMass[unitId] = unitDraft.getMass();
-			unitsDamping[unitId] = unitDraft.getDamping();
-			unitsExtra[unitId] = unitDraft.getExtra();
+	public GPUGenericKernel(GenericWorldDraft worldDraft) {
+		//排入node信息
+		List<GenericNodeDraft> nodes = worldDraft.getNodes();
+		nodesCount = nodes.size();
+		nodesOffset_s0 = new float[nodesCount];
+		nodesOffset_s1 = new float[nodesCount];
+		nodesVelocity = new float[nodesCount];
+		nodesMass = new float[nodesCount];
+		nodesDamping = new float[nodesCount];
+		nodesExtra = new Object[nodesCount];
+		for (int nodeId = 0; nodeId < nodesCount; nodeId++) {
+			GenericNodeDraft nodeDraft = nodes.get(nodeId);
+			nodesOffset_s0[nodeId] = nodeDraft.getOffset();
+			nodesVelocity[nodeId] = nodeDraft.getVelocity();
+			nodesMass[nodeId] = nodeDraft.getMass();
+			nodesDamping[nodeId] = nodeDraft.getDamping();
+			nodesExtra[nodeId] = nodeDraft.getExtra();
 		}
 		
 		//排入link信息
 		List<GenericLinkDraft> links = worldDraft.getLinks();
 		linksCount = links.size();
 		linksExtra = new Object[linksCount];
-		//构建 unit-links 映射表
-		ArrayList<ArrayList<Integer>> unitsLinksId = new ArrayList<>(unitsCount);
-		for (int unitId = 0; unitId < unitsCount; unitId++) {
-			unitsLinksId.add(new ArrayList<>(4));
+		//构建 node-links 映射表
+		ArrayList<ArrayList<Integer>> nodesLinksId = new ArrayList<>(nodesCount);
+		for (int nodeId = 0; nodeId < nodesCount; nodeId++) {
+			nodesLinksId.add(new ArrayList<>(4));
 		}
 		for (int linkId = 0; linkId < linksCount; linkId++) {
 			GenericLinkDraft linkDraft = links.get(linkId);
 			linksExtra[linkId] = linkDraft.getExtra();
-			unitsLinksId.get(linkDraft.getUnitId1()).add(linkId);
-			unitsLinksId.get(linkDraft.getUnitId2()).add(linkId);
+			nodesLinksId.get(linkDraft.getNodeId1()).add(linkId);
+			nodesLinksId.get(linkDraft.getNodeId2()).add(linkId);
 		}
 		
-		//根据 unit-links 映射表构建 unit-impacts 映射
-		impactsFromUnitId = new int[linksCount * 2];
+		//根据 node-links 映射表构建 node-impacts 映射
+		impactsFromNodeId = new int[linksCount * 2];
 		impactsStrength = new float[linksCount * 2];
-		unitsImpactStartId = new int[unitsCount];
-		unitsImpactEndId = new int[unitsCount];
+		nodesImpactStartId = new int[nodesCount];
+		nodesImpactEndId = new int[nodesCount];
 		linksImpactId1 = new int[linksCount];
 		linksImpactId2 = new int[linksCount];
 		int impactId = 0;
-		for (int unitId = 0; unitId < unitsCount; unitId++) {
-			unitsImpactStartId[unitId] = impactId;
-			for (int linkId : unitsLinksId.get(unitId)) {
+		for (int nodeId = 0; nodeId < nodesCount; nodeId++) {
+			nodesImpactStartId[nodeId] = impactId;
+			for (int linkId : nodesLinksId.get(nodeId)) {
 				GenericLinkDraft link = links.get(linkId);
-				if (unitId == link.getUnitId1()) {
-					impactsFromUnitId[impactId] = link.getUnitId2();
+				if (nodeId == link.getNodeId1()) {
+					impactsFromNodeId[impactId] = link.getNodeId2();
 					linksImpactId1[linkId] = impactId;
-				} else if (unitId == link.getUnitId2()) {
-					impactsFromUnitId[impactId] = link.getUnitId1();
+				} else if (nodeId == link.getNodeId2()) {
+					impactsFromNodeId[impactId] = link.getNodeId1();
 					linksImpactId2[linkId] = impactId;
 				}
 				impactsStrength[impactId] = link.getStrength();
 				impactId++;
 			}
-			unitsImpactEndId[unitId] = impactId;
+			nodesImpactEndId[nodeId] = impactId;
 		}
 		
 	}
@@ -149,7 +149,7 @@ public class GPUKernel extends Kernel {
 			sinSourcesCount = sinSources.size();
 			if (sinSourcesCount > 0) {
 				sinSourcesType = new int[sinSourcesCount];
-				sinSourcesInvokedUnitId = new int[sinSourcesCount];
+				sinSourcesInvokedNodeId = new int[sinSourcesCount];
 				sinSourcesStartTime = new float[sinSourcesCount];
 				sinSourcesEndTime = new float[sinSourcesCount];
 				sinSourcesScale = new float[sinSourcesCount];
@@ -159,7 +159,7 @@ public class GPUKernel extends Kernel {
 					Source<Integer> source = sinSources.get(sinSourceId);
 					SinInvoking sinInvoking = (SinInvoking) source.getInvoking();
 					sinSourcesType[sinSourceId] = getInvokerTypeCode(sinInvoking.getType());
-					sinSourcesInvokedUnitId[sinSourceId] = source.getNodeId();
+					sinSourcesInvokedNodeId[sinSourceId] = source.getNodeId();
 					sinSourcesStartTime[sinSourceId] = sinInvoking.getStartTime();
 					sinSourcesEndTime[sinSourceId] = sinInvoking.getEndTime();
 					sinSourcesScale[sinSourceId] = sinInvoking.getScale();
@@ -167,13 +167,13 @@ public class GPUKernel extends Kernel {
 					sinSourcesInitialPhase[sinSourceId] = sinInvoking.getInitialPhase();
 				}
 			}
-			execute(unitsCount, count);
+			execute(nodesCount, count);
 			computeCount += count;
 			time += this.timeUnit * count;
 			sinSourcesCount = 0;
 		} else {
 			for (int i = 0; i < count; i++) {
-				int setPositionUnitId = -1;
+				int setPositionNodeId = -1;
 				float setPosition = 0.0f;
 				for (Source<Integer> source : sources) {
 					if (time > source.getEndTime()) continue;
@@ -181,18 +181,18 @@ public class GPUKernel extends Kernel {
 					float time = this.time - source.getStartTime();
 					
 					if (source.getType() == Invoking.Type.FORCE) {
-						unitsVelocity[nodeId] += source.getValue(time) * this.timeUnit / unitsMass[nodeId];
+						nodesVelocity[nodeId] += source.getValue(time) * this.timeUnit / nodesMass[nodeId];
 					} else if (source.getType() == Invoking.Type.POSITION) {
-						setPositionUnitId = nodeId;
+						setPositionNodeId = nodeId;
 						setPosition = source.getValue(time);
 					}
 				}
-				execute(unitsCount);
-				if (setPositionUnitId != -1) {
+				execute(nodesCount);
+				if (setPositionNodeId != -1) {
 					if (computeCount % 2 == 0) {
-						unitsOffset_s1[setPositionUnitId] = setPosition;
+						nodesOffset_s1[setPositionNodeId] = setPosition;
 					} else {
-						unitsOffset_s0[setPositionUnitId] = setPosition;
+						nodesOffset_s0[setPositionNodeId] = setPosition;
 					}
 				}
 				computeCount++;
@@ -205,7 +205,7 @@ public class GPUKernel extends Kernel {
 	
 	@Override
 	public void run() {
-		int unitId = getGlobalId();
+		int nodeId = getGlobalId();
 		int thisComputeCount = computeCount + getPassId();
 		float force = 0.0f;
 		
@@ -213,7 +213,7 @@ public class GPUKernel extends Kernel {
 		boolean positionSet = false;
 		float nowProcessedTime = time + getPassId() * timeUnit;
 		for (int sinSourceId = 0; sinSourceId < sinSourcesCount; sinSourceId++) {
-			if (sinSourcesInvokedUnitId[sinSourceId] != unitId) continue;
+			if (sinSourcesInvokedNodeId[sinSourceId] != nodeId) continue;
 			if (nowProcessedTime < sinSourcesStartTime[sinSourceId]) continue;
 			if (nowProcessedTime > sinSourcesEndTime[sinSourceId]) continue;
 			float time = nowProcessedTime - sinSourcesStartTime[sinSourceId];
@@ -225,43 +225,43 @@ public class GPUKernel extends Kernel {
 				force += invokeValue;
 			} else if (sinSourcesType[sinSourceId] == INVOKER_TYPE_POSITION) {
 				if (thisComputeCount % 2 == 0) {
-					unitsOffset_s1[unitId] = invokeValue;
+					nodesOffset_s1[nodeId] = invokeValue;
 				} else {
-					unitsOffset_s0[unitId] = invokeValue;
+					nodesOffset_s0[nodeId] = invokeValue;
 				}
 				positionSet = true;
 			}
 		}
 		
 		//计算由link产生的force
-		int linkedId = unitsImpactStartId[unitId];
-		int linkedEndId = unitsImpactEndId[unitId];
+		int linkedId = nodesImpactStartId[nodeId];
+		int linkedEndId = nodesImpactEndId[nodeId];
 		if (thisComputeCount % 2 == 0) {
 			while (linkedId < linkedEndId) {
-				force += (unitsOffset_s0[impactsFromUnitId[linkedId]] - unitsOffset_s0[unitId]) * impactsStrength[linkedId];
+				force += (nodesOffset_s0[impactsFromNodeId[linkedId]] - nodesOffset_s0[nodeId]) * impactsStrength[linkedId];
 				linkedId++;
 			}
 		} else {
 			while (linkedId < linkedEndId) {
-				force += (unitsOffset_s1[impactsFromUnitId[linkedId]] - unitsOffset_s1[unitId]) * impactsStrength[linkedId];
+				force += (nodesOffset_s1[impactsFromNodeId[linkedId]] - nodesOffset_s1[nodeId]) * impactsStrength[linkedId];
 				linkedId++;
 			}
 		}
 		
 		
 		//由 force 算出新速度和新位移
-		unitsVelocity[unitId] += force / unitsMass[unitId] * timeUnit;
+		nodesVelocity[nodeId] += force / nodesMass[nodeId] * timeUnit;
 		if (!positionSet) {
 			if (thisComputeCount % 2 == 0) {
-				unitsOffset_s1[unitId] = unitsOffset_s0[unitId] + unitsVelocity[unitId] * timeUnit;
+				nodesOffset_s1[nodeId] = nodesOffset_s0[nodeId] + nodesVelocity[nodeId] * timeUnit;
 			} else {
-				unitsOffset_s0[unitId] = unitsOffset_s1[unitId] + unitsVelocity[unitId] * timeUnit;
+				nodesOffset_s0[nodeId] = nodesOffset_s1[nodeId] + nodesVelocity[nodeId] * timeUnit;
 			}
 		}
 		
 		
 		//阻尼
-		unitsVelocity[unitId] -= unitsVelocity[unitId] * unitsDamping[unitId] * timeUnit;
+		nodesVelocity[nodeId] -= nodesVelocity[nodeId] * nodesDamping[nodeId] * timeUnit;
 		
 	}
 	

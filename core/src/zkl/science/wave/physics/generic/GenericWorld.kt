@@ -1,34 +1,29 @@
 package zkl.science.wave.physics.generic
 
-import zkl.science.wave.physics.AbstractWorld
-import zkl.science.wave.physics.Link
-import zkl.science.wave.physics.Node
+import zkl.science.wave.physics.World
 
-class GenericNode(
-	override var offset: Float,
-	override var velocity: Float,
-	override var mass: Float,
-	override var damping: Float,
-	override var extra: Any?
-) : Node
+interface GenericWorldDraft {
+	val nodes: List<GenericNodeDraft>
+	val links: List<GenericLinkDraft>
+	val extra: Any?
+}
 
-class GenericLink(
-	override val unitId1: Int,
-	override val unitId2: Int,
-	override var strength: Float,
-	override var extra: Any?
-) : Link<Int>
+interface GenericNodeDraft {
+	val offset: Float
+	val velocity: Float
+	val mass: Float
+	val damping: Float
+	val extra: Any?
+}
 
-class GenericWorld(draft: GenericWorldDraft) : AbstractWorld<Int, Int>() {
-	
-	override val nodes = draft.nodes.map { unitDraft ->
-		GenericNode(unitDraft.offset, unitDraft.velocity, unitDraft.mass, unitDraft.damping, unitDraft.extra)
-	}
-	override val links = draft.links.map { linkDraft ->
-		GenericLink(linkDraft.unitId1, linkDraft.unitId2, linkDraft.strength, linkDraft.extra)
-	}
-	
-	override fun getNode(id: Int): GenericNode = this.nodes[id]
-	override fun getLink(id: Int): GenericLink = links[id]
-	
+interface GenericLinkDraft {
+	val nodeId1: Int
+	val nodeId2: Int
+	val strength: Float
+	val extra: Any?
+}
+
+interface GenericWorld : World<Int, Int> {
+	val nodeCount: Int
+	val linkCount: Int
 }

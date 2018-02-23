@@ -1,46 +1,51 @@
 package zkl.science.wave.physics.generic
 
-import zkl.science.wave.physics.*
+import zkl.science.wave.physics.Link
+import zkl.science.wave.physics.Node
+import zkl.science.wave.physics.Source
+import zkl.science.wave.physics.span
 import java.util.*
 
-class GPUGenericWorld(draft: GenericWorldDraft) : World<Int, Int> {
+class GPUGenericWorld(draft: GenericWorldDraft) : GenericWorld {
 	
+	override val nodeCount: Int get() = kernel.nodesCount
 	override fun getNode(id: Int): Node = kernel.run {
 		object : Node {
 			override var offset: Float
-				get() = if (computeCount % 2 == 0) unitsOffset_s0[id] else unitsOffset_s1[id]
+				get() = if (computeCount % 2 == 0) nodesOffset_s0[id] else nodesOffset_s1[id]
 				set(value) {
-					if (computeCount % 2 == 0) unitsOffset_s0[id] = value else unitsOffset_s1[id] = value
+					if (computeCount % 2 == 0) nodesOffset_s0[id] = value else nodesOffset_s1[id] = value
 				}
 			override var velocity: Float
-				get() = unitsVelocity[id]
+				get() = nodesVelocity[id]
 				set(value) {
-					unitsVelocity[id] = value
+					nodesVelocity[id] = value
 				}
 			override var mass: Float
-				get() = unitsMass[id]
+				get() = nodesMass[id]
 				set(value) {
-					unitsMass[id] = value
+					nodesMass[id] = value
 				}
 			override var damping: Float
-				get() = unitsDamping[id]
+				get() = nodesDamping[id]
 				set(value) {
-					unitsDamping[id] = value
+					nodesDamping[id] = value
 				}
 			override var extra: Any?
-				get() = unitsExtra[id]
+				get() = nodesExtra[id]
 				set(value) {
-					unitsExtra[id] = value
+					nodesExtra[id] = value
 				}
 		}
 	}
 	
+	override val linkCount: Int get() = kernel.linksCount
 	override fun getLink(id: Int): Link<Int> = kernel.run {
 		object : Link<Int> {
 			override val unitId1: Int
-				get() = kernel.run { impactsFromUnitId[linksImpactId2[id]] }
+				get() = kernel.run { impactsFromNodeId[linksImpactId2[id]] }
 			override val unitId2: Int
-				get() = kernel.run { impactsFromUnitId[linksImpactId1[id]] }
+				get() = kernel.run { impactsFromNodeId[linksImpactId1[id]] }
 			override var strength: Float
 				get() = impactsStrength[linksImpactId1[id]]
 				set(value) {
@@ -59,9 +64,9 @@ class GPUGenericWorld(draft: GenericWorldDraft) : World<Int, Int> {
 	
 	override var extra: Any? = draft.extra
 	
-	val kernel: GPUKernel = kotlin.run {
+	val kernel: GPUGenericKernel = kotlin.run {
 		println("launching OpenCL ...")
-		val kernel = GPUKernel(draft)
+		val kernel = GPUGenericKernel(draft)
 		
 		println("warming up OpenCL ...")
 		kernel.process(1, 0f, emptyList())
