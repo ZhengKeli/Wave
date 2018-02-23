@@ -30,7 +30,7 @@ interface World {
 	}
 	
 	fun processInvoke(invoker: Source, timeUnit: Float) {
-		val targetUnit = nodes[invoker.invokedUnitId]
+		val targetUnit = nodes[invoker.nodeId]
 		val invokerValue = invoker.getValue(time - invoker.startTime)
 		when (invoker.type) {
 			Source.Type.FORCE -> targetUnit.velocity += invokerValue / targetUnit.mass * timeUnit

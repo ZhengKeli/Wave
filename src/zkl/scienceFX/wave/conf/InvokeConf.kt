@@ -19,13 +19,13 @@ class SinInvokeConf : (World) -> Unit {
 	
 	override fun invoke(world: World) {
 		SinSource(
-			invokedUnitId = targetUnitId,
+			nodeId = targetUnitId,
 			startTime = world.time + delay,
-			type = type,
-			scale = scale,
 			period = period,
+			initialPhase = initialPhase,
 			repeat = repeat,
-			initialPhase = initialPhase
+			type = type,
+			scale = scale
 		).let { world.invokers.add(it) }
 	}
 	
@@ -53,11 +53,11 @@ class SquareInvokeConf : (World) -> Unit {
 	
 	override fun invoke(world: World) {
 		SquareSource(
-			invokedUnitId = targetUnitId,
+			nodeId = targetUnitId,
 			startTime = world.time + delay,
-			scale = scale,
 			period = period,
-			repeat = repeat
+			repeat = repeat,
+			scale = scale
 		).let { world.invokers.add(it) }
 	}
 	

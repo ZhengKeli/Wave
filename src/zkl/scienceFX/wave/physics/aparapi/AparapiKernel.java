@@ -158,7 +158,7 @@ public class AparapiKernel extends Kernel {
 				for(int sinInvokerId=0;sinInvokerId<sinInvokers.size();sinInvokerId++) {
 					SinSource sinInvoker = sinInvokers.get(sinInvokerId);
 					sinInvokersType[sinInvokerId] = getInvokerTypeCode(sinInvoker.getType());
-					sinInvokersInvokedUnitId[sinInvokerId] = sinInvoker.getInvokedUnitId();
+					sinInvokersInvokedUnitId[sinInvokerId] = sinInvoker.getNodeId();
 					sinInvokersStartTime[sinInvokerId] = sinInvoker.getStartTime();
 					sinInvokersEndTime[sinInvokerId] = sinInvoker.getEndTime();
 					sinInvokersScale[sinInvokerId] = sinInvoker.getScale();
@@ -176,7 +176,7 @@ public class AparapiKernel extends Kernel {
 				float setPosition = 0.0f;
 				for (Source invoker : invokers) {
 					if (time > invoker.getEndTime()) continue;
-					int invokedUnitId = invoker.getInvokedUnitId();
+					int invokedUnitId = invoker.getNodeId();
 					float time = this.time - invoker.getStartTime();
 					
 					if (invoker.getType() == Source.Type.FORCE) {
