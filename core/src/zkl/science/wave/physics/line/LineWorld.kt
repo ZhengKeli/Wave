@@ -7,7 +7,7 @@ import zkl.science.wave.physics.generic.GenericNode
 typealias LineNode = GenericNode
 
 class LineLink(
-	val x: Int,
+	private val x: Int,
 	override var strength: Float,
 	override var extra: Any?
 ) : Link<Int> {
@@ -17,21 +17,19 @@ class LineLink(
 
 class LineWorld(draft: LineWorldDraft) : AbstractWorld<Int, Int>() {
 	
-	private val _nodes = draft.run {
+	val length get() = links.size
+	override val nodes = draft.run {
 		Array(noteCount) {
 			getNode(it).run { LineNode(offset, velocity, mass, damping, extra) }
 		}.toMutableList()
 	}
-	private val _links = draft.run {
+	override val links = draft.run {
 		Array(linkCount) {
 			getLink(it).run { LineLink(it, strength, extra) }
 		}.toMutableList()
 	}
 	
-	public override fun getAllNodes() = _nodes
-	public override fun getAllLinks() = _links
-	
-	override fun getNode(id: Int): LineNode = getAllNodes()[id]
-	override fun getLink(id: Int): LineLink = getAllLinks()[id]
+	override fun getNode(id: Int): LineNode = nodes[id]
+	override fun getLink(id: Int): LineLink = links[id]
 	
 }
