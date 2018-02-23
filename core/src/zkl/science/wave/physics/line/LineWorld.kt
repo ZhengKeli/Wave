@@ -1,9 +1,14 @@
 package zkl.science.wave.physics.line
 
 import zkl.science.wave.physics.World
-import zkl.science.wave.physics.generic.GenericNodeDraft
 
-typealias LineNodeDraft = GenericNodeDraft
+interface LineNodeDraft {
+	val offset: Float
+	val velocity: Float
+	val mass: Float
+	val damping: Float
+	val extra: Any?
+}
 
 interface LineLinkDraft {
 	val strength: Float

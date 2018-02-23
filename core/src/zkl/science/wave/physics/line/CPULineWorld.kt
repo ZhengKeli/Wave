@@ -2,9 +2,15 @@ package zkl.science.wave.physics.line
 
 import zkl.science.wave.physics.AbstractWorld
 import zkl.science.wave.physics.Link
-import zkl.science.wave.physics.generic.CPUGenericNode
+import zkl.science.wave.physics.Node
 
-typealias CPULineNode = CPUGenericNode
+class CPULineNode(
+	override var offset: Float,
+	override var velocity: Float,
+	override var mass: Float,
+	override var damping: Float,
+	override var extra: Any?
+) : Node
 
 class CPULineLink(
 	private val x: Int,
