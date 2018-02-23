@@ -1,4 +1,4 @@
-package zkl.scienceFX.wave.physics
+package zkl.science.wave.physics
 
 
 interface Node {

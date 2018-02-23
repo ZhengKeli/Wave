@@ -1,13 +1,13 @@
-package zkl.scienceFX.wave.physics.generic;
+package zkl.science.wave.physics.generic;
 
 import com.aparapi.Kernel;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import zkl.scienceFX.wave.physics.Invoking;
-import zkl.scienceFX.wave.physics.SinInvoking;
-import zkl.scienceFX.wave.physics.Source;
+import zkl.science.wave.physics.Invoking;
+import zkl.science.wave.physics.SinInvoking;
+import zkl.science.wave.physics.Source;
 
 public class GPUKernel extends Kernel {
 	/**

@@ -1,4 +1,4 @@
-package zkl.scienceFX.wave.physics.generic
+package zkl.science.wave.physics.generic
 
 interface GenericWorldDraft {
 	val nodes: List<GenericNodeDraft>

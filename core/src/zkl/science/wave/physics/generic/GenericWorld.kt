@@ -1,6 +1,6 @@
-package zkl.scienceFX.wave.physics.generic
+package zkl.science.wave.physics.generic
 
-import zkl.scienceFX.wave.physics.*
+import zkl.science.wave.physics.*
 import java.util.*
 
 
