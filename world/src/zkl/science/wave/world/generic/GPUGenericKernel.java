@@ -5,9 +5,9 @@ import com.aparapi.Kernel;
 import java.util.ArrayList;
 import java.util.List;
 
-import zkl.science.wave.world.Invoking;
-import zkl.science.wave.world.SinInvoking;
+import zkl.science.wave.world.SinSource;
 import zkl.science.wave.world.Source;
+import zkl.science.wave.world.SourceType;
 
 public class GPUGenericKernel extends Kernel {
 	/**
@@ -50,10 +50,10 @@ public class GPUGenericKernel extends Kernel {
 	private static final int INVOKER_TYPE_FORCE = 0;
 	private static final int INVOKER_TYPE_POSITION = 1;
 	
-	private static int getInvokerTypeCode(Invoking.Type invokeType) {
-		if (invokeType == Invoking.Type.FORCE) {
+	private static int getInvokerTypeCode(SourceType invokeType) {
+		if (invokeType == SourceType.FORCE) {
 			return INVOKER_TYPE_FORCE;
-		} else if (invokeType == Invoking.Type.POSITION) {
+		} else if (invokeType == SourceType.POSITION) {
 			return INVOKER_TYPE_POSITION;
 		} else {
 			return -1;
@@ -127,7 +127,7 @@ public class GPUGenericKernel extends Kernel {
 	public void process(int count, float timeUnit, List<Source<Integer>> sources) {
 		boolean invokerLegal = true;
 		for (Source source : sources) {
-			if (!(source.getInvoking() instanceof SinInvoking)) {
+			if (!(source instanceof SinSource)) {
 				invokerLegal = false;
 				if (!canNotAccelerateWarned) {
 					System.err.println(
@@ -140,10 +140,10 @@ public class GPUGenericKernel extends Kernel {
 		}
 		this.timeUnit = timeUnit;
 		if (invokerLegal) {
-			ArrayList<Source<Integer>> sinSources = new ArrayList<>();
+			ArrayList<SinSource<Integer>> sinSources = new ArrayList<>();
 			for (Source<Integer> source : sources) {
-				if (source.getInvoking() instanceof SinInvoking) {
-					sinSources.add(source);
+				if (source instanceof SinSource) {
+					sinSources.add((SinSource<Integer>) source);
 				}
 			}
 			sinSourcesCount = sinSources.size();
@@ -156,15 +156,14 @@ public class GPUGenericKernel extends Kernel {
 				sinSourcesPeriod = new float[sinSourcesCount];
 				sinSourcesInitialPhase = new float[sinSourcesCount];
 				for (int sinSourceId = 0; sinSourceId < sinSources.size(); sinSourceId++) {
-					Source<Integer> source = sinSources.get(sinSourceId);
-					SinInvoking sinInvoking = (SinInvoking) source.getInvoking();
-					sinSourcesType[sinSourceId] = getInvokerTypeCode(sinInvoking.getType());
+					SinSource<Integer> source = sinSources.get(sinSourceId);
+					sinSourcesType[sinSourceId] = getInvokerTypeCode(source.getType());
 					sinSourcesInvokedNodeId[sinSourceId] = source.getNodeId();
-					sinSourcesStartTime[sinSourceId] = sinInvoking.getStartTime();
-					sinSourcesEndTime[sinSourceId] = sinInvoking.getEndTime();
-					sinSourcesScale[sinSourceId] = sinInvoking.getScale();
-					sinSourcesPeriod[sinSourceId] = sinInvoking.getPeriod();
-					sinSourcesInitialPhase[sinSourceId] = sinInvoking.getInitialPhase();
+					sinSourcesStartTime[sinSourceId] = source.getStartTime();
+					sinSourcesEndTime[sinSourceId] = source.getEndTime();
+					sinSourcesScale[sinSourceId] = source.getScale();
+					sinSourcesPeriod[sinSourceId] = source.getPeriod();
+					sinSourcesInitialPhase[sinSourceId] = source.getInitialPhase();
 				}
 			}
 			execute(nodesCount, count);
@@ -180,9 +179,9 @@ public class GPUGenericKernel extends Kernel {
 					int nodeId = source.getNodeId();
 					float time = this.time - source.getStartTime();
 					
-					if (source.getType() == Invoking.Type.FORCE) {
+					if (source.getType() == SourceType.FORCE) {
 						nodesVelocity[nodeId] += source.getValue(time) * this.timeUnit / nodesMass[nodeId];
-					} else if (source.getType() == Invoking.Type.POSITION) {
+					} else if (source.getType() == SourceType.POSITION) {
 						setPositionNodeId = nodeId;
 						setPosition = source.getValue(time);
 					}

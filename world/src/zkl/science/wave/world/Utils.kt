@@ -21,8 +21,8 @@ internal fun <NodeId, LinkId> processSource(world: World<NodeId, LinkId>, source
 	val targetUnit = world.getNode(source.nodeId)
 	val invokerValue = source.getValue(world.time - source.startTime)
 	when (source.type) {
-		Invoking.Type.FORCE -> targetUnit.velocity += invokerValue / targetUnit.mass * timeUnit
-		Invoking.Type.POSITION -> targetUnit.offset = invokerValue
+		SourceType.FORCE -> targetUnit.velocity += invokerValue / targetUnit.mass * timeUnit
+		SourceType.POSITION -> targetUnit.offset = invokerValue
 	}
 }
 
