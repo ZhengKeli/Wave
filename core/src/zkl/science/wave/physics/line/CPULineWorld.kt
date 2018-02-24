@@ -13,12 +13,11 @@ class CPULineNode(
 ) : Node
 
 class CPULineLink(
-	private val x: Int,
+	override val unitId1: Int,
 	override var strength: Float,
 	override var extra: Any?
 ) : Link<Int> {
-	override val unitId1: Int get() = x
-	override val unitId2: Int get() = x + 1
+	override val unitId2: Int get() = unitId1 + 1
 }
 
 class CPULineWorld(draft: LineWorldDraft) : LineWorld, AbstractWorld<Int, Int>() {
