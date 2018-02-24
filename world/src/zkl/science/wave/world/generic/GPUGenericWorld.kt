@@ -1,9 +1,9 @@
-package zkl.science.wave.physics.generic
+package zkl.science.wave.world.generic
 
-import zkl.science.wave.physics.Link
-import zkl.science.wave.physics.Node
-import zkl.science.wave.physics.Source
-import zkl.science.wave.physics.span
+import zkl.science.wave.world.Link
+import zkl.science.wave.world.Node
+import zkl.science.wave.world.Source
+import zkl.science.wave.world.span
 import java.util.*
 
 class GPUGenericWorld(draft: GenericWorldDraft) : GenericWorld {

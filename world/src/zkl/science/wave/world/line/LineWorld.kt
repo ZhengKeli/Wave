@@ -1,6 +1,6 @@
-package zkl.science.wave.physics.line
+package zkl.science.wave.world.line
 
-import zkl.science.wave.physics.World
+import zkl.science.wave.world.World
 
 interface LineNodeDraft {
 	val offset: Float

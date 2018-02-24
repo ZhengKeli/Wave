@@ -1,6 +1,6 @@
-package zkl.science.wave.physics.rect
+package zkl.science.wave.world.rect
 
-import zkl.science.wave.physics.World
+import zkl.science.wave.world.World
 
 data class RectNodeId(val x: Int, val y: Int)
 

@@ -1,6 +1,6 @@
-package zkl.science.wave.physics.generic
+package zkl.science.wave.world.generic
 
-import zkl.science.wave.physics.World
+import zkl.science.wave.world.World
 
 interface GenericWorldDraft {
 	val nodes: List<GenericNodeDraft>

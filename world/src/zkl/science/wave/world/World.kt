@@ -1,4 +1,4 @@
-package zkl.science.wave.physics
+package zkl.science.wave.world
 
 
 interface Node {

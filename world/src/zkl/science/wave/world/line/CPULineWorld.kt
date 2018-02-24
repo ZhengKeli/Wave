@@ -1,8 +1,8 @@
-package zkl.science.wave.physics.line
+package zkl.science.wave.world.line
 
-import zkl.science.wave.physics.AbstractWorld
-import zkl.science.wave.physics.Link
-import zkl.science.wave.physics.Node
+import zkl.science.wave.world.AbstractWorld
+import zkl.science.wave.world.Link
+import zkl.science.wave.world.Node
 
 class CPULineNode(
 	override var offset: Float,
