@@ -8,14 +8,14 @@ fun Conf.linePhysics(body: LinePhysicsConf.() -> Unit) {
 	this.physicsConf = LinePhysicsConf().apply(body)
 }
 
-class LinePhysicsConf : PhysicsConf<LineWorld>() {
+open class LinePhysicsConf : PhysicsConf<LineWorld>() {
 	
 	var length: Int = 0
 	
 	var infantNodeDraft = InstantNodeDraft(1.0f, 0.0f, 0.0f, 0.0f, null)
 	var infantLinkDraft = InstantLinkDraft(0.3f, null)
-	var nodeDrafter: InstantNodeDraft.(x: Int) -> Unit = {}
-	var linkDrafter: InstantLinkDraft.(x: Int) -> Unit = {}
+	var nodeDrafters: ArrayList<InstantNodeDraft.(x: Int) -> Unit> = ArrayList()
+	var linkDrafters: ArrayList<InstantLinkDraft.(x: Int) -> Unit> = ArrayList()
 	var extra: Any? = null
 	
 	var worldDrafter: () -> LineWorldDraft = {
@@ -23,11 +23,11 @@ class LinePhysicsConf : PhysicsConf<LineWorld>() {
 			override val length: Int = this@LinePhysicsConf.length
 			
 			override fun getNode(x: Int): LineNodeDraft {
-				return this@LinePhysicsConf.infantNodeDraft.copy().also { nodeDrafter(it, x) }
+				return infantNodeDraft.copy().apply { nodeDrafters.forEach { it(x) } }
 			}
 			
 			override fun getLink(x: Int): LineLinkDraft {
-				return this@LinePhysicsConf.infantLinkDraft.copy().also { linkDrafter(it, x) }
+				return infantLinkDraft.copy().apply { linkDrafters.forEach { it(x) } }
 			}
 			
 			override val extra: Any? = this@LinePhysicsConf.extra
@@ -38,11 +38,11 @@ class LinePhysicsConf : PhysicsConf<LineWorld>() {
 
 
 fun LinePhysicsConf.nodeDrafter(body: InstantNodeDraft.(x: Int) -> Unit) {
-	nodeDrafter = body
+	nodeDrafters.add(body)
 }
 
 fun LinePhysicsConf.linkDrafter(body: InstantLinkDraft.(x: Int) -> Unit) {
-	linkDrafter = body
+	linkDrafters.add(body)
 }
 
 
