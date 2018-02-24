@@ -1,6 +1,7 @@
-package zkl.scienceFX.wave.conf
+package zkl.science.wave.conf.export
 
 import javafx.geometry.Rectangle2D
+import zkl.science.wave.conf.Conf
 import java.io.File
 
 
