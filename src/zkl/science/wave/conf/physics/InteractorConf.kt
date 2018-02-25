@@ -26,7 +26,7 @@ class SinSourceConf<N : Any> : (World<N, *>) -> Unit {
 	lateinit var nodeId: N
 	var delay: Float = 0.0f
 	var type: SourceType = SourceType.FORCE
-	var scale: Float = 10.0f //todo change to intensity
+	var amplitude: Float = 10.0f
 	var period: Float = 40.0f
 	var repeat: Float = 1.0f
 	var initialPhase: Float = 0.0f
@@ -34,7 +34,7 @@ class SinSourceConf<N : Any> : (World<N, *>) -> Unit {
 	@Suppress("UNCHECKED_CAST")
 	override fun invoke(world: World<N, *>) {
 		val startTime = world.time + delay
- 		world.sources += SinSource(nodeId, startTime, type, scale, period, repeat, initialPhase)
+ 		world.sources += SinSource(nodeId, startTime, type, amplitude, period, repeat, initialPhase)
 	}
 	
 }
@@ -48,13 +48,13 @@ class SquareSourceConf<N : Any> : (World<N, *>) -> Unit {
 	
 	lateinit var nodeId: N
 	var delay: Float = 0.0f
-	var scale: Float = 10.0f
+	var amplitude: Float = 10.0f
 	var period: Float = 40.0f
 	var repeat: Float = 1.0f
 	
 	override fun invoke(world: World<N, *>) {
 		val startTime = world.time + delay
-		world.sources += SquareSource(nodeId, scale, startTime, period, repeat)
+		world.sources += SquareSource(nodeId, amplitude, startTime, period, repeat)
 	}
 	
 }

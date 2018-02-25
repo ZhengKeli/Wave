@@ -51,12 +51,12 @@ object ConfsForVideo {
 			defaultNode.mass = 1.1f
 			sinSourceInteractor {
 				nodeId = 0
-				scale *= 2.5f
+				amplitude *= 2.5f
 				delay = period * 2.0f / 3.0f
 			}
 			sinSourceInteractor {
 				nodeId = length - 1
-				scale *= -1.5f
+				amplitude *= -1.5f
 			}
 			cpuWorld()
 		}
@@ -157,7 +157,7 @@ object ConfsForVideo {
 			}
 			
 			squareSourceInteractor {
-				scale = 150f
+				amplitude = 150f
 				period = 240f
 				repeat = 2f
 			}
@@ -185,13 +185,13 @@ object ConfsForVideo {
 				nodeId = 0
 				period = 50f
 				repeat = 15f
-				scale = 10f
+				amplitude = 10f
 			}
 			cosSourceInteractor {
 				nodeId = length - 1
 				period = 55f
 				repeat = 14f
-				scale = -10f * 50f / 55f
+				amplitude = -10f * 50f / 55f
 			}
 			cpuWorld()
 		}
@@ -270,7 +270,7 @@ object ConfsForVideo {
 					nodeId = sourceIds[interactCount++]
 					period = 20f
 					repeat = 70f
-					scale = 5f
+					amplitude = 5f
 				}.invoke(this)
 			}
 			

@@ -107,7 +107,7 @@ object Confs {
 				}
 			}
 			sinSourceInteractor {
-				scale = 70f
+				amplitude = 70f
 				period = 20f
 			}
 			cpuWorld()
@@ -167,7 +167,7 @@ object Confs {
 			}
 			
 			squareSourceInteractor {
-				scale = 150f
+				amplitude = 150f
 				period = 400f
 				repeat = 10f
 			}
@@ -188,7 +188,7 @@ object Confs {
 			sinSourceInteractor {
 				nodeId = length / 2
 				period = 1.0f
-				scale = 5000f
+				amplitude = 5000f
 			}
 			cpuWorld()
 		}
@@ -235,13 +235,13 @@ object Confs {
 				nodeId = RectNodeId(height / 3, width / 3)
 				period = 20f
 				repeat = 100f
-				scale = 5f
+				amplitude = 5f
 			}
 			cosSourceInteractor {
 				nodeId = RectNodeId(height / 3, width / 3 + 30)
 				period = 20f
 				repeat = 100f
-				scale = 5f
+				amplitude = 5f
 			}
 			
 			gpuWorld()
@@ -301,7 +301,7 @@ object Confs {
 					nodeId = sourceIds[interactCount++]
 					period = 20f
 					repeat = 70f
-					scale = 5f
+					amplitude = 5f
 				}.invoke(this)
 			}
 			
