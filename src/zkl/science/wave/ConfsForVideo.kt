@@ -29,7 +29,7 @@ object ConfsForVideo {
 	fun firstOutput() = conf {
 		linePhysics {
 			length = 100
-			sinSourceInteractor { }
+			sinSourceInteractor { nodeId = 0 }
 			cpuWorld()
 		}
 		lineVisual {
@@ -82,7 +82,7 @@ object ConfsForVideo {
 					color = Color.DARKTURQUOISE
 				}
 			}
-			sinSourceInteractor { }
+			sinSourceInteractor { nodeId = 0 }
 			cpuWorld()
 		}
 		lineVisual {
@@ -115,7 +115,7 @@ object ConfsForVideo {
 					color = Color.DARKTURQUOISE
 				}
 			}
-			sinSourceInteractor { }
+			sinSourceInteractor { nodeId = 0 }
 			cpuWorld()
 		}
 		lineVisual {

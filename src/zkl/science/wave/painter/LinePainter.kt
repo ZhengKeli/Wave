@@ -24,8 +24,8 @@ class LinePainter(draft: LinePainterDraft, val world: LineWorld) : Painter {
 	private val startY: Double = draft.viewportHeight / 2.0
 	
 	private val interval: Double = (draft.sceneWidth - draft.scenePadding * 2.0) / world.length
-	private val radius: Double = if (interval < 15.0) interval / 3.0 else 0.0
-	private val lineWidth: Double = if (interval < 15.0) radius / 1.5 else 5.0
+	private val radius: Double = if (interval > 10.0) interval / 3.0 else 0.0
+	private val lineWidth: Double = if (interval > 10.0) radius / 1.5 else 5.0
 	private val intensity: Double = draft.intensity
 	
 	private val backgroundFill: Paint = draft.backgroundFill
@@ -51,13 +51,13 @@ class LinePainter(draft: LinePainterDraft, val world: LineWorld) : Painter {
 				gc.lineWidth = lineWidth
 				gc.strokeLine(node1X, node1Y, node2X, node2Y)
 			}
-			if (radius > 0.0) return@run
+			if (radius <= 0.0) return@run
 			for (id in 0..world.length) {
 				val node = world.getNode(id)
 				val nodeX = startX + id * interval
 				val nodeY = startY - node.offset * intensity
 				
-				gc.fill = node.color
+				gc.fill = node.color ?: Color.WHITE
 				gc.fillOval(nodeX - radius, nodeY - radius, radius * 2, radius * 2)
 			}
 		}

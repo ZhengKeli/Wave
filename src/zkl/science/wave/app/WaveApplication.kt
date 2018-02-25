@@ -92,7 +92,7 @@ class WaveController {
 	val timeOffsetThread = object : Thread("thread_timeOffset") {
 		override fun run() {
 			if (offsetTargetTime > 0f || isAutoModeOn) {
-				conf.world.onInvoke.forEach { it.invoke(world) }
+				conf.physicsConf.interact(world)
 			}
 			if (offsetTargetTime > 0f) {
 				showWords("computing timeOffset ...")
@@ -174,7 +174,7 @@ class WaveController {
 		}
 		
 		fun doCompute() {
-			processPhysics(conf.world.timeUnit * conf.world.processCount)
+			processPhysics(conf.physicsConf.timeUnit * conf.physicsConf.processCount)
 		}
 		
 		fun sleepUntilNextDraw(): Long {
@@ -357,7 +357,7 @@ class WaveController {
 	
 	@FXML
 	fun onInvokeButtonClicked() {
-		conf.world.onInvoke.forEach { it.invoke(world) }
+		conf.physicsConf.interact(world)
 	}
 	
 	@FXML
@@ -377,7 +377,6 @@ class WaveController {
 			if (appState !in arrayOf(AppState.initializing, AppState.timeOffsetting)) {
 				thread {
 					stopAll()
-					conf.visualConf.painter.release()
 					Platform.exit()
 				}
 			}
@@ -386,7 +385,7 @@ class WaveController {
 	
 	
 	//label & canvas
-	private val painter: Painter = conf.visualConf.painter
+	private val painter: Painter by lazy { conf.visualConf.painter(world) }
 	@FXML
 	lateinit var canvas: Canvas
 	@FXML
@@ -396,7 +395,6 @@ class WaveController {
 		showWords("initializing painter ...")
 		canvas.width = conf.visualConf.canvasWidth
 		canvas.height = conf.visualConf.canvasHeight
-		painter.initialize(conf, world)
 		
 		val scale = Math.min(canvasPane.width / canvas.width, canvasPane.height / canvas.height)
 		Platform.runLater {
@@ -438,7 +436,7 @@ class WaveController {
 		Platform.runLater { mainLabel.text = words }
 	}
 	
-	val offsetTargetTime = Math.max(conf.world.timeOffset, conf.exportConf?.exportTimeRange?.start ?: 0f)
+	val offsetTargetTime = Math.max(conf.physicsConf.timeOffset, conf.exportConf?.exportTimeRange?.start ?: 0f)
 	fun showOffsetTime(targetTime: Float) {
 		val showingTime = String.format("%.2f", world.time)
 		val words = "time: $showingTime/$targetTime  [computing...]"
@@ -488,16 +486,14 @@ class WaveController {
 	
 	
 	//world
-	lateinit var world: World
+	val world: World<*, *> by lazy { conf.physicsConf.world() }
 	
 	fun initPhysics() {
-		world = conf.world.run {
-			waveWorldCreator(waveWorldDrafter())
-		}
+		world
 	}
 	
 	fun processPhysics(span: Float) {
-		world.process(conf.world.timeUnit, (span / conf.world.timeUnit).toInt())
+		world.process(conf.physicsConf.timeUnit, (span / conf.physicsConf.timeUnit).toInt())
 	}
 	
 }

@@ -21,7 +21,7 @@ open class LinePhysicsConf : PhysicsConf<Int>() {
 //		}
 	
 	var defaultNode = InstantNodeDraft(1.0f, 0.0f, 0.0f, 0.0f, null)
-	var defaultLink = InstantLinkDraft(0.3f, null)
+	var defaultLink = InstantLinkDraft(0.1f, null)
 	var nodeDrafters: ArrayList<InstantNodeDraft.(x: Int) -> Unit> = ArrayList()
 	var linkDrafters: ArrayList<InstantLinkDraft.(x: Int) -> Unit> = ArrayList()
 	var extra: Any? = null

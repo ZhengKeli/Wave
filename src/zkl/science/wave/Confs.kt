@@ -15,7 +15,7 @@ import kotlin.math.floor
 import kotlin.math.roundToInt
 import kotlin.math.sqrt
 
-val DEFAULT_CONF get() = DEFAULT_CONF_FOR_VIDEO
+val DEFAULT_CONF get() = Confs.simpleLine()
 //val DEFAULT_CONF = Confs.diffraction()
 
 object Confs {
@@ -28,10 +28,12 @@ object Confs {
 	fun simpleLine() = conf {
 		linePhysics {
 			length = 100
-			sinSourceInteractor { }
+			sinSourceInteractor { nodeId = 0 }
 			cpuWorld()
 		}
-		lineVisual {}
+		lineVisual {
+			intensity = 0.3
+		}
 	}
 	
 	/**
@@ -45,7 +47,7 @@ object Confs {
 					color = Color.DARKTURQUOISE
 				}
 			}
-			sinSourceInteractor { }
+			sinSourceInteractor { nodeId = 0 }
 			cpuWorld()
 		}
 		lineVisual { }
@@ -134,7 +136,7 @@ object Confs {
 				}
 			}
 			
-			sinSourceInteractor { }
+			sinSourceInteractor { nodeId = 0 }
 			
 			cpuWorld()
 		}

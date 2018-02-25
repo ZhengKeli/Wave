@@ -8,16 +8,17 @@ import kotlin.math.PI
 
 
 fun <N> PhysicsConf<N>.customInteractor(body: World<N, *>.() -> Unit) {
-	interactors.add(body)
+	@Suppress("UNCHECKED_CAST")
+	interactors.add(body as World<*, *>.() -> Unit)
 }
 
 
 fun <N : Any> PhysicsConf<N>.sinSourceInteractor(body: SinSourceConf<N>.() -> Unit) {
-	interactors += SinSourceConf<N>().apply(body)
+	interactors.add(SinSourceConf<N>().apply(body))
 }
 
 fun <N : Any> PhysicsConf<N>.cosSourceInteractor(body: SinSourceConf<N>.() -> Unit) {
-	interactors += SinSourceConf<N>().apply(body).apply { initialPhase += (PI / 2.0).toFloat() }
+	interactors.add(SinSourceConf<N>().apply(body).apply { initialPhase += (PI / 2.0).toFloat() })
 }
 
 class SinSourceConf<N : Any> : (World<N, *>) -> Unit {
@@ -30,6 +31,7 @@ class SinSourceConf<N : Any> : (World<N, *>) -> Unit {
 	var repeat: Float = 1.0f
 	var initialPhase: Float = 0.0f
 	
+	@Suppress("UNCHECKED_CAST")
 	override fun invoke(world: World<N, *>) {
 		val startTime = world.time + delay
 		world.sources += SinSource(nodeId, startTime, type, scale, period, repeat, initialPhase)

@@ -27,7 +27,7 @@ open class VisualConf : PainterDraft {
 	override var intensity: Double = 1.0
 	lateinit var painter: (world: World<*, *>) -> Painter
 	
-	var framePeriod: Long = 40
+	var framePeriod: Long = 20
 	var fps: Double
 		get() = 1000.0 / framePeriod
 		set(value) {

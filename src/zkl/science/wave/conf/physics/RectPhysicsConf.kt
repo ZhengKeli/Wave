@@ -14,7 +14,7 @@ open class RectPhysicsConf : PhysicsConf<RectNodeId>() {
 	var height: Int = 0
 	
 	var defaultNode = InstantNodeDraft(1.0f, 0.0f, 0.0f, 0.0f, null)
-	var defaultLink = InstantLinkDraft(0.3f, null)
+	var defaultLink = InstantLinkDraft(0.1f, null)
 	var nodeDrafters: ArrayList<InstantNodeDraft.(x: Int, y: Int) -> Unit> = ArrayList()
 	var linkDrafters: ArrayList<InstantLinkDraft.(x: Int, y: Int, h: Int) -> Unit> = ArrayList()
 	var extra: Any? = null
@@ -54,5 +54,7 @@ fun RectPhysicsConf.cpuWorld() {
 }
 
 fun RectPhysicsConf.gpuWorld() {
-	TODO("GPU for RectWorld is not supported yet!")
+	world = { CPURectWorld(worldDrafter()) }
+	println("GPU for RectWorld is not supported yet! Drown down to CPU.")
+	//todo "support GPU for RectWorld"
 }
