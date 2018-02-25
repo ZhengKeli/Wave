@@ -13,6 +13,8 @@ interface PainterDraft {
 	val viewportWidth: Double
 	val viewportHeight: Double
 	
+	val intensity:Double
+	
 }
 
 interface Painter {

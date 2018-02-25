@@ -24,7 +24,7 @@ open class VisualConf : PainterDraft {
 	override var viewportWidth: Double = canvasWidth
 	override var viewportHeight: Double = canvasHeight
 	
-	
+	override var intensity: Double = 1.0
 	lateinit var painter: (world: World<*, *>) -> Painter
 	
 	var framePeriod: Long = 40

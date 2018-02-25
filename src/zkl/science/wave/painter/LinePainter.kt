@@ -7,7 +7,6 @@ import zkl.science.wave.world.line.LineWorld
 
 interface LinePainterDraft : PainterDraft {
 	val scenePadding: Double
-	val offsetScale: Double
 	val backgroundFill: Paint
 }
 
@@ -27,7 +26,7 @@ class LinePainter(draft: LinePainterDraft, val world: LineWorld) : Painter {
 	private val interval: Double = (draft.sceneWidth - draft.scenePadding * 2.0) / world.length
 	private val radius: Double = if (interval < 15.0) interval / 3.0 else 0.0
 	private val lineWidth: Double = if (interval < 15.0) radius / 1.5 else 5.0
-	private val offsetScale: Double = draft.offsetScale
+	private val intensity: Double = draft.intensity
 	
 	private val backgroundFill: Paint = draft.backgroundFill
 	
@@ -43,10 +42,10 @@ class LinePainter(draft: LinePainterDraft, val world: LineWorld) : Painter {
 				val link = world.getLink(id)
 				val node1 = world.getNode(link.unitId1)
 				val node1X = startX + link.unitId1 * interval
-				val node1Y = startY - node1.offset * offsetScale
+				val node1Y = startY - node1.offset * intensity
 				val node2 = world.getNode(link.unitId2)
 				val node2X = startX + link.unitId2 * interval
-				val node2Y = startY - node2.offset * offsetScale
+				val node2Y = startY - node2.offset * intensity
 				
 				gc.stroke = colorMix(node1.color ?: Color.WHITE, node2.color ?: Color.WHITE)
 				gc.lineWidth = lineWidth
@@ -56,7 +55,7 @@ class LinePainter(draft: LinePainterDraft, val world: LineWorld) : Painter {
 			for (id in 0..world.length) {
 				val node = world.getNode(id)
 				val nodeX = startX + id * interval
-				val nodeY = startY - node.offset * offsetScale
+				val nodeY = startY - node.offset * intensity
 				
 				gc.fill = node.color
 				gc.fillOval(nodeX - radius, nodeY - radius, radius * 2, radius * 2)

@@ -22,7 +22,7 @@ class LineVisualConf : VisualConf(), LinePainterDraft {
 	
 	override var backgroundFill: Paint = Color.BLACK
 	
-	override var offsetScale: Double = 1.0
+	override var intensity: Double = 1.0
 	
 	init {
 		painter = { world -> LinePainter(this, world as LineWorld) }

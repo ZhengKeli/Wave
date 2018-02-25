@@ -47,12 +47,13 @@ abstract class RectPainter(draft: RectPainterDraft, val world: RectWorld) : Pain
 /**
  * 位移渲染
  */
-class OffsetRectPainter(draft: RectPainterDraft, world: RectWorld, val offsetScale: Double = 0.5) : RectPainter(draft, world) {
-	private val backgroundFill: Color get() = Color.GRAY
+class OffsetRectPainter(draft: RectPainterDraft, world: RectWorld) : RectPainter(draft, world) {
+	private val intensity: Double = draft.intensity * 0.5
+	private val backgroundFill: Color = Color.GRAY
 	override fun getNodeColor(node: Node): Color {
 		node.color?.let { return it }
 		return node.run {
-			var rate = Math.abs(offset * offsetScale)
+			var rate = Math.abs(offset * intensity)
 			if (rate > 1.0) rate = 1.0
 			val color = if (offset > 0) Color.WHITE else Color.BLACK
 			return@run colorMix(backgroundFill, color, 1.0 - rate, rate)
@@ -63,15 +64,16 @@ class OffsetRectPainter(draft: RectPainterDraft, world: RectWorld, val offsetSca
 /**
  * 波能量渲染
  */
-open class EnergyRectPainter(draft: RectPainterDraft, world: RectWorld, val scale: Float = 10.0f) : RectPainter(draft, world) {
-	val backgroundFill: Color get() = Color.BLACK
-	val energyFill: Color = Color.WHITE
+class EnergyRectPainter(draft: RectPainterDraft, world: RectWorld) : RectPainter(draft, world) {
+	private val intensity: Double = draft.intensity * 10.0
+	private val backgroundFill: Color = Color.BLACK
+	private val energyFill: Color = Color.WHITE
 	override fun getNodeColor(node: Node): Color {
 		node.color?.let { return it }
 		return node.run {
-			var rate = mass * velocity * velocity / 2.0f * scale
-			if (rate > 1.0) rate = 1.0f
-			return@run colorMix(backgroundFill, energyFill, 1.0 - rate, rate.toDouble())
+			var rate = mass * velocity * velocity / 2.0f * intensity
+			if (rate > 1.0) rate = 1.0
+			return@run colorMix(backgroundFill, energyFill, 1.0 - rate, rate)
 		}
 	}
 }
