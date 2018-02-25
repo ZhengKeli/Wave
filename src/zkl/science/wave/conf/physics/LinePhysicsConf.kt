@@ -14,14 +14,14 @@ fun Conf.linePhysics(body: LinePhysicsConf.() -> Unit) {
 open class LinePhysicsConf : PhysicsConf<Int>() {
 	
 	var length: Int = 0
-	var nodeCount: Int
-		get() = length + 1
-		set(value) {
-			length = value - 1
-		}
+//	var nodeCount: Int
+//		get() = length + 1
+//		set(value) {
+//			length = value - 1
+//		}
 	
-	var infantNodeDraft = InstantNodeDraft(1.0f, 0.0f, 0.0f, 0.0f, null)
-	var infantLinkDraft = InstantLinkDraft(0.3f, null)
+	var defaultNode = InstantNodeDraft(1.0f, 0.0f, 0.0f, 0.0f, null)
+	var defaultLink = InstantLinkDraft(0.3f, null)
 	var nodeDrafters: ArrayList<InstantNodeDraft.(x: Int) -> Unit> = ArrayList()
 	var linkDrafters: ArrayList<InstantLinkDraft.(x: Int) -> Unit> = ArrayList()
 	var extra: Any? = null
@@ -31,11 +31,11 @@ open class LinePhysicsConf : PhysicsConf<Int>() {
 			override val length: Int = this@LinePhysicsConf.length
 			
 			override fun getNode(x: Int): LineNodeDraft {
-				return infantNodeDraft.copy().apply { nodeDrafters.forEach { it(x) } }
+				return defaultNode.copy().apply { nodeDrafters.forEach { it(x) } }
 			}
 			
 			override fun getLink(x: Int): LineLinkDraft {
-				return infantLinkDraft.copy().apply { linkDrafters.forEach { it(x) } }
+				return defaultLink.copy().apply { linkDrafters.forEach { it(x) } }
 			}
 			
 			override val extra: Any? = this@LinePhysicsConf.extra

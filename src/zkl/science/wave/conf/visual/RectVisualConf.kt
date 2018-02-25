@@ -1,9 +1,14 @@
 package zkl.science.wave.conf.visual
 
+import zkl.science.wave.conf.Conf
 import zkl.science.wave.painter.EnergyRectPainter
 import zkl.science.wave.painter.OffsetRectPainter
 import zkl.science.wave.painter.RectPainterDraft
 import zkl.science.wave.world.rect.RectWorld
+
+fun Conf.rectVisual(body: RectVisualConf.() -> Unit) {
+	visualConf = RectVisualConf().apply(body)
+}
 
 class RectVisualConf : VisualConf(), RectPainterDraft {
 	
