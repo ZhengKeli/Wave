@@ -4,19 +4,19 @@ import zkl.science.wave.conf.Conf
 import zkl.science.wave.world.World
 
 
-fun <W : World<*, *>> Conf.physics(body: PhysicsConf<W>.() -> Unit) {
-	this.physicsConf = PhysicsConf<W>().apply(body)
+fun <N> Conf.physics(body: PhysicsConf<N>.() -> Unit) {
+	this.physicsConf = PhysicsConf<N>().apply(body)
 }
 
-open class PhysicsConf<W : World<*, *>> {
+open class PhysicsConf<N> {
 	
 	var timeUnit: Float = 0.2f
 	var timeOffset: Float = 0.0f
 	var processCount: Int = 5
 	
-	open lateinit var world: () -> W
+	open lateinit var world: () -> World<N, *>
 	
-	open val interactors = ArrayList<W.() -> Unit>()
+	open val interactors = ArrayList<World<N, *>.() -> Unit>()
 	
 }
 

@@ -7,16 +7,16 @@ import zkl.science.wave.world.World
 import kotlin.math.PI
 
 
-fun <W : World<*, *>> PhysicsConf<W>.customInteractor(body: W.() -> Unit) {
+fun <N> PhysicsConf<N>.customInteractor(body: World<N, *>.() -> Unit) {
 	interactors.add(body)
 }
 
 
-fun <N : Any> PhysicsConf<World<N, *>>.sinSourceInteractor(body: SinSourceConf<N>.() -> Unit) {
+fun <N : Any> PhysicsConf<N>.sinSourceInteractor(body: SinSourceConf<N>.() -> Unit) {
 	interactors += SinSourceConf<N>().apply(body)
 }
 
-fun <N : Any> PhysicsConf<World<N, *>>.cosSourceInteractor(body: SinSourceConf<N>.() -> Unit) {
+fun <N : Any> PhysicsConf<N>.cosSourceInteractor(body: SinSourceConf<N>.() -> Unit) {
 	interactors += SinSourceConf<N>().apply(body).apply { initialPhase += (PI / 2.0).toFloat() }
 }
 
@@ -38,8 +38,8 @@ class SinSourceConf<N : Any> : (World<N, *>) -> Unit {
 }
 
 
-fun <N : Any> PhysicsConf<World<N, *>>.squareSourceInteractor(body: SquareSourceConf<N>.() -> Unit) {
-	interactors += SquareSourceConf<N>().apply(body)
+fun <N : Any> PhysicsConf<N>.squareSourceInteractor(body: SquareSourceConf<N>.() -> Unit) {
+	interactors.add(SquareSourceConf<N>().apply(body))
 }
 
 class SquareSourceConf<N : Any> : (World<N, *>) -> Unit {

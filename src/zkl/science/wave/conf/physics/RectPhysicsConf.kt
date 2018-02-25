@@ -8,7 +8,7 @@ fun Conf.rectPhysics(body: RectPhysicsConf.() -> Unit) {
 	this.physicsConf = RectPhysicsConf().apply(body)
 }
 
-open class RectPhysicsConf : PhysicsConf<RectWorld>() {
+open class RectPhysicsConf : PhysicsConf<RectNodeId>() {
 	
 	var width: Int = 0
 	var height: Int = 0

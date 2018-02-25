@@ -1,5 +1,7 @@
 package zkl.science.wave.conf.physics
 
+import javafx.scene.paint.Color
+import zkl.science.wave.painter.color
 import zkl.science.wave.world.line.LineLinkDraft
 import zkl.science.wave.world.line.LineNodeDraft
 import zkl.science.wave.world.rect.RectLinkDraft
@@ -17,3 +19,8 @@ data class InstantLinkDraft(
 	override var strength: Float,
 	override var extra: Any? = null
 ) : LineLinkDraft, RectLinkDraft
+
+fun InstantNodeDraft.setAsWall() {
+	mass = Float.MAX_VALUE
+	color = Color.RED
+}

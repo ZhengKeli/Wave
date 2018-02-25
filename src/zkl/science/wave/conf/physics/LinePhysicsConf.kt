@@ -1,16 +1,24 @@
 package zkl.science.wave.conf.physics
 
 import zkl.science.wave.conf.Conf
-import zkl.science.wave.world.line.*
+import zkl.science.wave.world.line.CPULineWorld
+import zkl.science.wave.world.line.LineLinkDraft
+import zkl.science.wave.world.line.LineNodeDraft
+import zkl.science.wave.world.line.LineWorldDraft
 
 
 fun Conf.linePhysics(body: LinePhysicsConf.() -> Unit) {
 	this.physicsConf = LinePhysicsConf().apply(body)
 }
 
-open class LinePhysicsConf : PhysicsConf<LineWorld>() {
+open class LinePhysicsConf : PhysicsConf<Int>() {
 	
 	var length: Int = 0
+	var nodeCount: Int
+		get() = length + 1
+		set(value) {
+			length = value - 1
+		}
 	
 	var infantNodeDraft = InstantNodeDraft(1.0f, 0.0f, 0.0f, 0.0f, null)
 	var infantLinkDraft = InstantLinkDraft(0.3f, null)
