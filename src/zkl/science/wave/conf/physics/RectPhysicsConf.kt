@@ -12,6 +12,10 @@ open class RectPhysicsConf : PhysicsConf<RectNodeId>() {
 	
 	var width: Int = 0
 	var height: Int = 0
+	val nodeCountX: Int get() = width + 1
+	val nodeCountY: Int get() = height + 1
+	val linkCountX: Int get() = width
+	val linkCountY: Int get() = height
 	
 	var defaultNode = InstantNodeDraft(1.0f, 0.0f, 0.0f, 0.0f, null)
 	var defaultLink = InstantLinkDraft(0.1f, null)

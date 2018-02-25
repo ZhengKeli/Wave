@@ -14,11 +14,7 @@ fun Conf.linePhysics(body: LinePhysicsConf.() -> Unit) {
 open class LinePhysicsConf : PhysicsConf<Int>() {
 	
 	var length: Int = 0
-//	var nodeCount: Int
-//		get() = length + 1
-//		set(value) {
-//			length = value - 1
-//		}
+	val nodeCount: Int get() = length + 1
 	
 	var defaultNode = InstantNodeDraft(1.0f, 0.0f, 0.0f, 0.0f, null)
 	var defaultLink = InstantLinkDraft(0.1f, null)

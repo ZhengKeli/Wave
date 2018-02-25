@@ -8,14 +8,9 @@ import zkl.science.wave.world.rect.RectWorld
 import kotlin.math.roundToInt
 
 
-interface RectPainterConf : PainterConf {
-	val matchWorldSize: Boolean
-	fun matchWorldSize(world: RectWorld)
-}
+interface RectPainterConf : PainterConf
 
-abstract class RectPainter(conf: RectPainterConf, val world: RectWorld) : Painter(conf.apply {
-	if (matchWorldSize) matchWorldSize(world)
-}) {
+abstract class RectPainter(conf: RectPainterConf, val world: RectWorld) : Painter(conf) {
 	
 	override fun paint(gc: GraphicsContext) {
 		for (canvasX in 0 until gc.canvas.width.toInt()) {
