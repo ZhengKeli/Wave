@@ -1,8 +1,8 @@
-package zkl.scienceFX.wave.fx
+package zkl.science.wave.painter
 
 import javafx.scene.paint.Color
-import zkl.scienceFX.wave.conf.InstantNodeDraft
-import zkl.scienceFX.wave.physics.abstracts.Node
+import zkl.science.wave.conf.physics.InstantNodeDraft
+import zkl.science.wave.world.Node
 
 
 var InstantNodeDraft.color: Color?

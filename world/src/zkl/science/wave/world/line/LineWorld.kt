@@ -30,4 +30,11 @@ interface LineWorldDraft {
 
 interface LineWorld : World<Int, Int> {
 	val length: Int
+	val noteCount get() = length + 1
+	val linkCount get() = length
+	
+	fun getOffsetSnapshot(): FloatArray {
+		return FloatArray(length) { x -> getNode(x).offset }
+	}
+	
 }

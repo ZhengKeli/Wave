@@ -1,4 +1,4 @@
-package zkl.scienceFX.wave.fx
+package zkl.science.wave.app
 
 import javafx.application.Application
 import javafx.application.Platform
@@ -18,9 +18,10 @@ import javafx.scene.transform.Transform
 import javafx.stage.Stage
 import javafx.stage.Window
 import javafx.stage.WindowEvent
-import zkl.scienceFX.wave.DEFAULT_CONF
-import zkl.scienceFX.wave.conf.Conf
-import zkl.scienceFX.wave.physics.abstracts.World
+import zkl.science.wave.DEFAULT_CONF
+import zkl.science.wave.conf.Conf
+import zkl.science.wave.painter.Painter
+import zkl.science.wave.world.World
 import java.awt.image.BufferedImage
 import java.io.File
 import java.util.concurrent.ArrayBlockingQueue
@@ -91,7 +92,7 @@ class WaveController {
 	val timeOffsetThread = object : Thread("thread_timeOffset") {
 		override fun run() {
 			if (offsetTargetTime > 0f || isAutoModeOn) {
-				conf.physics.onInvoke.forEach { it.invoke(world) }
+				conf.world.onInvoke.forEach { it.invoke(world) }
 			}
 			if (offsetTargetTime > 0f) {
 				showWords("computing timeOffset ...")
@@ -173,7 +174,7 @@ class WaveController {
 		}
 		
 		fun doCompute() {
-			processPhysics(conf.physics.timeUnit * conf.physics.processCount)
+			processPhysics(conf.world.timeUnit * conf.world.processCount)
 		}
 		
 		fun sleepUntilNextDraw(): Long {
@@ -356,7 +357,7 @@ class WaveController {
 	
 	@FXML
 	fun onInvokeButtonClicked() {
-		conf.physics.onInvoke.forEach { it.invoke(world) }
+		conf.world.onInvoke.forEach { it.invoke(world) }
 	}
 	
 	@FXML
@@ -437,7 +438,7 @@ class WaveController {
 		Platform.runLater { mainLabel.text = words }
 	}
 	
-	val offsetTargetTime = Math.max(conf.physics.timeOffset, conf.exportConf?.exportTimeRange?.start ?: 0f)
+	val offsetTargetTime = Math.max(conf.world.timeOffset, conf.exportConf?.exportTimeRange?.start ?: 0f)
 	fun showOffsetTime(targetTime: Float) {
 		val showingTime = String.format("%.2f", world.time)
 		val words = "time: $showingTime/$targetTime  [computing...]"
@@ -486,17 +487,17 @@ class WaveController {
 	}
 	
 	
-	//physics
+	//world
 	lateinit var world: World
 	
 	fun initPhysics() {
-		world = conf.physics.run {
+		world = conf.world.run {
 			waveWorldCreator(waveWorldDrafter())
 		}
 	}
 	
 	fun processPhysics(span: Float) {
-		world.process(conf.physics.timeUnit, (span / conf.physics.timeUnit).toInt())
+		world.process(conf.world.timeUnit, (span / conf.world.timeUnit).toInt())
 	}
 	
 }

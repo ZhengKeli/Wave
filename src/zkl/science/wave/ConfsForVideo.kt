@@ -1,9 +1,9 @@
-package zkl.scienceFX.wave
+package zkl.science.wave
 
 import javafx.geometry.Rectangle2D
 import javafx.scene.paint.Color
-import zkl.scienceFX.wave.conf.*
-import zkl.scienceFX.wave.fx.*
+import zkl.science.wave.painter.LinePainter
+import zkl.science.wave.painter.colorMix
 import java.io.File
 import java.util.*
 import kotlin.math.PI
@@ -21,7 +21,7 @@ object ConfsForVideo {
 	 * 简单的一维示例
 	 */
 	fun firstOutput() = conf {
-		physics {
+		world {
 			simpleWaveWorld()
 			lineDraft {
 				unitCount = 100
@@ -43,7 +43,7 @@ object ConfsForVideo {
 	 * 波的独立传播
 	 */
 	fun independentPropagation() = conf {
-		physics {
+		world {
 			simpleWaveWorld()
 			lineDraft {
 				unitCount = 200
@@ -77,7 +77,7 @@ object ConfsForVideo {
 	 * 不同介质中传播
 	 */
 	fun multiMedia1() = conf {
-		physics {
+		world {
 			simpleWaveWorld()
 			lineDraft {
 				unitCount = 140
@@ -107,7 +107,7 @@ object ConfsForVideo {
 	 * 不同介质中传播
 	 */
 	fun multiMedia2() = conf {
-		physics {
+		world {
 			simpleWaveWorld()
 			lineDraft {
 				unitCount = 140
@@ -137,7 +137,7 @@ object ConfsForVideo {
 	 * 方波和阻尼吸收
 	 */
 	fun squareWave() = conf {
-		physics {
+		world {
 			val absorbThick = 200
 			val absorbDamping = 0.05f
 			
@@ -178,7 +178,7 @@ object ConfsForVideo {
 	 * 拍频
 	 */
 	fun beatFrequency() = conf {
-		physics {
+		world {
 			simpleWaveWorld()
 			timeUnit = 0.47f
 			lineDraft {
@@ -218,13 +218,13 @@ object ConfsForVideo {
 	 * 水面模拟
 	 */
 	fun simple2D() = conf {
-		physics {
+		world {
 			timeUnit = 0.5f
 			simpleWaveWorld()
 			rectDraft {
 				columnCount = 200
 				rowCount = 150
-				//defaultDamping=0.01f
+				//defaultNodeDamping=0.01f
 				
 				this@physics.sinInvoke {
 					targetUnitId = getUnitId(0, 0)
@@ -248,7 +248,7 @@ object ConfsForVideo {
 	 * 衍射
 	 */
 	fun diffraction() = conf {
-		physics {
+		world {
 			aparapiWaveWorld()
 			rectBoarderAbsorbedDraft {
 				rowCount = 300
@@ -284,7 +284,7 @@ object ConfsForVideo {
 	 * 干涉
 	 */
 	fun interference() = conf {
-		physics {
+		world {
 			aparapiWaveWorld()
 			rectBoarderAbsorbedDraft {
 				rowCount = 200
@@ -326,7 +326,7 @@ object ConfsForVideo {
 	 * 波带片
 	 */
 	fun zonePlate() = conf {
-		physics {
+		world {
 			aparapiWaveWorld()
 			timeUnit = 0.1f
 			processCount = 10

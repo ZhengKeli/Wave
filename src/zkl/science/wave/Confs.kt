@@ -1,8 +1,8 @@
-package zkl.scienceFX.wave
+package zkl.science.wave
 
 import javafx.scene.paint.Color
-import zkl.scienceFX.wave.conf.*
-import zkl.scienceFX.wave.fx.*
+import zkl.science.wave.painter.LinePainter
+import zkl.science.wave.painter.colorMix
 import java.util.*
 import kotlin.math.PI
 
@@ -17,7 +17,7 @@ object Confs {
 	 * 简单的一维示例
 	 */
 	fun simpleLine() = conf {
-		physics {
+		world {
 			simpleWaveWorld()
 			lineDraft { }
 			sinInvoke { }
@@ -29,7 +29,7 @@ object Confs {
 	 * 不同介质中传播
 	 */
 	fun multiMedia(direction: Boolean = true, massScale: Float = 5.0f) = conf {
-		physics {
+		world {
 			simpleWaveWorld()
 			lineDraft {
 				onCreateUnitDraft { index ->
@@ -48,7 +48,7 @@ object Confs {
 	 * 共振
 	 */
 	fun resonate(doResonate: Boolean = true) = conf {
-		physics {
+		world {
 			val wavePeriod = 40f
 			val resonateCount = 6
 			
@@ -72,7 +72,7 @@ object Confs {
 	 * 阻尼
 	 */
 	fun damping() = conf {
-		physics {
+		world {
 			simpleWaveWorld()
 			lineDraft {
 				unitCount = 100
@@ -87,7 +87,7 @@ object Confs {
 	 * 不同阻尼中传播
 	 */
 	fun multiDamping(direction: Boolean = true, theDamping: Float = 0.05f) = conf {
-		physics {
+		world {
 			simpleWaveWorld()
 			lineDraft {
 				unitCount = 80
@@ -113,7 +113,7 @@ object Confs {
 	 * 阻尼吸收
 	 */
 	fun dampingAbsorb() = conf {
-		physics {
+		world {
 			simpleWaveWorld()
 			lineDraft {
 				val thick = 40
@@ -139,7 +139,7 @@ object Confs {
 	 * 方波
 	 */
 	fun squareWave() = conf {
-		physics {
+		world {
 			timeUnit = 0.5f
 			processCount = 5
 			simpleWaveWorld()
@@ -173,7 +173,7 @@ object Confs {
 	 * 脉冲
 	 */
 	fun impact() = conf {
-		physics {
+		world {
 			simpleWaveWorld()
 			timeUnit = 0.01f
 			lineDraft {
@@ -197,7 +197,7 @@ object Confs {
 	 * 简单的二维示例
 	 */
 	fun simpleRect() = conf {
-		physics {
+		world {
 			simpleWaveWorld()
 			rectDraft {
 				rowCount = 200
@@ -214,7 +214,7 @@ object Confs {
 	 * 水面模拟
 	 */
 	fun waterSurface() = conf {
-		physics {
+		world {
 			simpleWaveWorld()
 			timeUnit = 0.5f
 			rectDraft {
@@ -243,7 +243,7 @@ object Confs {
 	 * 不同介质中的传播
 	 */
 	fun multiMedia2D(direction: Boolean = true, massScale: Float = 5.0f) = conf {
-		physics {
+		world {
 			timeOffset = 320f
 			aparapiWaveWorld()
 			rectBoarderAbsorbedDraft {
@@ -284,7 +284,7 @@ object Confs {
 	 * 衍射
 	 */
 	fun diffraction() = conf {
-		physics {
+		world {
 			aparapiWaveWorld()
 			rectBoarderAbsorbedDraft {
 				rowCount = 300
@@ -316,7 +316,7 @@ object Confs {
 	 * 干涉
 	 */
 	fun interference() = conf {
-		physics {
+		world {
 			aparapiWaveWorld()
 			rectBoarderAbsorbedDraft {
 				rowCount = 200
@@ -352,7 +352,7 @@ object Confs {
 	 * 波束 & 反射和折射 【计算量大！！】
 	 */
 	fun planeWave() = conf {
-		physics {
+		world {
 			
 			
 			aparapiWaveWorld()
@@ -373,7 +373,7 @@ object Confs {
 				 */
 				val l = 150
 				
-				//defaultDamping=0.3f
+				//defaultNodeDamping=0.3f
 				onCreateUnitDraft { row, column ->
 					val x = column - absorbThick
 					val y = Math.round(row - rowCount / 2.0).toInt()
@@ -385,7 +385,7 @@ object Confs {
 							setAsWall()
 						}
 					}
-					//if ((row-rowCount/2)<2*(column-columnCount/2)) node.mass *= 2.0f
+					//if ((row-nodeCountY/2)<2*(column-columnCount/2)) node.mass *= 2.0f
 				}
 				
 				this@physics.cosInvoke {
@@ -406,7 +406,7 @@ object Confs {
 	 * 波带片
 	 */
 	fun zonePlate() = conf {
-		physics {
+		world {
 			aparapiWaveWorld()
 			timeOffset = 320f
 			timeUnit = 0.1f
