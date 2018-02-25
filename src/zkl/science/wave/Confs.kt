@@ -15,7 +15,7 @@ import kotlin.math.floor
 import kotlin.math.roundToInt
 import kotlin.math.sqrt
 
-val DEFAULT_CONF get() = Confs.simpleLine()
+val DEFAULT_CONF get() = Confs.simpleRect()
 //val DEFAULT_CONF = Confs.diffraction()
 
 object Confs {
@@ -206,6 +206,7 @@ object Confs {
 			width = 200
 			height = 200
 			cosSourceInteractor {
+				nodeId = RectNodeId(0, 0)
 				period = 20f
 			}
 			cpuWorld()

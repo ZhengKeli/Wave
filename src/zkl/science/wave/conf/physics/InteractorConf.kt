@@ -34,7 +34,7 @@ class SinSourceConf<N : Any> : (World<N, *>) -> Unit {
 	@Suppress("UNCHECKED_CAST")
 	override fun invoke(world: World<N, *>) {
 		val startTime = world.time + delay
-		world.sources += SinSource(nodeId, startTime, type, scale, period, repeat, initialPhase)
+ 		world.sources += SinSource(nodeId, startTime, type, scale, period, repeat, initialPhase)
 	}
 	
 }
