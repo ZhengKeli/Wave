@@ -3,59 +3,60 @@ package zkl.science.wave.painter
 import javafx.scene.canvas.GraphicsContext
 import javafx.scene.paint.Color
 import javafx.scene.paint.Paint
+import javafx.scene.shape.StrokeLineCap
 import zkl.science.wave.world.line.LineWorld
 
-interface LinePainterDraft : PainterDraft {
+interface LinePainterConf : PainterConf {
+	val sceneWidth: Double
+	val sceneHeight: Double
 	val scenePadding: Double
-	val backgroundFill: Paint
+	
+	val backgroundColor: Paint
 }
 
 /**
  * 一维线条的波动渲染
  */
-class LinePainter(draft: LinePainterDraft, val world: LineWorld) : Painter {
+class LinePainter(conf: LinePainterConf, val world: LineWorld) : Painter(conf) {
 	
-	private val viewportX: Double = draft.viewportX
-	private val viewportY: Double = draft.viewportY
-	private val viewportWidth: Double = draft.viewportWidth
-	private val viewportHeight: Double = draft.viewportHeight
+	private val sceneWidth: Double = conf.sceneWidth
+	private val sceneHeight: Double = conf.sceneHeight
+	private val scenePadding: Double = conf.scenePadding
+	private val backgroundFill: Paint = conf.backgroundColor
 	
-	private val startX: Double = draft.scenePadding
-	private val startY: Double = draft.viewportHeight / 2.0
-	
-	private val interval: Double = (draft.sceneWidth - draft.scenePadding * 2.0) / world.length
-	private val radius: Double = if (interval > 10.0) interval / 3.0 else 0.0
-	private val lineWidth: Double = if (interval > 10.0) radius / 1.5 else 5.0
-	private val intensity: Double = draft.intensity
-	
-	private val backgroundFill: Paint = draft.backgroundFill
+	private val interval: Double = (conf.sceneWidth - scenePadding * 2.0) / world.length
+	private val radius: Double = if (interval > 12.0) interval / 3.0 else 0.0
+	private val lineWidth: Double = if (interval > 12.0) radius / 2.0 else 2.0
 	
 	override fun paint(gc: GraphicsContext) {
 		gc.save()
+		gc.run {
+			fill = backgroundFill
+			fillRect(0.0, 0.0, sceneWidth, sceneHeight)
+		}
 		gc.translate(viewportX, viewportY)
+		gc.scale(viewScale, viewScale)
+		gc.translate(scenePadding, 0.0)
 		kotlin.run {
-			gc.run {
-				fill = backgroundFill
-				fillRect(0.0, 0.0, viewportWidth, viewportHeight)
-			}
 			for (id in 0 until world.length) {
 				val link = world.getLink(id)
 				val node1 = world.getNode(link.unitId1)
-				val node1X = startX + link.unitId1 * interval
-				val node1Y = startY - node1.offset * intensity
+				val node1X = +link.unitId1 * interval
+				val node1Y = -node1.offset * intensity
 				val node2 = world.getNode(link.unitId2)
-				val node2X = startX + link.unitId2 * interval
-				val node2Y = startY - node2.offset * intensity
+				val node2X = +link.unitId2 * interval
+				val node2Y = -node2.offset * intensity
 				
 				gc.stroke = colorMix(node1.color ?: Color.WHITE, node2.color ?: Color.WHITE)
 				gc.lineWidth = lineWidth
+				gc.lineCap = StrokeLineCap.ROUND
 				gc.strokeLine(node1X, node1Y, node2X, node2Y)
 			}
 			if (radius <= 0.0) return@run
 			for (id in 0..world.length) {
 				val node = world.getNode(id)
-				val nodeX = startX + id * interval
-				val nodeY = startY - node.offset * intensity
+				val nodeX = +id * interval
+				val nodeY = -node.offset * intensity
 				
 				gc.fill = node.color ?: Color.WHITE
 				gc.fillOval(nodeX - radius, nodeY - radius, radius * 2, radius * 2)

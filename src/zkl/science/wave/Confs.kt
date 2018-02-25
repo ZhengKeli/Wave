@@ -15,7 +15,7 @@ import kotlin.math.floor
 import kotlin.math.roundToInt
 import kotlin.math.sqrt
 
-val DEFAULT_CONF get() = Confs.simpleRect()
+val DEFAULT_CONF get() = Confs.diffraction()
 //val DEFAULT_CONF = Confs.diffraction()
 
 object Confs {
@@ -27,7 +27,7 @@ object Confs {
 	 */
 	fun simpleLine() = conf {
 		linePhysics {
-			length = 100
+			length = 50
 			sinSourceInteractor { nodeId = 0 }
 			cpuWorld()
 		}
@@ -256,12 +256,15 @@ object Confs {
 	 */
 	fun diffraction() = conf {
 		rectPhysics {
+			timeUnit = 0.5f
+			
 			height = 300
 			width = 400
 			
 			val wavelength = 20.0
 			val slitWidth = wavelength * 3.0
 			
+			boarderAbsorb {  }
 			nodeDrafter { x, y ->
 				if (x == width / 2 && !(y > height / 2 - slitWidth / 2 && y < height / 2 + slitWidth / 2)) {
 					mass = Float.MAX_VALUE
@@ -270,14 +273,13 @@ object Confs {
 			}
 			
 			cosSourceInteractor {
-				nodeId = RectNodeId(height / 2 + 3, width / 5)
+				nodeId = RectNodeId(width / 5, height / 2 + 3)
 				period = (wavelength / Math.sqrt(defaultLink.strength.toDouble())).toFloat()
 				repeat = 100f
 			}
 			gpuWorld()
 		}
 		rectVisual {
-			intensity = 3.0
 			energyPainter()
 		}
 	}
@@ -294,8 +296,8 @@ object Confs {
 			
 			var interactCount = 0
 			val sourceIds = arrayOf(
-				RectNodeId(height / 3, width / 3),
-				RectNodeId(height / 2, width / 2 + 3))
+				RectNodeId(width / 3, height / 3),
+				RectNodeId(width / 2 + 3, height / 2))
 			customInteractor {
 				SinSourceConf<RectNodeId>().apply {
 					nodeId = sourceIds[interactCount++]
@@ -349,7 +351,7 @@ object Confs {
 			}
 			
 			cosSourceInteractor {
-				nodeId = RectNodeId(height / 2, s + absorbThick)
+				nodeId = RectNodeId(s + absorbThick, height / 2)
 				repeat = 1000f
 				period = 20f
 			}
@@ -357,7 +359,6 @@ object Confs {
 			gpuWorld()
 		}
 		rectVisual {
-			samplingSize = 2.0
 			energyPainter()
 		}
 	}
@@ -380,7 +381,7 @@ object Confs {
 			 */
 			val distance = 53.0f
 			val wavelength = 21.0f
-			val sourceUnitId = RectNodeId(height / 2, width / 2 - distance.toInt())
+			val sourceUnitId = RectNodeId(width / 2 - distance.toInt(), height / 2)
 			val waveSpeed = sqrt(defaultLink.strength / defaultNode.mass)
 			val zeroPoints = ArrayList<Int>().apply {
 				var k: Int = floor(2 * 2 * distance / wavelength).roundToInt() //半波长倍数

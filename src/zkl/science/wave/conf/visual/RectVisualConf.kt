@@ -3,32 +3,31 @@ package zkl.science.wave.conf.visual
 import zkl.science.wave.conf.Conf
 import zkl.science.wave.painter.EnergyRectPainter
 import zkl.science.wave.painter.OffsetRectPainter
-import zkl.science.wave.painter.RectPainterDraft
+import zkl.science.wave.painter.RectPainterConf
 import zkl.science.wave.world.rect.RectWorld
+import kotlin.math.min
 
 fun Conf.rectVisual(body: RectVisualConf.() -> Unit) {
 	visualConf = RectVisualConf().apply(body)
 }
 
-class RectVisualConf : VisualConf(), RectPainterDraft {
+class RectVisualConf : VisualConf(), RectPainterConf {
 	
-	override var sceneWidth: Double = canvasWidth
-	override var sceneHeight: Double = canvasHeight
-	
-	override var viewportX: Double = 0.0
-	override var viewportY: Double = 0.0
-	override var viewportWidth: Double = canvasWidth
-	override var viewportHeight: Double = canvasHeight
-	
-	override var samplingSize: Double = 1.0
-	override val drawingSize: Double = 1.0
+	override val matchWorldSize: Boolean = true
+	override fun matchWorldSize(world: RectWorld) {
+		viewScale = min(canvasWidth / world.nodeCountX, canvasHeight / world.nodeCountY)
+		viewportX = -((canvasWidth / viewScale) - world.nodeCountX) / 2
+		viewportY = -((canvasHeight / viewScale) - world.nodeCountY) / 2
+		canvasWidth = world.nodeCountX * viewScale
+		canvasHeight = world.nodeCountY * viewScale
+	}
 	
 }
 
-fun RectVisualConf.energyPainter(){
+fun RectVisualConf.energyPainter() {
 	painter = { EnergyRectPainter(this, it as RectWorld) }
 }
 
-fun RectVisualConf.offsetPainter(){
+fun RectVisualConf.offsetPainter() {
 	painter = { OffsetRectPainter(this, it as RectWorld) }
 }
