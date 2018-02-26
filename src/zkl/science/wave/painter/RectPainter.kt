@@ -35,7 +35,7 @@ abstract class RectPainter(conf: RectPainterConf, val world: RectWorld) : Painte
 	}
 	
 	abstract val backgroundColor: Color
-	abstract fun getNodeColor(node: Node): Color
+	abstract fun getNodeColor(node: Node<RectNodeId>): Color
 	
 }
 
@@ -44,7 +44,7 @@ abstract class RectPainter(conf: RectPainterConf, val world: RectWorld) : Painte
  */
 class OffsetRectPainter(conf: RectPainterConf, world: RectWorld) : RectPainter(conf, world) {
 	override val backgroundColor: Color = Color.GRAY
-	override fun getNodeColor(node: Node): Color {
+	override fun getNodeColor(node: Node<RectNodeId>): Color {
 		node.color?.let { return it }
 		return node.run {
 			var rate = Math.abs(offset * intensity * 0.5)
@@ -61,7 +61,7 @@ class OffsetRectPainter(conf: RectPainterConf, world: RectWorld) : RectPainter(c
 class EnergyRectPainter(conf: RectPainterConf, world: RectWorld) : RectPainter(conf, world) {
 	override val backgroundColor: Color = Color.BLACK
 	private val energyFill: Color = Color.WHITE
-	override fun getNodeColor(node: Node): Color {
+	override fun getNodeColor(node: Node<RectNodeId>): Color {
 		node.color?.let { return it }
 		return node.run {
 			var rate = mass * velocity * velocity * intensity * 5.0

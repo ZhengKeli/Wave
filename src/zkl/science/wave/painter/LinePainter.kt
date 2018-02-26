@@ -40,11 +40,11 @@ class LinePainter(conf: LinePainterConf, val world: LineWorld) : Painter(conf) {
 		kotlin.run {
 			for (id in 0 until world.length) {
 				val link = world.getLink(id)
-				val node1 = world.getNode(link.unitId1)
-				val node1X = +link.unitId1 * interval
+				val node1 = world.getNode(link.nodeId1)
+				val node1X = +link.nodeId1 * interval
 				val node1Y = -node1.offset * intensity
-				val node2 = world.getNode(link.unitId2)
-				val node2X = +link.unitId2 * interval
+				val node2 = world.getNode(link.nodeId2)
+				val node2X = +link.nodeId2 * interval
 				val node2Y = -node2.offset * intensity
 				
 				gc.stroke = colorMix(node1.color ?: Color.WHITE, node2.color ?: Color.WHITE)

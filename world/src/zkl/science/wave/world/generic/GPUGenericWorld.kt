@@ -8,8 +8,10 @@ import java.util.*
 class GPUGenericWorld(draft: GenericWorldDraft) : GenericWorld {
 	
 	override val nodeCount: Int get() = kernel.nodesCount
-	override fun getNode(id: Int): Node = kernel.run {
-		object : Node {
+	override fun getNode(id: Int): Node<Int> = kernel.run {
+		object : Node<Int> {
+			override val nodeId: Int = id
+			
 			override var offset: Float
 				get() = if (computeCount % 2 == 0) nodesOffset_s0[id] else nodesOffset_s1[id]
 				set(value) {
@@ -39,11 +41,13 @@ class GPUGenericWorld(draft: GenericWorldDraft) : GenericWorld {
 	}
 	
 	override val linkCount: Int get() = kernel.linksCount
-	override fun getLink(id: Int): Link<Int> = kernel.run {
-		object : Link<Int> {
-			override val unitId1: Int
+	override fun getLink(id: Int): Link<Int, Int> = kernel.run {
+		object : Link<Int, Int> {
+			override val linkId: Int = id
+			
+			override val nodeId1: Int
 				get() = kernel.run { impactsFromNodeId[linksImpactId2[id]] }
-			override val unitId2: Int
+			override val nodeId2: Int
 				get() = kernel.run { impactsFromNodeId[linksImpactId1[id]] }
 			override var strength: Float
 				get() = impactsStrength[linksImpactId1[id]]

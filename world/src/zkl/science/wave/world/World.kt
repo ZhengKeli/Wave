@@ -1,7 +1,8 @@
 package zkl.science.wave.world
 
 
-interface Node {
+interface Node<out NodeId> {
+	val nodeId: NodeId
 	var offset: Float
 	var velocity: Float
 	var mass: Float
@@ -9,17 +10,18 @@ interface Node {
 	var extra: Any?
 }
 
-interface Link<out NodeId> {
-	val unitId1: NodeId
-	val unitId2: NodeId
+interface Link<out NodeId, out LinkId> {
+	val linkId: LinkId
+	val nodeId1: NodeId
+	val nodeId2: NodeId
 	var strength: Float
 	var extra: Any?
 }
 
-interface World<NodeId, in LinkId> {
+interface World<NodeId, LinkId> {
 	
-	fun getNode(id: NodeId): Node
-	fun getLink(id: LinkId): Link<NodeId>
+	fun getNode(id: NodeId): Node<NodeId>
+	fun getLink(id: LinkId): Link<NodeId, LinkId>
 	val sources: MutableList<Source<NodeId>>
 	var extra: Any?
 	

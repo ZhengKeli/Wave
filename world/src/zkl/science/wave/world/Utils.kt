@@ -2,16 +2,16 @@ package zkl.science.wave.world
 
 import java.util.*
 
-internal fun processNode(node: Node, timeUnit: Float) {
+internal fun processNode(node: Node<*>, timeUnit: Float) {
 	node.run {
 		this.offset += this.velocity * timeUnit
 		this.velocity -= this.velocity * this.damping * timeUnit
 	}
 }
 
-internal fun <NodeId, LinkId> processLink(world: World<NodeId, LinkId>, link: Link<NodeId>, timeUnit: Float) {
-	val unit1 = world.getNode(link.unitId1)
-	val unit2 = world.getNode(link.unitId2)
+internal fun <NodeId, LinkId> processLink(world: World<NodeId, LinkId>, link: Link<NodeId, *>, timeUnit: Float) {
+	val unit1 = world.getNode(link.nodeId1)
+	val unit2 = world.getNode(link.nodeId2)
 	val impact = (unit1.offset - unit2.offset) * link.strength * timeUnit
 	unit1.velocity -= impact / unit1.mass
 	unit2.velocity += impact / unit2.mass
@@ -26,13 +26,13 @@ internal fun <NodeId, LinkId> processSource(world: World<NodeId, LinkId>, source
 	}
 }
 
-abstract class AbstractWorld<NodeId, in LinkId> : World<NodeId, LinkId> {
+abstract class AbstractWorld<NodeId, LinkId> : World<NodeId, LinkId> {
 	
-	protected abstract val nodes: Iterable<Node>
+	protected abstract val nodes: Iterable<Node<NodeId>>
 	
-	protected abstract val links: Iterable<Link<NodeId>>
+	protected abstract val links: Iterable<Link<NodeId, LinkId>>
 	
-	override val sources: MutableList<Source<NodeId>> = LinkedList<Source<NodeId>>()
+	override val sources: MutableList<Source<NodeId>> = LinkedList()
 	
 	override var extra: Any? = null
 	

@@ -5,32 +5,34 @@ import zkl.science.wave.world.Link
 import zkl.science.wave.world.Node
 
 class CPULineNode(
+	override val nodeId: Int,
 	override var offset: Float,
 	override var velocity: Float,
 	override var mass: Float,
 	override var damping: Float,
 	override var extra: Any?
-) : Node
+) : Node<Int>
 
 class CPULineLink(
-	override val unitId1: Int,
+	override val linkId: Int,
 	override var strength: Float,
 	override var extra: Any?
-) : Link<Int> {
-	override val unitId2: Int get() = unitId1 + 1
+) : Link<Int, Int> {
+	override val nodeId1: Int get() = linkId
+	override val nodeId2: Int get() = linkId + 1
 }
 
 class CPULineWorld(draft: LineWorldDraft) : LineWorld, AbstractWorld<Int, Int>() {
 	
 	override val length get() = links.size
 	override val nodes = draft.run {
-		Array(noteCount) {
-			getNode(it).run { CPULineNode(offset, velocity, mass, damping, extra) }
+		Array(noteCount) { x ->
+			getNode(x).run { CPULineNode(x, offset, velocity, mass, damping, extra) }
 		}.toMutableList()
 	}
 	override val links = draft.run {
-		Array(linkCount) {
-			getLink(it).run { CPULineLink(it, strength, extra) }
+		Array(linkCount) { x ->
+			getLink(x).run { CPULineLink(x, strength, extra) }
 		}.toMutableList()
 	}
 	
