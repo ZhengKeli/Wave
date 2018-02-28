@@ -4,14 +4,14 @@ import javafx.scene.paint.Color
 import javafx.scene.paint.Paint
 import zkl.science.wave.conf.Conf
 import zkl.science.wave.painter.LinePainter
-import zkl.science.wave.painter.LinePainterConf
+import zkl.science.wave.painter.LinePainterDraft
 import zkl.science.wave.world.line.LineWorld
 
 fun Conf.lineVisual(body: LineVisualConf.() -> Unit) {
 	visualConf = LineVisualConf().apply(body)
 }
 
-class LineVisualConf : VisualConf(), LinePainterConf {
+class LineVisualConf : VisualConf(), LinePainterDraft {
 	
 	override var sceneWidth: Double = canvasWidth
 	override var sceneHeight: Double = canvasHeight

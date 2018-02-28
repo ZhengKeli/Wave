@@ -2,7 +2,7 @@ package zkl.science.wave.conf.visual
 
 import zkl.science.wave.conf.Conf
 import zkl.science.wave.painter.Painter
-import zkl.science.wave.painter.PainterConf
+import zkl.science.wave.painter.PainterDraft
 import zkl.science.wave.world.World
 import kotlin.math.round
 
@@ -11,7 +11,7 @@ fun Conf.visual(body: VisualConf.() -> Unit) {
 	this.visualConf = VisualConf().also { body.invoke(it) }
 }
 
-open class VisualConf : PainterConf {
+open class VisualConf : PainterDraft {
 	
 	var canvasWidth: Double = 1200.0
 	var canvasHeight: Double = 700.0

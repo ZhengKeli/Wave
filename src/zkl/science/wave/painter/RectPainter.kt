@@ -8,9 +8,9 @@ import zkl.science.wave.world.rect.RectWorld
 import kotlin.math.roundToInt
 
 
-interface RectPainterConf : PainterConf
+interface RectPainterDraft : PainterDraft
 
-abstract class RectPainter(conf: RectPainterConf, val world: RectWorld) : Painter(conf) {
+abstract class RectPainter(draft: RectPainterDraft, val world: RectWorld) : Painter(draft) {
 	
 	override fun paint(gc: GraphicsContext) {
 		for (canvasX in 0 until gc.canvas.width.toInt()) {
@@ -42,7 +42,7 @@ abstract class RectPainter(conf: RectPainterConf, val world: RectWorld) : Painte
 /**
  * 位移渲染
  */
-class OffsetRectPainter(conf: RectPainterConf, world: RectWorld) : RectPainter(conf, world) {
+class OffsetRectPainter(conf: RectPainterDraft, world: RectWorld) : RectPainter(conf, world) {
 	override val backgroundColor: Color = Color.GRAY
 	override fun getNodeColor(node: Node<RectNodeId>): Color {
 		node.color?.let { return it }
@@ -58,7 +58,7 @@ class OffsetRectPainter(conf: RectPainterConf, world: RectWorld) : RectPainter(c
 /**
  * 波能量渲染
  */
-class EnergyRectPainter(conf: RectPainterConf, world: RectWorld) : RectPainter(conf, world) {
+class EnergyRectPainter(conf: RectPainterDraft, world: RectWorld) : RectPainter(conf, world) {
 	override val backgroundColor: Color = Color.BLACK
 	private val energyFill: Color = Color.WHITE
 	override fun getNodeColor(node: Node<RectNodeId>): Color {

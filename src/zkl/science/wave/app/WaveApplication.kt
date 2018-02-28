@@ -20,6 +20,7 @@ import javafx.stage.Window
 import javafx.stage.WindowEvent
 import zkl.science.wave.DEFAULT_CONF
 import zkl.science.wave.conf.Conf
+import zkl.science.wave.conf.visual.VisualConf
 import zkl.science.wave.painter.Painter
 import zkl.science.wave.world.World
 import java.awt.image.BufferedImage
@@ -178,7 +179,7 @@ class WaveController {
 		}
 		
 		fun sleepUntilNextDraw(): Long {
-			val sleepTime = lastDrawTime + conf.visualConf.framePeriod - System.currentTimeMillis()
+			val sleepTime = lastDrawTime + visualConf.framePeriod - System.currentTimeMillis()
 			if (sleepTime > 0) Thread.sleep(sleepTime, 0)
 			lastDrawTime = System.currentTimeMillis()
 			return sleepTime
@@ -385,7 +386,8 @@ class WaveController {
 	
 	
 	//label & canvas
-	private val painter: Painter by lazy { conf.visualConf.painter(world) }
+	val visualConf: VisualConf get() = conf.visualConf!!
+	private val painter: Painter by lazy { visualConf.painter(world) }
 	@FXML
 	lateinit var canvas: Canvas
 	@FXML
@@ -393,8 +395,8 @@ class WaveController {
 	private var paneScale: Scale? = null
 	private fun initializePainter() {
 		showWords("initializing painter ...")
-		canvas.width = conf.visualConf.canvasWidth
-		canvas.height = conf.visualConf.canvasHeight
+		canvas.width = visualConf.canvasWidth
+		canvas.height = visualConf.canvasHeight
 		
 		val scale = Math.min(canvasPane.width / canvas.width, canvasPane.height / canvas.height)
 		Platform.runLater {

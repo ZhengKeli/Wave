@@ -3,7 +3,7 @@ package zkl.science.wave.painter
 import javafx.scene.canvas.GraphicsContext
 
 
-interface PainterConf {
+interface PainterDraft {
 	
 	val viewportX: Double
 	val viewportY: Double
@@ -12,12 +12,12 @@ interface PainterConf {
 	
 }
 
-abstract class Painter(conf: PainterConf) {
+abstract class Painter(draft: PainterDraft) {
 	
-	open val viewportX: Double = conf.viewportX
-	open val viewportY: Double = conf.viewportY
-	open val viewScale: Double = conf.viewScale
-	open val intensity: Double = conf.intensity
+	open val viewportX: Double = draft.viewportX
+	open val viewportY: Double = draft.viewportY
+	open val viewScale: Double = draft.viewScale
+	open val intensity: Double = draft.intensity
 	
 	abstract fun paint(gc: GraphicsContext)
 	

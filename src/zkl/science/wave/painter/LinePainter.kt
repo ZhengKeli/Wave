@@ -6,7 +6,7 @@ import javafx.scene.paint.Paint
 import javafx.scene.shape.StrokeLineCap
 import zkl.science.wave.world.line.LineWorld
 
-interface LinePainterConf : PainterConf {
+interface LinePainterDraft : PainterDraft {
 	val sceneWidth: Double
 	val sceneHeight: Double
 	val scenePadding: Double
@@ -17,14 +17,14 @@ interface LinePainterConf : PainterConf {
 /**
  * 一维线条的波动渲染
  */
-class LinePainter(conf: LinePainterConf, val world: LineWorld) : Painter(conf) {
+class LinePainter(draft: LinePainterDraft, val world: LineWorld) : Painter(draft) {
 	
-	private val sceneWidth: Double = conf.sceneWidth
-	private val sceneHeight: Double = conf.sceneHeight
-	private val scenePadding: Double = conf.scenePadding
-	private val backgroundFill: Paint = conf.backgroundColor
+	private val sceneWidth: Double = draft.sceneWidth
+	private val sceneHeight: Double = draft.sceneHeight
+	private val scenePadding: Double = draft.scenePadding
+	private val backgroundFill: Paint = draft.backgroundColor
 	
-	private val interval: Double = (conf.sceneWidth - scenePadding * 2.0) / world.length
+	private val interval: Double = (draft.sceneWidth - scenePadding * 2.0) / world.length
 	private val radius: Double = if (interval > 12.0) interval / 3.0 else 0.0
 	private val lineWidth: Double = if (interval > 12.0) radius / 2.0 else 2.0
 	
