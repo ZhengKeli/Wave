@@ -8,12 +8,12 @@ interface NodeProperties {
 	val extra: Any?
 }
 
-interface LinkProperties{
+interface LinkProperties {
 	var strength: Float
 	var extra: Any?
 }
 
-interface Node<out NodeId>:NodeProperties {
+interface Node<out NodeId> : NodeProperties {
 	val nodeId: NodeId
 	override var offset: Float
 	override var velocity: Float
@@ -22,7 +22,7 @@ interface Node<out NodeId>:NodeProperties {
 	override var extra: Any?
 }
 
-interface Link<out NodeId, out LinkId>:LinkProperties {
+interface Link<out NodeId, out LinkId> : LinkProperties {
 	val linkId: LinkId
 	val nodeId1: NodeId
 	val nodeId2: NodeId

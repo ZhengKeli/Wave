@@ -1,8 +1,6 @@
 package zkl.science.wave.world.rect
 
 import zkl.science.wave.world.AbstractWorld
-import zkl.science.wave.world.Link
-import zkl.science.wave.world.Node
 
 
 class CPURectNode(
@@ -12,13 +10,13 @@ class CPURectNode(
 	override var mass: Float,
 	override var damping: Float,
 	override var extra: Any?
-) : Node<RectNodeId>
+) : RectNode
 
 class CPURectLink(
 	override val linkId: RectLinkId,
 	override var strength: Float,
 	override var extra: Any?
-) : Link<RectNodeId, RectLinkId> {
+) : RectLink {
 	override val nodeId1: RectNodeId get() = linkId.run { RectNodeId(x, y) }
 	override val nodeId2: RectNodeId get() = linkId.run { if (h == 0) RectNodeId(x + 1, y) else RectNodeId(x, y + 1) }
 }
@@ -45,9 +43,11 @@ class CPURectWorld(draft: RectWorldDraft) : RectWorld, AbstractWorld<RectNodeId,
 	}
 	
 	override val nodes = _nodes.asSequence().flatMap { it.asSequence() }.asIterable()
-	override val links = (_hLinks.asSequence().flatMap { it.asSequence() } + _vLinks.asSequence().flatMap { it.asSequence() }).asIterable()
+	override val links = kotlin.run {
+		_hLinks.asSequence().flatMap { it.asSequence() } + _vLinks.asSequence().flatMap { it.asSequence() }
+	}.asIterable()
 	
-	override fun getNode(id: RectNodeId): CPURectNode = id.run { _nodes[x][y] }
-	override fun getLink(id: RectLinkId): CPURectLink = id.run { if (id.h == 0) _hLinks[x][y] else _vLinks[x][y] }
+	override fun getNode(x: Int, y: Int): RectNode = _nodes[x][y]
+	override fun getLink(x: Int, y: Int, h: Int): RectLink = if (h == 0) _hLinks[x][y] else _vLinks[x][y]
 	
 }

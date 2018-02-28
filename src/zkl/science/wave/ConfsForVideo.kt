@@ -9,6 +9,7 @@ import zkl.science.wave.conf.visual.lineVisual
 import zkl.science.wave.conf.visual.rectVisual
 import zkl.science.wave.painter.color
 import zkl.science.wave.painter.colorMix
+import zkl.science.wave.world.line.LineNodeId
 import zkl.science.wave.world.rect.RectNodeId
 import java.io.File
 import java.util.*
@@ -29,7 +30,7 @@ object ConfsForVideo {
 	fun firstOutput() = conf {
 		linePhysics {
 			length = 100
-			sinSourceInteractor { nodeId = 0 }
+			sinSourceInteractor { nodeId = LineNodeId(0) }
 			cpuWorld()
 		}
 		lineVisual {
@@ -50,12 +51,12 @@ object ConfsForVideo {
 			length = 200
 			defaultNode.mass = 1.1f
 			sinSourceInteractor {
-				nodeId = 0
+				nodeId = LineNodeId(0)
 				amplitude *= 2.5f
 				delay = period * 2.0f / 3.0f
 			}
 			sinSourceInteractor {
-				nodeId = length - 1
+				nodeId = LineNodeId(length - 1)
 				amplitude *= -1.5f
 			}
 			cpuWorld()
@@ -76,13 +77,13 @@ object ConfsForVideo {
 	fun multiMedia1() = conf {
 		linePhysics {
 			length = 140
-			nodeDrafter { index ->
-				if (index > length / 2) {
+			nodeDrafter { (x) ->
+				if (x > length / 2) {
 					mass *= 10.0f
 					color = Color.DARKTURQUOISE
 				}
 			}
-			sinSourceInteractor { nodeId = 0 }
+			sinSourceInteractor { nodeId = LineNodeId(0) }
 			cpuWorld()
 		}
 		lineVisual {
@@ -107,13 +108,13 @@ object ConfsForVideo {
 	fun multiMedia2() = conf {
 		linePhysics {
 			length = 140
-			nodeDrafter { index ->
-				if (index < length / 2) {
+			nodeDrafter { (x) ->
+				if (x < length / 2) {
 					mass *= 10.0f
 					color = Color.DARKTURQUOISE
 				}
 			}
-			sinSourceInteractor { nodeId = 0 }
+			sinSourceInteractor { nodeId = LineNodeId(0) }
 			cpuWorld()
 		}
 		lineVisual {
@@ -142,11 +143,11 @@ object ConfsForVideo {
 			val absorbThick = 200
 			val absorbDamping = 0.05f
 			val absorbStart = length - absorbThick
-			nodeDrafter { index ->
-				if (index == length) {
+			nodeDrafter { (x) ->
+				if (x == length) {
 					setAsWall()
-				} else if (index > absorbStart) {
-					val rate: Float = (index - absorbStart).toFloat() / absorbThick
+				} else if (x > absorbStart) {
+					val rate: Float = (x - absorbStart).toFloat() / absorbThick
 					damping = defaultNode.damping + absorbDamping * rate
 					color = colorMix(Color.GREEN, Color.WHITE, rate.toDouble(), 1.0 - rate)
 				}
@@ -178,13 +179,13 @@ object ConfsForVideo {
 			timeUnit = 0.47f
 			length = 1000
 			cosSourceInteractor {
-				nodeId = 0
+				nodeId = LineNodeId(0)
 				period = 50f
 				repeat = 15f
 				amplitude = 10f
 			}
 			cosSourceInteractor {
-				nodeId = length - 1
+				nodeId = LineNodeId(length - 1)
 				period = 55f
 				repeat = 14f
 				amplitude = -10f * 50f / 55f

@@ -9,6 +9,7 @@ import zkl.science.wave.conf.visual.offsetPainter
 import zkl.science.wave.conf.visual.rectVisual
 import zkl.science.wave.painter.color
 import zkl.science.wave.painter.colorMix
+import zkl.science.wave.world.line.LineNodeId
 import zkl.science.wave.world.rect.RectNodeId
 import java.util.*
 import kotlin.math.floor
@@ -28,7 +29,7 @@ object Confs {
 	fun simpleLine() = conf {
 		linePhysics {
 			length = 50
-			sinSourceInteractor { nodeId = 0 }
+			sinSourceInteractor { nodeId = LineNodeId(0) }
 			cpuWorld()
 		}
 		lineVisual {
@@ -41,13 +42,13 @@ object Confs {
 	 */
 	fun multiMedia(direction: Boolean = true, massScale: Float = 5.0f) = conf {
 		linePhysics {
-			nodeDrafter { index ->
-				if ((index > length / 2) == direction) {
+			nodeDrafter { (x) ->
+				if ((x > length / 2) == direction) {
 					mass *= massScale
 					color = Color.DARKTURQUOISE
 				}
 			}
-			sinSourceInteractor { nodeId = 0 }
+			sinSourceInteractor { nodeId = LineNodeId(0) }
 			cpuWorld()
 		}
 		lineVisual { }
@@ -97,7 +98,7 @@ object Confs {
 	fun multiDamping(direction: Boolean = true, theDamping: Float = 0.05f) = conf {
 		linePhysics {
 			length = 80
-			nodeDrafter { x ->
+			nodeDrafter { (x) ->
 				if (direction && x > length * 3 / 4) {
 					damping = theDamping
 					color = Color.GREEN
@@ -125,7 +126,7 @@ object Confs {
 			val absorbThick = 40
 			val absorbDamping = 0.3f
 			val absorbStart = length - absorbThick
-			nodeDrafter { x ->
+			nodeDrafter { (x) ->
 				when {
 					x == length -> setAsWall()
 					x > absorbStart -> {
@@ -136,7 +137,7 @@ object Confs {
 				}
 			}
 			
-			sinSourceInteractor { nodeId = 0 }
+			sinSourceInteractor { nodeId = LineNodeId(0) }
 			
 			cpuWorld()
 		}
@@ -155,7 +156,7 @@ object Confs {
 			val absorbThick = 400
 			val absorbDamping = 0.01f
 			val absorbStart = length - absorbThick
-			nodeDrafter { x ->
+			nodeDrafter { (x) ->
 				when {
 					x == length -> setAsWall()
 					x > absorbStart -> {
@@ -186,7 +187,7 @@ object Confs {
 			timeUnit = 0.01f
 			length = 300
 			sinSourceInteractor {
-				nodeId = length / 2
+				nodeId = LineNodeId(length / 2)
 				period = 1.0f
 				amplitude = 5000f
 			}

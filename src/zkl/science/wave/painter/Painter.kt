@@ -4,20 +4,18 @@ import javafx.scene.canvas.GraphicsContext
 
 
 interface PainterDraft {
-	
 	val viewportX: Double
 	val viewportY: Double
 	val viewScale: Double
 	val intensity: Double
-	
 }
 
-abstract class Painter(draft: PainterDraft) {
+abstract class Painter(draft: PainterDraft) : PainterDraft {
 	
-	open val viewportX: Double = draft.viewportX
-	open val viewportY: Double = draft.viewportY
-	open val viewScale: Double = draft.viewScale
-	open val intensity: Double = draft.intensity
+	override val viewportX: Double = draft.viewportX
+	override val viewportY: Double = draft.viewportY
+	override val viewScale: Double = draft.viewScale
+	override val intensity: Double = draft.intensity
 	
 	abstract fun paint(gc: GraphicsContext)
 	
