@@ -9,8 +9,8 @@ interface NodeProperties {
 }
 
 interface LinkProperties {
-	var strength: Float
-	var extra: Any?
+	val strength: Float
+	val extra: Any?
 }
 
 interface Node<out NodeId> : NodeProperties {

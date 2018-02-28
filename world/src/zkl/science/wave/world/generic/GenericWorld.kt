@@ -1,29 +1,33 @@
 package zkl.science.wave.world.generic
 
-import zkl.science.wave.world.World
+import zkl.science.wave.world.*
 
-interface GenericWorldDraft {
-	val nodes: List<GenericNodeDraft>
-	val links: List<GenericLinkDraft>
-	val extra: Any?
-}
 
-interface GenericNodeDraft {
-	val offset: Float
-	val velocity: Float
-	val mass: Float
-	val damping: Float
-	val extra: Any?
-}
+interface GenericNodeDraft : NodeProperties
 
-interface GenericLinkDraft {
+interface GenericLinkDraft : LinkProperties {
 	val nodeId1: Int
 	val nodeId2: Int
-	val strength: Float
+}
+
+interface GenericWorldDraft {
+	val nodeCount: Int get() = nodes.size
+	val nodes: List<GenericNodeDraft>
+	
+	val linkCount: Int get() = links.size
+	val links: List<GenericLinkDraft>
+	
 	val extra: Any?
 }
 
-interface GenericWorld : World<Int, Int> {
-	val nodeCount: Int
-	val linkCount: Int
+
+interface GenericNode : Node<Int>, GenericNodeDraft
+
+interface GenericLink : Link<Int, Int>, GenericLinkDraft
+
+interface GenericWorld : World<Int, Int>, GenericWorldDraft {
+	override val nodes: List<GenericNode>
+	override val links: List<GenericLink>
+	override fun getNode(id: Int): GenericNode = nodes[id]
+	override fun getLink(id: Int): GenericLink = links[id]
 }
