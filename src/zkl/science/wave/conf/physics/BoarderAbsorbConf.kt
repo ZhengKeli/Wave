@@ -21,7 +21,7 @@ fun LinePhysicsConf.boarderAbsorb(body: BoarderAbsorbConf.() -> Unit) {
 
 fun RectPhysicsConf.boarderAbsorb(body: BoarderAbsorbConf.() -> Unit) {
 	BoarderAbsorbConf().apply(body).run {
-		nodeDrafter { x, y ->
+		nodeDrafter { (x, y) ->
 			val distance = min(min(x, width - x), min(y, height - y))
 			if (distance > absorbThick) return@nodeDrafter
 			val rate = (absorbThick - distance).toFloat() / absorbThick

@@ -1,28 +1,17 @@
 package zkl.science.wave.world.line
 
+import zkl.science.wave.world.LinkProperties
+import zkl.science.wave.world.NodeProperties
 import zkl.science.wave.world.World
-
-interface LineNodeDraft {
-	val offset: Float
-	val velocity: Float
-	val mass: Float
-	val damping: Float
-	val extra: Any?
-}
-
-interface LineLinkDraft {
-	val strength: Float
-	val extra: Any?
-}
 
 interface LineWorldDraft {
 	val length: Int
 	
-	val noteCount get() = length + 1
-	fun getNode(x: Int): LineNodeDraft
+	val nodeCount get() = length + 1
+	fun getNode(x: Int): NodeProperties
 	
 	val linkCount get() = length
-	fun getLink(x: Int): LineLinkDraft
+	fun getLink(x: Int): LinkProperties
 	
 	val extra: Any?
 	

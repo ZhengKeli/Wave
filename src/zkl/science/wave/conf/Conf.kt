@@ -9,7 +9,7 @@ fun conf(body: Conf.() -> Unit) = Conf().also { it.body() }
 
 class Conf {
 	
-	lateinit var physicsConf: PhysicsConf<*>
+	lateinit var physicsConf: PhysicsConf<*, *>
 	
 	lateinit var visualConf: VisualConf
 	

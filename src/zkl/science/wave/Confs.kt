@@ -226,7 +226,7 @@ object Confs {
 			width = 300
 			height = 300
 			boarderAbsorb { }
-			nodeDrafter { _, y ->
+			nodeDrafter { (_, y) ->
 				if ((y > height / 2) == direction) mass *= massScale
 				if (y == height / 2) color = Color.YELLOW
 			}
@@ -264,8 +264,8 @@ object Confs {
 			val wavelength = 20.0
 			val slitWidth = wavelength * 3.0
 			
-			boarderAbsorb {  }
-			nodeDrafter { x, y ->
+			boarderAbsorb { }
+			nodeDrafter { (x, y) ->
 				if (x == width / 2 && !(y > height / 2 - slitWidth / 2 && y < height / 2 + slitWidth / 2)) {
 					mass = Float.MAX_VALUE
 					color = Color.RED
@@ -338,7 +338,7 @@ object Confs {
 			
 			val absorbThick = 30
 			boarderAbsorb { this.absorbThick = 30 }
-			nodeDrafter { ax, ay ->
+			nodeDrafter { (ax, ay) ->
 				val x = ax - absorbThick
 				val y = Math.round(ay - height / 2.0).toInt()
 				if (x in 0..l) {
@@ -392,7 +392,7 @@ object Confs {
 					add(h.roundToInt())
 				}
 			}
-			nodeDrafter { x, y ->
+			nodeDrafter { (x, y) ->
 				if (x == width / 2) {
 					val r = Math.abs(y - height / 2)
 					val i = zeroPoints.indexOfFirst { r < it }

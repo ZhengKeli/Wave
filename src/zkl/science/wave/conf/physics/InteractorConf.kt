@@ -7,17 +7,16 @@ import zkl.science.wave.world.World
 import kotlin.math.PI
 
 
-fun <N> PhysicsConf<N>.customInteractor(body: World<N, *>.() -> Unit) {
-	@Suppress("UNCHECKED_CAST")
-	interactors.add(body as World<*, *>.() -> Unit)
+fun <N, L> PhysicsConf<N, L>.customInteractor(body: World<N, L>.() -> Unit) {
+	interactors.add(body)
 }
 
 
-fun <N : Any> PhysicsConf<N>.sinSourceInteractor(body: SinSourceConf<N>.() -> Unit) {
+fun <N : Any, L> PhysicsConf<N, L>.sinSourceInteractor(body: SinSourceConf<N>.() -> Unit) {
 	interactors.add(SinSourceConf<N>().apply(body))
 }
 
-fun <N : Any> PhysicsConf<N>.cosSourceInteractor(body: SinSourceConf<N>.() -> Unit) {
+fun <N : Any, L> PhysicsConf<N, L>.cosSourceInteractor(body: SinSourceConf<N>.() -> Unit) {
 	interactors.add(SinSourceConf<N>().apply(body).apply { initialPhase += (PI / 2.0).toFloat() })
 }
 
@@ -31,16 +30,15 @@ class SinSourceConf<N : Any> : (World<N, *>) -> Unit {
 	var repeat: Float = 1.0f
 	var initialPhase: Float = 0.0f
 	
-	@Suppress("UNCHECKED_CAST")
 	override fun invoke(world: World<N, *>) {
 		val startTime = world.time + delay
- 		world.sources += SinSource(nodeId, startTime, type, amplitude, period, repeat, initialPhase)
+		world.sources += SinSource(nodeId, startTime, type, amplitude, period, repeat, initialPhase)
 	}
 	
 }
 
 
-fun <N : Any> PhysicsConf<N>.squareSourceInteractor(body: SquareSourceConf<N>.() -> Unit) {
+fun <N : Any, L> PhysicsConf<N, L>.squareSourceInteractor(body: SquareSourceConf<N>.() -> Unit) {
 	interactors.add(SquareSourceConf<N>().apply(body))
 }
 

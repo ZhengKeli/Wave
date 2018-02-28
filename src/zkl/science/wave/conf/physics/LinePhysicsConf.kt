@@ -1,9 +1,9 @@
 package zkl.science.wave.conf.physics
 
 import zkl.science.wave.conf.Conf
+import zkl.science.wave.world.LinkProperties
+import zkl.science.wave.world.NodeProperties
 import zkl.science.wave.world.line.CPULineWorld
-import zkl.science.wave.world.line.LineLinkDraft
-import zkl.science.wave.world.line.LineNodeDraft
 import zkl.science.wave.world.line.LineWorldDraft
 
 
@@ -11,46 +11,23 @@ fun Conf.linePhysics(body: LinePhysicsConf.() -> Unit) {
 	this.physicsConf = LinePhysicsConf().apply(body)
 }
 
-open class LinePhysicsConf : PhysicsConf<Int>() {
+open class LinePhysicsConf : PhysicsConf<Int, Int>(), LineWorldDraft {
 	
-	var length: Int = 0
-	val nodeCount: Int get() = length + 1
+	override var length: Int = 0
 	
-	var defaultNode = InstantNodeDraft(1.0f, 0.0f, 0.0f, 0.0f, null)
-	var defaultLink = InstantLinkDraft(0.1f, null)
-	var nodeDrafters: ArrayList<InstantNodeDraft.(x: Int) -> Unit> = ArrayList()
-	var linkDrafters: ArrayList<InstantLinkDraft.(x: Int) -> Unit> = ArrayList()
-	var extra: Any? = null
-	
-	var worldDrafter: () -> LineWorldDraft = {
-		object : LineWorldDraft {
-			override val length: Int = this@LinePhysicsConf.length
-			
-			override fun getNode(x: Int): LineNodeDraft {
-				return defaultNode.copy().apply { nodeDrafters.forEach { it(x) } }
-			}
-			
-			override fun getLink(x: Int): LineLinkDraft {
-				return defaultLink.copy().apply { linkDrafters.forEach { it(x) } }
-			}
-			
-			override val extra: Any? = this@LinePhysicsConf.extra
-		}
+	override fun getNode(x: Int): NodeProperties {
+		return defaultNode.copy().apply { nodeDrafters.forEach { it(x) } }
 	}
 	
+	override fun getLink(x: Int): LinkProperties {
+		return defaultLink.copy().apply { linkDrafters.forEach { it(x) } }
+	}
+	
+	override var extra: Any? = null
+	
 }
-
-
-fun LinePhysicsConf.nodeDrafter(body: InstantNodeDraft.(x: Int) -> Unit) {
-	nodeDrafters.add(body)
-}
-
-fun LinePhysicsConf.linkDrafter(body: InstantLinkDraft.(x: Int) -> Unit) {
-	linkDrafters.add(body)
-}
-
 
 fun LinePhysicsConf.cpuWorld() {
-	world = { CPULineWorld(worldDrafter()) }
+	world = { CPULineWorld(this) }
 }
 

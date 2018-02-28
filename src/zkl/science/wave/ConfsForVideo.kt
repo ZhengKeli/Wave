@@ -221,8 +221,8 @@ object ConfsForVideo {
 			
 			val wavelength = 20.0f
 			val slitWidth = wavelength * 3.0
-			val sourceUnitId = RectNodeId( width / 5,height / 2 + 3)
-			nodeDrafter { x, y ->
+			val sourceUnitId = RectNodeId(width / 5, height / 2 + 3)
+			nodeDrafter { (x, y) ->
 				if (x == width / 2 && !(y > height / 2 - slitWidth / 2 && y < height / 2 + slitWidth / 2))
 					setAsWall()
 			}
@@ -257,8 +257,8 @@ object ConfsForVideo {
 			
 			var interactCount = 0
 			val sourceIds = arrayOf(
-				RectNodeId( width / 3,height / 3),
-				RectNodeId( width / 2 + 3,height / 2))
+				RectNodeId(width / 3, height / 3),
+				RectNodeId(width / 2 + 3, height / 2))
 			customInteractor {
 				SinSourceConf<RectNodeId>().apply {
 					nodeId = sourceIds[interactCount++]
@@ -297,7 +297,7 @@ object ConfsForVideo {
 			val distance = 53.0f
 			val wavelength = 21.0f
 			
-			val sourceUnitId = RectNodeId( width / 2 - distance.toInt(),height / 2)
+			val sourceUnitId = RectNodeId(width / 2 - distance.toInt(), height / 2)
 			val waveSpeed = Math.sqrt((defaultLink.strength / defaultNode.mass).toDouble()).toFloat()
 			val zeroPoints = ArrayList<Int>().apply {
 				var k: Int = Math.floor((2 * 2 * distance / wavelength).toDouble()).toInt() //半波长倍数
@@ -308,9 +308,9 @@ object ConfsForVideo {
 					add(h.toInt())
 				}
 			}
-			nodeDrafter { column, row ->
-				if (column == width / 2) {
-					val r = Math.abs(row - height / 2)
+			nodeDrafter { (x, y) ->
+				if (x == width / 2) {
+					val r = Math.abs(y - height / 2)
 					val i = zeroPoints.indexOfFirst { r < it }
 					if (i % 2 == 1) setAsWall()
 				}

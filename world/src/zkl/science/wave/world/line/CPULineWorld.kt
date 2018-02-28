@@ -26,7 +26,7 @@ class CPULineWorld(draft: LineWorldDraft) : LineWorld, AbstractWorld<Int, Int>()
 	
 	override val length get() = links.size
 	override val nodes = draft.run {
-		Array(noteCount) { x ->
+		Array(nodeCount) { x ->
 			getNode(x).run { CPULineNode(x, offset, velocity, mass, damping, extra) }
 		}.toMutableList()
 	}

@@ -1,7 +1,7 @@
 package zkl.science.wave.painter
 
 import javafx.scene.paint.Color
-import zkl.science.wave.conf.physics.InstantNodeDraft
+import zkl.science.wave.conf.physics.NodeConf
 import zkl.science.wave.world.Node
 
 fun colorMix(color1: Color, color2: Color, weight1: Double = 1.0, weight2: Double = 1.0): Color {
@@ -14,7 +14,7 @@ fun colorMix(color1: Color, color2: Color, weight1: Double = 1.0, weight2: Doubl
 	)
 }
 
-var InstantNodeDraft.color: Color?
+var NodeConf.color: Color?
 	get() = this.extra as? Color
 	set(value) {
 		this.extra = value
