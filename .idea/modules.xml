@@ -2,8 +2,9 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/Wave.iml" filepath="$PROJECT_DIR$/Wave.iml" />
-      <module fileurl="file://$PROJECT_DIR$/world/world.iml" filepath="$PROJECT_DIR$/world/world.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/Wave.iml" filepath="$PROJECT_DIR$/.idea/modules/Wave.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/fx/app.iml" filepath="$PROJECT_DIR$/.idea/modules/fx/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/core/core.iml" filepath="$PROJECT_DIR$/.idea/modules/core/core.iml" />
     </modules>
   </component>
 </project>

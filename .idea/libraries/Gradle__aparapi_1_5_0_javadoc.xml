@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="Gradle: aparapi-1.5.0-javadoc">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/core/libs/aparapi-1.5.0-javadoc.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

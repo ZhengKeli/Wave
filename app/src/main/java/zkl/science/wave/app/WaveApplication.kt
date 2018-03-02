@@ -48,10 +48,82 @@ class WaveApplication : Application() {
 
 class WaveController {
 	
+	//fx
+	lateinit var stage: Window
+	
+	@FXML
+	fun initialize() {
+		root.sceneProperty().addListener { _, _, newScene ->
+			newScene?.windowProperty()?.addListener { _, _, newWindow ->
+				newWindow?.setOnCloseRequest { onRequestedClose(it) }
+				stage = newWindow
+			}
+		}
+		if (conf.exportConf == null) {
+			b_export.isDisable = true
+		}
+	}
+	
+	//control
+	
+	@FXML
+	private lateinit var root: Pane
+	@FXML
+	lateinit var b_start: Button
+	@FXML
+	lateinit var b_invoke: Button
+	@FXML
+	lateinit var b_export: Button
+	
+	@FXML
+	fun onStartButtonClicked() {
+		thread {
+			stateLock.withLock {
+				when (appState) {
+					AppState.infant -> startInitialization()
+					AppState.looping -> pauseLoop()
+					AppState.paused -> startLoop()
+					else -> {
+					}
+				}
+			}
+		}
+	}
+	
+	@FXML
+	fun onInvokeButtonClicked() {
+		conf.physicsConf.interact(world)
+	}
+	
+	@FXML
+	fun onExportButtonCLicked() {
+		isAutoModeOn = false
+		if (exporting) {
+			exporting = false
+			openExportDir()
+		} else {
+			exporting = true
+		}
+	}
+	
+	fun onRequestedClose(windowEvent: WindowEvent) {
+		windowEvent.consume()
+		stateLock.withLock {
+			if (appState !in arrayOf(AppState.initializing, AppState.timeOffsetting)) {
+				thread {
+					stopAll()
+					Platform.exit()
+				}
+			}
+		}
+	}
+	
+	
+	
 	//configurations
 	val conf: Conf = DEFAULT_CONF
 	
-	
+	//todo optimize threading by Kotlin coroutine
 	//threads
 	enum class AppState { infant, initializing, timeOffsetting, looping, pausing, paused, stopping, stopped }
 	
@@ -316,73 +388,7 @@ class WaveController {
 	}
 	
 	
-	//control
-	lateinit var stage: Window
 	
-	@FXML
-	fun initialize() {
-		root.sceneProperty().addListener { _, _, newScene ->
-			newScene?.windowProperty()?.addListener { _, _, newWindow ->
-				newWindow?.setOnCloseRequest { onRequestedClose(it) }
-				stage = newWindow
-			}
-		}
-		if (conf.exportConf == null) {
-			b_export.isDisable = true
-		}
-	}
-	
-	@FXML
-	private lateinit var root: Pane
-	@FXML
-	lateinit var b_start: Button
-	@FXML
-	lateinit var b_invoke: Button
-	@FXML
-	lateinit var b_export: Button
-	
-	@FXML
-	fun onStartButtonClicked() {
-		thread {
-			stateLock.withLock {
-				when (appState) {
-					AppState.infant -> startInitialization()
-					AppState.looping -> pauseLoop()
-					AppState.paused -> startLoop()
-					else -> {
-					}
-				}
-			}
-		}
-	}
-	
-	@FXML
-	fun onInvokeButtonClicked() {
-		conf.physicsConf.interact(world)
-	}
-	
-	@FXML
-	fun onExportButtonCLicked() {
-		isAutoModeOn = false
-		if (exporting) {
-			exporting = false
-			openExportDir()
-		} else {
-			exporting = true
-		}
-	}
-	
-	fun onRequestedClose(windowEvent: WindowEvent) {
-		windowEvent.consume()
-		stateLock.withLock {
-			if (appState !in arrayOf(AppState.initializing, AppState.timeOffsetting)) {
-				thread {
-					stopAll()
-					Platform.exit()
-				}
-			}
-		}
-	}
 	
 	
 	//label & canvas
