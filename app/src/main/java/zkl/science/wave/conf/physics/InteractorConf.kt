@@ -1,9 +1,6 @@
 package zkl.science.wave.conf.physics
 
-import zkl.science.wave.world.SinSource
-import zkl.science.wave.world.SourceType
-import zkl.science.wave.world.SquareSource
-import zkl.science.wave.world.World
+import zkl.science.wave.world.*
 import kotlin.math.PI
 
 
@@ -53,6 +50,24 @@ class SquareSourceConf<N : Any> : (World<N, *>) -> Unit {
 	override fun invoke(world: World<N, *>) {
 		val startTime = world.time + delay
 		world.sources += SquareSource(nodeId, amplitude, startTime, period, repeat)
+	}
+	
+}
+
+
+fun <N : Any, L> PhysicsConf<N, L>.noiseSourceInteractor(body: NoiseSourceConf<N>.() -> Unit) {
+	interactors.add(NoiseSourceConf<N>().apply(body))
+}
+
+class NoiseSourceConf<N : Any> : (World<N, *>) -> Unit {
+	lateinit var nodeId: N
+	var delay: Float = 0.0f
+	var scale: Float = 1.0f
+	var span: Float = 100f
+	
+	override fun invoke(world: World<N, *>) {
+		val startTime = world.time + delay
+		world.sources += NoiseSource(nodeId, scale, startTime, span)
 	}
 	
 }

@@ -1,5 +1,7 @@
 package zkl.science.wave.world
 
+import zkl.tools.math.random.Random
+
 
 enum class SourceType { FORCE, POSITION }
 
@@ -37,4 +39,17 @@ class SquareSource<out NodeId>(
 	override val type: SourceType = SourceType.POSITION
 	override val endTime: Float = startTime + period * repeat
 	override fun getValue(time: Float): Float = if (time % period < period / 2.0) scale else -scale
+}
+
+class NoiseSource<out NodeId>(
+	override val nodeId: NodeId,
+	val scale: Float,
+	override val startTime: Float,
+	override val span: Float
+) : Source<NodeId> {
+	override val type: SourceType = SourceType.FORCE
+	override val endTime: Float = startTime + span
+	override fun getValue(time: Float): Float {
+		return (Random.normal(scale.toDouble())).toFloat()
+	}
 }
