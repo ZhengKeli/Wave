@@ -4,6 +4,8 @@ apply plugin: 'kotlin'
 dependencies {
     compile project(':core')
     compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+    compile 'org.jetbrains.kotlinx:kotlinx-coroutines-javafx:0.22'
+    compile 'no.tornado:tornadofx:1.7.15'
     testCompile 'junit:junit:4.12'
 }
 
@@ -12,3 +14,4 @@ processResources {
         include '**/*.fxml'
     }
 }
+

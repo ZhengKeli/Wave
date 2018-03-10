@@ -16,7 +16,7 @@ import kotlin.math.floor
 import kotlin.math.roundToInt
 import kotlin.math.sqrt
 
-val DEFAULT_CONF get() = Confs.diffraction()
+val CONF by lazy { Confs.resonate2D() }
 //val DEFAULT_CONF = Confs.diffraction()
 
 object Confs {
@@ -405,6 +405,46 @@ object Confs {
 				nodeId = sourceUnitId
 				period = wavelength / waveSpeed
 				repeat = 1000f
+			}
+			
+			gpuWorld()
+		}
+		rectVisual {
+			energyPainter()
+		}
+	}
+	
+	fun resonate2D() = conf {
+		rectPhysics {
+			timeUnit = 0.5f
+			processCount = 10
+			
+			height = 250
+			width = 400
+			boarderAbsorb { }
+			
+			val k = 5f
+			val n = 0.5f
+			val wavelength = 30
+			val waveSpeed = sqrt(defaultLink.strength * k / defaultNode.mass)
+			
+			val startX = width / 2
+			val endX = startX + (wavelength * n).roundToInt()
+			val startY = height / 3
+			val endY = height * 2 / 3
+			
+			linkDrafter { (x, y, _) ->
+				if (y in startY until endY) {
+					if (x in startX until endX) {
+						strength *= k
+					}
+				}
+			}
+			
+			cosSourceInteractor {
+				nodeId = RectNodeId(width / 4, height / 2)
+				period = wavelength / waveSpeed
+				repeat = 10f
 			}
 			
 			gpuWorld()

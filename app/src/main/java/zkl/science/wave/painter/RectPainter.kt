@@ -47,7 +47,7 @@ class OffsetRectPainter(conf: RectPainterDraft, world: RectWorld) : RectPainter(
 	override fun getNodeColor(node: Node<RectNodeId>): Color {
 		node.color?.let { return it }
 		return node.run {
-			var rate = Math.abs(offset * intensity * 0.5)
+			var rate = Math.abs(offset * intensity * 0.1)
 			if (rate > 1.0) rate = 1.0
 			val color = if (offset > 0) Color.WHITE else Color.BLACK
 			return@run colorMix(backgroundColor, color, 1.0 - rate, rate)

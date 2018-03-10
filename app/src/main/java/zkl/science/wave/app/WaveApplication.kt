@@ -18,7 +18,7 @@ import javafx.scene.transform.Transform
 import javafx.stage.Stage
 import javafx.stage.Window
 import javafx.stage.WindowEvent
-import zkl.science.wave.DEFAULT_CONF
+import zkl.science.wave.CONF
 import zkl.science.wave.conf.Conf
 import zkl.science.wave.conf.visual.VisualConf
 import zkl.science.wave.painter.Painter
@@ -119,9 +119,8 @@ class WaveController {
 	}
 	
 	
-	
 	//configurations
-	val conf: Conf = DEFAULT_CONF
+	val conf: Conf = CONF
 	
 	//todo optimize threading by Kotlin coroutine
 	//threads
@@ -386,9 +385,6 @@ class WaveController {
 		}
 		stateLock.withLock { appState = AppState.stopped }
 	}
-	
-	
-	
 	
 	
 	//label & canvas
