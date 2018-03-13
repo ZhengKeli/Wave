@@ -58,11 +58,10 @@ class MainView : View("Wave") {
 	
 	
 	//life
-	private var mainJob: Job? = null
-	
 	override fun onDock() {
 		super.onDock()
 		
+		var mainJob: Job? = null
 		startButton.run {
 			isDisable = false
 			setOnMouseClicked {
@@ -106,7 +105,7 @@ class MainView : View("Wave") {
 		
 	}
 	
-	private suspend fun doInit() {
+	private suspend fun CoroutineScope.doInit() {
 		yield()
 		launch(JavaFx) { mainLabel.text = "world initializing" }
 		this@MainView.world
