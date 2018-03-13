@@ -41,3 +41,9 @@ interface World<NodeId, LinkId> {
 	fun process(timeUnit: Float, repeat: Int = 1)
 	
 }
+
+fun World<*, *>.processUntil(timeUnit: Float, endTime: Float): Int {
+	val count = ((endTime - time) / timeUnit).toInt()
+	if (count > 0) process(timeUnit, count)
+	return count
+}

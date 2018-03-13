@@ -16,7 +16,7 @@ import kotlin.math.floor
 import kotlin.math.roundToInt
 import kotlin.math.sqrt
 
-val CONF by lazy { Confs.resonate2D() }
+val CONF by lazy { ConfsForVideo.interference() }
 //val DEFAULT_CONF = Confs.diffraction()
 
 object Confs {

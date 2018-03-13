@@ -12,7 +12,6 @@ import javafx.scene.control.Button
 import javafx.scene.control.Label
 import javafx.scene.image.WritableImage
 import javafx.scene.layout.Pane
-import javafx.scene.paint.Color
 import javafx.scene.transform.Scale
 import javafx.scene.transform.Transform
 import javafx.stage.Stage
@@ -122,7 +121,6 @@ class WaveController {
 	//configurations
 	val conf: Conf = CONF
 	
-	//todo optimize threading by Kotlin coroutine
 	//threads
 	enum class AppState { infant, initializing, timeOffsetting, looping, pausing, paused, stopping, stopped }
 	
@@ -351,7 +349,7 @@ class WaveController {
 				}
 			}
 		}
-	var isAutoModeOn = conf.exportConf?.isAutoModeOn == true
+	var isAutoModeOn = conf.exportConf?.let { it.exportTimeRange != null } == true
 	fun checkAutoExport(): Boolean {
 		exportingLock.withLock {
 			if (isAutoModeOn) {
@@ -424,11 +422,6 @@ class WaveController {
 	fun paintWaveWorld() {
 		canvas.graphicsContext2D.run {
 			painter.paint(this@run)
-			conf.exportConf?.exportViewPort?.let { viewPort ->
-				stroke = Color.AQUAMARINE
-				lineWidth = 3.0
-				strokeRect(viewPort.minX, viewPort.minY, viewPort.width, viewPort.height)
-			}
 		}
 	}
 	
@@ -457,7 +450,7 @@ class WaveController {
 	//image export
 	var imageId: Int = 0
 	var snapshotImage: WritableImage? = null
-	val snapshotParameters = SnapshotParameters().apply { viewport = conf.exportConf?.exportViewPort }
+	val snapshotParameters = SnapshotParameters()
 	fun takeSnapshot(): BufferedImage {
 		val snapshotImage = canvas.snapshot(snapshotParameters, snapshotImage)
 		val bufferedImage = SwingFXUtils.fromFXImage(snapshotImage!!, null)!!

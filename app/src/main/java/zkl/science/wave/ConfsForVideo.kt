@@ -34,12 +34,11 @@ object ConfsForVideo {
 			cpuWorld()
 		}
 		lineVisual {
-			canvasWidth = 4000.0
-			canvasHeight = 1000.0
+			intensity = 0.3
 		}
 		export {
 			exportDir = File("D:/scienceFX/firstOutput")
-			exportTimeRange = 0.0f..100.0f
+			exportTimeRange = 30.0f..60.0f
 		}
 	}
 	
@@ -203,7 +202,7 @@ object ConfsForVideo {
 			exportDir = File("D:/scienceFX/beatFrequency")
 			exportPrefix = "beatFrequency_"
 			exportTimeRange = 700f..1900f
-//			isAutoModeOn = true
+//			autoMode = true
 		}
 	}
 	
@@ -244,7 +243,6 @@ object ConfsForVideo {
 			exportDir = File("D:/scienceFX/diffraction")
 			exportPrefix = "diffraction_"
 			exportTimeRange = 0f..1000f
-			isAutoModeOn = true
 		}
 	}
 	
@@ -253,20 +251,21 @@ object ConfsForVideo {
 	 */
 	fun interference() = conf {
 		rectPhysics {
+			timeOffset = 100.0f
+			
 			height = 200
 			width = 200
 			
-			var interactCount = 0
 			val sourceIds = arrayOf(
 				RectNodeId(width / 3, height / 3),
 				RectNodeId(width / 2 + 3, height / 2))
-			customInteractor {
-				SinSourceConf<RectNodeId>().apply {
-					nodeId = sourceIds[interactCount++]
+			sourceIds.forEach { id->
+				sinSourceInteractor {
+					nodeId = id
 					period = 20f
 					repeat = 70f
 					amplitude = 5f
-				}.invoke(this)
+				}
 			}
 			
 			gpuWorld()
@@ -278,8 +277,7 @@ object ConfsForVideo {
 		export {
 			exportDir = File("D:/scienceFX/interference")
 			exportPrefix = "interference_"
-			exportTimeRange = 0f..1000f
-			isAutoModeOn = true
+//			exportTimeRange = 0f..1000f
 		}
 	}
 	
@@ -332,8 +330,7 @@ object ConfsForVideo {
 		export {
 			exportDir = File("D:/scienceFX/zonePlate")
 			exportPrefix = "zonePlate_"
-			exportTimeRange = 0f..800f
-			isAutoModeOn = false
+//			exportTimeRange = 0f..800f
 		}
 	}
 	
