@@ -7,6 +7,7 @@ import javafx.scene.control.Label
 import javafx.scene.layout.Pane
 import javafx.stage.Screen
 import kotlinx.coroutines.experimental.*
+import kotlinx.coroutines.experimental.channels.Channel
 import kotlinx.coroutines.experimental.channels.ReceiveChannel
 import kotlinx.coroutines.experimental.channels.produce
 import kotlinx.coroutines.experimental.javafx.JavaFx
@@ -107,11 +108,11 @@ class MainView : View("Wave") {
 	}
 	
 	private suspend fun CoroutineScope.doInit() {
-		yield()
+		if(!isActive) return
 		launch(JavaFx) { mainLabel.text = "world initializing" }
 		this@MainView.world
 		
-		yield()
+		if(!isActive) return
 		launch(JavaFx) { mainLabel.text = "painter initializing" }
 		this@MainView.painter
 		launch(JavaFx) {
@@ -123,7 +124,7 @@ class MainView : View("Wave") {
 			canvas.scaleX = scale
 			canvas.scaleY = scale
 			painter.paint(canvas.graphicsContext2D)
-		}
+		}.join()
 		
 	}
 	
@@ -152,17 +153,24 @@ class MainView : View("Wave") {
 		}
 		if (exportConf.autoExport) interactWorld()
 		
-		val startLock = Mutex(!start)
+		val startSignal = Channel<Unit>(1)
+		if(start) startSignal.offer(Unit)
 		while (isActive) {
-			if (!startLock.tryLock()) {
+			if(startSignal.poll()==null){
 				launch(JavaFx) {
-					startButton.text = "resume"
-					startButton.isDisable = false
-					startButton.setOnMouseClicked { startLock.unlock() }
+					startButton.run {
+						text = "resume"
+						isDisable = false
+						setOnMouseClicked {
+							isDisable = true
+							startSignal.offer(Unit)
+						}
+					}
 					mainLabel.text = worldTimeMessage("paused")
 				}
-				startLock.lock()
+				startSignal.receive()
 			}
+			
 			val drawSignal = produce {
 				var lastDrawTime = System.currentTimeMillis()
 				while (isActive) {
@@ -176,74 +184,78 @@ class MainView : View("Wave") {
 			val loopRoutines = Array(3) {
 				launch(coroutineContext) {
 					while (isActive) {
-						withContext(NonCancellable) { doLoop(drawSignal) }
+						doLoop(drawSignal)
 					}
 				}
 			}
+			
 			launch(JavaFx) {
-				startButton.text = "pause"
-				startButton.setOnMouseClicked {
-					startButton.isDisable = true
-					startButton.text = "pausing"
-					loopRoutines.forEach { it.cancel() }
+				startButton.run {
+					text = "pause"
+					isDisable = false
+					setOnMouseClicked {
+						isDisable = true
+						loopRoutines.forEach { it.cancel() }
+					}
 				}
 			}
 			loopRoutines.forEach { it.join() }
-			println("cancel draw signal")
 			drawSignal.cancel()
 		}
-		
+		startSignal.cancel()
 	}
 	
 	private suspend fun doLoop(drawSignal: ReceiveChannel<Long>) {
-		//world process
-		physicsMutex.lock()
-		world.process(physicsConf.timeUnit, physicsConf.processCount)
-		
-		//paint
-		val delayTime = drawSignal.receive()
-		val message = worldTimeMessage(kotlin.run {
-			when {
-				isExporting -> "exporting"
-				delayTime < 2L -> "hardworking"
-				else -> null
-			}
-		})
-		canvasMutex.lock()
-		launch(JavaFx) {
-			painter.paint(canvas.graphicsContext2D)
-			mainLabel.text = message
-		}.join()
-		physicsMutex.unlock()
-		
-		//check export
-		exportConf?.exportTimeRange?.run {
-			isExporting = contains(world.time)
-		}
-		if (!isExporting) {
-			canvasMutex.unlock()
-			return
-		}
-		if (exportConf == null) {
-			isExporting = false
-			canvasMutex.unlock()
-			launch(JavaFx) {
-				dialog("Error!") {
-					text = "The exportConf is null!"
-					autosize()
+		withContext(NonCancellable) {
+			//world process
+			physicsMutex.lock()
+			world.process(physicsConf.timeUnit, physicsConf.processCount)
+			
+			//paint
+			val delayTime = drawSignal.receive()
+			val message = worldTimeMessage(kotlin.run {
+				when {
+					isExporting -> "exporting"
+					delayTime < 2L -> "hardworking"
+					else -> null
 				}
+			})
+			canvasMutex.lock()
+			launch(JavaFx) {
+				painter.paint(canvas.graphicsContext2D)
+				mainLabel.text = message
+			}.join()
+			physicsMutex.unlock()
+			
+			//check export
+			exportConf?.exportTimeRange?.run {
+				isExporting = contains(world.time)
 			}
-			return
+			if (!isExporting) {
+				canvasMutex.unlock()
+				return@withContext
+			}
+			if (exportConf == null) {
+				isExporting = false
+				canvasMutex.unlock()
+				launch(JavaFx) {
+					dialog("Error!") {
+						text = "The exportConf is null!"
+						autosize()
+					}
+				}
+				return@withContext
+			}
+			
+			//export
+			snapshotMutex.lock()
+			launch(JavaFx) { snapshotTaker.takeSnapshot(canvas) }.join()
+			canvasMutex.unlock()
+			exporterMutex.lock()
+			fileExporter?.exportImage(snapshotTaker.bufferedImage!!)
+			snapshotMutex.unlock()
+			exporterMutex.unlock()
 		}
-		
-		//export
-		snapshotMutex.lock()
-		launch(JavaFx) { snapshotTaker.takeSnapshot(canvas) }.join()
-		canvasMutex.unlock()
-		exporterMutex.lock()
-		fileExporter?.exportImage(snapshotTaker.bufferedImage!!)
-		snapshotMutex.unlock()
-		exporterMutex.unlock()
 	}
 	
 	private val physicsMutex = Mutex()
