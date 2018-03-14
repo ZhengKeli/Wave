@@ -14,13 +14,23 @@ fun Conf.lineVisual(body: LineVisualConf.() -> Unit) {
 class LineVisualConf : VisualConf(), LinePainterDraft {
 	
 	override var sceneWidth: Double = canvasWidth
+		set(value) {
+			field = value
+			viewportX = sceneWidth / 2.0 - canvasWidth / 2.0
+			scenePadding =  sceneWidth * 0.05
+		}
 	override var sceneHeight: Double = canvasHeight
+		set(value) {
+			field = value
+			viewportY = -sceneHeight / 2.0
+		}
+	
 	override var scenePadding: Double = sceneWidth * 0.05
 	override var backgroundColor: Paint = Color.BLACK
 	
 	init {
-		viewportX = 0.0
-		viewportY = sceneHeight / 2.0
+		viewportX = +sceneWidth / 2.0 - canvasWidth / 2.0
+		viewportY = -sceneHeight / 2.0
 		painter = { world -> LinePainter(this, world as LineWorld) }
 	}
 	

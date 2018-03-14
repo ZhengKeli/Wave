@@ -33,7 +33,7 @@ class LinePainter(draft: LinePainterDraft, val world: LineWorld) : Painter(draft
 			fill = backgroundColor
 			fillRect(0.0, 0.0, sceneWidth, sceneHeight)
 		}
-		gc.translate(viewportX, viewportY)
+		gc.translate(-viewportX, -viewportY)
 		gc.scale(viewScale, viewScale)
 		gc.translate(scenePadding, 0.0)
 		kotlin.run {

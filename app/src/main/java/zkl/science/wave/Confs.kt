@@ -217,7 +217,7 @@ object ConfsForStudy {
 			cosSourceInteractor {
 				nodeId = RectNodeId(31, 43)
 				period = 30f
-				repeat =4f
+				repeat = 4f
 			}
 			cpuWorld()
 		}
@@ -229,9 +229,10 @@ object ConfsForStudy {
 	/**
 	 * 不同介质中的传播
 	 */
-	fun multiMedia2D(direction: Boolean = true, massScale: Float = 5.0f) = conf {
+	fun multiMedia2D(direction: Boolean = true, massScale: Float = 2.0f) = conf {
 		rectPhysics {
-			timeOffset = 320f
+			timeUnit = 0.5f
+			timeOffset = 400f
 			
 			width = 300
 			height = 300
@@ -304,17 +305,16 @@ object ConfsForStudy {
 			
 			boarderAbsorb { }
 			
-			var interactCount = 0
 			val sourceIds = arrayOf(
 				RectNodeId(width / 3, height / 3),
 				RectNodeId(width / 2 + 3, height / 2))
-			customInteractor {
-				SinSourceConf<RectNodeId>().apply {
-					nodeId = sourceIds[interactCount++]
-					period = 20f
+			sourceIds.forEach { id ->
+				sinSourceInteractor {
+					nodeId = id
+					period = 40f
 					repeat = 70f
-					amplitude = 5f
-				}.invoke(this)
+					amplitude = 3f
+				}
 			}
 			
 			gpuWorld()
@@ -378,8 +378,8 @@ object ConfsForStudy {
 	 */
 	fun zonePlate() = conf {
 		rectPhysics {
-			timeOffset = 320f
-			timeUnit = 0.1f
+			timeOffset = 400f
+			timeUnit = 0.3f
 			processCount = 10
 			
 			height = 250
@@ -419,6 +419,7 @@ object ConfsForStudy {
 			gpuWorld()
 		}
 		rectVisual {
+			intensity = 2.0
 			energyPainter()
 		}
 	}
@@ -485,11 +486,12 @@ object ConfsForVideo {
 			cpuWorld()
 		}
 		lineVisual {
-			intensity = 0.3
+			sceneWidth = 4000.0
+			viewportX = 0.0
 		}
 		export {
 			exportDir = File("D:/scienceFX/firstOutput")
-			exportTimeRange = 30.0f..60.0f
+			//exportTimeRange = 30.0f..60.0f
 		}
 	}
 	
@@ -502,22 +504,21 @@ object ConfsForVideo {
 			defaultNode.mass = 1.1f
 			sinSourceInteractor {
 				nodeId = LineNodeId(0)
-				amplitude *= 2.5f
+				amplitude *= 1.5f
 				delay = period * 2.0f / 3.0f
 			}
 			sinSourceInteractor {
 				nodeId = LineNodeId(length - 1)
-				amplitude *= -1.5f
+				amplitude *= -1.0f
 			}
 			cpuWorld()
 		}
 		lineVisual {
-			canvasWidth = 4000.0
-			canvasHeight = 1500.0
+			sceneWidth = 3000.0
 		}
 		export {
 			exportDir = File("D:/scienceFX/independentPropagation")
-			exportTimeRange = 50f..400f
+//			exportTimeRange = 50f..400f
 		}
 	}
 	
@@ -537,18 +538,11 @@ object ConfsForVideo {
 			cpuWorld()
 		}
 		lineVisual {
-			canvasWidth = 2400.0
-			canvasHeight = 1200.0
-			intensity = 1.3
-			
-			viewportX = 100.0 - canvasWidth / 2.0
-			viewportY = 0.0
-			
+			sceneWidth = 2400.0
 		}
 		export {
 			exportDir = File("D:/scienceFX/multiMedia1")
-			exportTimeRange = 0f..300f
-			
+//			exportTimeRange = 0f..300f
 		}
 	}
 	
@@ -568,16 +562,12 @@ object ConfsForVideo {
 			cpuWorld()
 		}
 		lineVisual {
-			canvasWidth = 2000.0
-			canvasHeight = 1500.0
+			sceneWidth = 2000.0
 			intensity = 1.5
-			
-			viewportX = -canvasWidth / 2.0
-			viewportY = 0.0
 		}
 		export {
 			exportDir = File("D:/scienceFX/multiMedia1")
-			exportTimeRange = 0f..300f
+//			exportTimeRange = 0f..300f
 		}
 	}
 	
@@ -604,6 +594,7 @@ object ConfsForVideo {
 			}
 			
 			squareSourceInteractor {
+				nodeId = LineNodeId(0)
 				amplitude = 150f
 				period = 240f
 				repeat = 2f
@@ -612,12 +603,11 @@ object ConfsForVideo {
 			cpuWorld()
 		}
 		lineVisual {
-			canvasWidth = 1800.0
-			canvasHeight = 600.0
+			sceneWidth = 1800.0
 		}
 		export {
 			exportDir = File("D:/scienceFX/squareWave")
-			exportTimeRange = 0f..1300f
+			//exportTimeRange = 0f..1300f
 		}
 	}
 	
@@ -626,33 +616,29 @@ object ConfsForVideo {
 	 */
 	fun beatFrequency() = conf {
 		linePhysics {
-			timeUnit = 0.47f
+			timeUnit = 0.5f
 			length = 1000
 			cosSourceInteractor {
 				nodeId = LineNodeId(0)
 				period = 50f
 				repeat = 15f
-				amplitude = 10f
+				amplitude = 5f
 			}
 			cosSourceInteractor {
 				nodeId = LineNodeId(length - 1)
 				period = 55f
 				repeat = 14f
-				amplitude = -10f * 50f / 55f
+				amplitude = -5f * 50f / 55f
 			}
 			cpuWorld()
 		}
 		lineVisual {
-			canvasWidth = 2000.0
-			canvasHeight = 1200.0
-			
-			viewportX = -canvasWidth / 2.0
-			viewportY = 0.0
+			sceneWidth =1500.0
 		}
 		export {
 			exportDir = File("D:/scienceFX/beatFrequency")
 			exportPrefix = "beatFrequency_"
-			exportTimeRange = 700f..1900f
+			//exportTimeRange = 700f..1900f
 //			autoMode = true
 		}
 	}
@@ -665,6 +651,8 @@ object ConfsForVideo {
 	 */
 	fun diffraction() = conf {
 		rectPhysics {
+			timeUnit = 0.5f
+			
 			height = 300
 			width = 400
 			
@@ -693,7 +681,7 @@ object ConfsForVideo {
 		export {
 			exportDir = File("D:/scienceFX/diffraction")
 			exportPrefix = "diffraction_"
-			exportTimeRange = 0f..1000f
+			//exportTimeRange = 0f..1000f
 		}
 	}
 	
@@ -702,6 +690,7 @@ object ConfsForVideo {
 	 */
 	fun interference() = conf {
 		rectPhysics {
+			timeUnit = 0.5f
 			timeOffset = 100.0f
 			
 			height = 200
@@ -713,7 +702,7 @@ object ConfsForVideo {
 			sourceIds.forEach { id ->
 				sinSourceInteractor {
 					nodeId = id
-					period = 20f
+					period = 30f
 					repeat = 70f
 					amplitude = 5f
 				}
@@ -728,7 +717,7 @@ object ConfsForVideo {
 		export {
 			exportDir = File("D:/scienceFX/interference")
 			exportPrefix = "interference_"
-//			exportTimeRange = 0f..1000f
+			//exportTimeRange = 0f..1000f
 		}
 	}
 	
@@ -737,7 +726,7 @@ object ConfsForVideo {
 	 */
 	fun zonePlate() = conf {
 		rectPhysics {
-			timeUnit = 0.1f
+			timeUnit = 0.2f
 			processCount = 10
 			height = 250
 			width = 400
@@ -781,7 +770,7 @@ object ConfsForVideo {
 		export {
 			exportDir = File("D:/scienceFX/zonePlate")
 			exportPrefix = "zonePlate_"
-//			exportTimeRange = 0f..800f
+			//exportTimeRange = 0f..800f
 		}
 	}
 	

@@ -64,7 +64,7 @@ class EnergyRectPainter(conf: RectPainterDraft, world: RectWorld) : RectPainter(
 	override fun getNodeColor(node: Node<RectNodeId>): Color {
 		node.color?.let { return it }
 		return node.run {
-			var rate = mass * velocity * velocity * intensity * 5.0
+			var rate = mass * velocity * velocity * intensity * 10.0
 			if (rate > 1.0) rate = 1.0
 			return@run colorMix(backgroundColor, energyFill, 1.0 - rate, rate)
 		}
