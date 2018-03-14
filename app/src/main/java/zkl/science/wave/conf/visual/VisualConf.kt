@@ -13,8 +13,10 @@ fun Conf.visual(body: VisualConf.() -> Unit) {
 
 open class VisualConf : PainterDraft {
 	
-	var canvasWidth: Double = 1000.0
-	var canvasHeight: Double = 700.0
+	open var canvasWidth: Double = 1000.0
+		protected set
+	open var canvasHeight: Double = 700.0
+		protected set
 	
 	override var viewportX: Double = 0.0
 	override var viewportY: Double = 0.0

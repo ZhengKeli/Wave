@@ -10,18 +10,17 @@ interface LinePainterDraft : PainterDraft {
 	val sceneWidth: Double
 	val sceneHeight: Double
 	val scenePadding: Double
-	val backgroundColor: Paint
 }
 
 /**
- * 一维线条的波动渲染
+ * 一维线形波动渲染
  */
 class LinePainter(draft: LinePainterDraft, val world: LineWorld) : Painter(draft), LinePainterDraft {
 	
 	override val sceneWidth: Double = draft.sceneWidth
 	override val sceneHeight: Double = draft.sceneHeight
 	override val scenePadding: Double = draft.scenePadding
-	override val backgroundColor: Paint = draft.backgroundColor
+	override val background: Paint = Color.BLACK
 	
 	private val interval: Double = (draft.sceneWidth - scenePadding * 2.0) / world.length
 	private val radius: Double = if (interval > 12.0) interval / 3.0 else 0.0
@@ -31,7 +30,7 @@ class LinePainter(draft: LinePainterDraft, val world: LineWorld) : Painter(draft
 	override fun paint(gc: GraphicsContext) {
 		gc.save()
 		gc.run {
-			fill = backgroundColor
+			fill = background
 			fillRect(0.0, 0.0, sceneWidth, sceneHeight)
 		}
 		gc.translate(-viewportX, -viewportY)

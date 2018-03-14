@@ -6,6 +6,8 @@ import javafx.geometry.Pos
 import javafx.scene.canvas.Canvas
 import javafx.scene.control.Button
 import javafx.scene.control.Label
+import javafx.scene.layout.Background
+import javafx.scene.layout.BackgroundFill
 import javafx.scene.layout.Pane
 import javafx.scene.layout.Priority
 import javafx.stage.Screen
@@ -151,6 +153,7 @@ class MainView : View("Wave") {
 			val scale = min(canvasPane.width / canvas.width, canvasPane.height / canvas.height)
 			canvas.scaleX = scale
 			canvas.scaleY = scale
+			canvasPane.background = Background(BackgroundFill(painter.background, null, null))
 			painter.paint(canvas.graphicsContext2D)
 		}.join()
 		

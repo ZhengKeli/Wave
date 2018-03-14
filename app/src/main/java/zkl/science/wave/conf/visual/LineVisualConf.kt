@@ -1,7 +1,5 @@
 package zkl.science.wave.conf.visual
 
-import javafx.scene.paint.Color
-import javafx.scene.paint.Paint
 import zkl.science.wave.conf.Conf
 import zkl.science.wave.painter.LinePainter
 import zkl.science.wave.painter.LinePainterDraft
@@ -13,11 +11,22 @@ fun Conf.lineVisual(body: LineVisualConf.() -> Unit) {
 
 class LineVisualConf : VisualConf(), LinePainterDraft {
 	
+	override var canvasWidth: Double = super.canvasWidth
+		set(value) {
+			field = value
+			sceneWidth = canvasWidth
+		}
+	override var canvasHeight: Double = super.canvasHeight
+		set(value) {
+			field = value
+			sceneHeight = canvasHeight
+		}
+	
 	override var sceneWidth: Double = canvasWidth
 		set(value) {
 			field = value
 			viewportX = sceneWidth / 2.0 - canvasWidth / 2.0
-			scenePadding =  sceneWidth * 0.05
+			scenePadding = sceneWidth * 0.05
 		}
 	override var sceneHeight: Double = canvasHeight
 		set(value) {
@@ -26,7 +35,6 @@ class LineVisualConf : VisualConf(), LinePainterDraft {
 		}
 	
 	override var scenePadding: Double = sceneWidth * 0.05
-	override var backgroundColor: Paint = Color.BLACK
 	
 	init {
 		viewportX = +sceneWidth / 2.0 - canvasWidth / 2.0
