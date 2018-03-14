@@ -1,5 +1,5 @@
 package zkl.science.wave.app
 
-import zkl.science.wave.ConfsForVideo
+import zkl.science.wave.ConfsForStudy
 
-val CONF by lazy { ConfsForVideo.zonePlate() }
+val CONF by lazy { ConfsForStudy.zonePlate() }

@@ -26,6 +26,7 @@ class LinePainter(draft: LinePainterDraft, val world: LineWorld) : Painter(draft
 	private val interval: Double = (draft.sceneWidth - scenePadding * 2.0) / world.length
 	private val radius: Double = if (interval > 12.0) interval / 3.0 else 0.0
 	private val lineWidth: Double = if (interval > 12.0) radius / 2.0 else 2.0
+	private val offsetScale: Double get() = intensity * interval * 0.2
 	
 	override fun paint(gc: GraphicsContext) {
 		gc.save()
@@ -41,10 +42,10 @@ class LinePainter(draft: LinePainterDraft, val world: LineWorld) : Painter(draft
 				val link = world.getLink(id)
 				val node1 = world.getNode(link.nodeId1)
 				val node1X = +link.nodeId1.x * interval
-				val node1Y = -node1.offset * intensity
+				val node1Y = -node1.offset * offsetScale
 				val node2 = world.getNode(link.nodeId2)
 				val node2X = +link.nodeId2.x * interval
-				val node2Y = -node2.offset * intensity
+				val node2Y = -node2.offset * offsetScale
 				
 				gc.stroke = colorMix(node1.color ?: Color.WHITE, node2.color ?: Color.WHITE)
 				gc.lineWidth = lineWidth
@@ -55,7 +56,7 @@ class LinePainter(draft: LinePainterDraft, val world: LineWorld) : Painter(draft
 			for (id in 0..world.length) {
 				val node = world.getNode(id)
 				val nodeX = +id * interval
-				val nodeY = -node.offset * intensity
+				val nodeY = -node.offset * offsetScale
 				
 				gc.fill = node.color ?: Color.WHITE
 				gc.fillOval(nodeX - radius, nodeY - radius, radius * 2, radius * 2)

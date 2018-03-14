@@ -22,8 +22,8 @@ class SinSourceConf<N : Any> : (World<N, *>) -> Unit {
 	lateinit var nodeId: N
 	var delay: Float = 0.0f
 	var type: SourceType = SourceType.FORCE
-	var amplitude: Float = 5.0f
-	var period: Float = 40.0f
+	var amplitude: Float = 1.0f
+	var period: Float = 50.0f
 	var repeat: Float = 1.0f
 	var initialPhase: Float = 0.0f
 	

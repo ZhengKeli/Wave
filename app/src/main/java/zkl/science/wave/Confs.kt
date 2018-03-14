@@ -37,9 +37,7 @@ object ConfsForStudy {
 			sinSourceInteractor { nodeId = LineNodeId(0) }
 			cpuWorld()
 		}
-		lineVisual {
-			intensity = 0.7
-		}
+		lineVisual {}
 	}
 	
 	/**
@@ -116,8 +114,8 @@ object ConfsForStudy {
 			}
 			sinSourceInteractor {
 				nodeId = LineNodeId(0)
-				amplitude = 10f
-				period = 20f
+				period *= 0.4f
+				amplitude *= 2f
 			}
 			cpuWorld()
 		}
@@ -157,8 +155,7 @@ object ConfsForStudy {
 	 */
 	fun squareWave() = conf {
 		linePhysics {
-			timeUnit = 0.5f
-			processCount = 5
+			timeUnit *= 5f
 			
 			length = 800
 			val absorbThick = 400
@@ -177,8 +174,8 @@ object ConfsForStudy {
 			
 			squareSourceInteractor {
 				nodeId = LineNodeId(0)
-				amplitude = 100f
-				period = 400f
+				amplitude *= 50f
+				period *= 20f
 				repeat = 10f
 			}
 			
@@ -192,12 +189,13 @@ object ConfsForStudy {
 	 */
 	fun impact() = conf {
 		linePhysics {
-			timeUnit = 0.01f
+			timeUnit /= 10f
+			processCount *= 10
 			length = 300
 			sinSourceInteractor {
 				nodeId = LineNodeId(length / 2)
-				period = 1.0f
-				amplitude = 5000f
+				period *= 0.02f
+				amplitude *= 5000f
 			}
 			cpuWorld()
 		}
@@ -216,7 +214,6 @@ object ConfsForStudy {
 			height = 100
 			cosSourceInteractor {
 				nodeId = RectNodeId(31, 43)
-				period = 30f
 				repeat = 4f
 			}
 			cpuWorld()
@@ -231,7 +228,7 @@ object ConfsForStudy {
 	 */
 	fun multiMedia2D(direction: Boolean = true, massScale: Float = 2.0f) = conf {
 		rectPhysics {
-			timeUnit = 0.5f
+			timeUnit *= 5f
 			timeOffset = 400f
 			
 			width = 300
@@ -243,22 +240,19 @@ object ConfsForStudy {
 			}
 			
 			cosSourceInteractor {
-				nodeId = RectNodeId(height / 3, width / 3)
-				period = 20f
+				nodeId = RectNodeId(height / 3, width / 4)
 				repeat = 100f
-				amplitude = 5f
 			}
 			cosSourceInteractor {
-				nodeId = RectNodeId(height / 3, width / 3 + 30)
-				period = 20f
+				nodeId = RectNodeId(height / 3, width / 4 + 50)
 				repeat = 100f
-				amplitude = 5f
 			}
 			
 			gpuWorld()
 		}
 		rectVisual {
 			energyPainter()
+			intensity *= 0.2
 		}
 	}
 	
@@ -267,7 +261,7 @@ object ConfsForStudy {
 	 */
 	fun diffraction() = conf {
 		rectPhysics {
-			timeUnit = 0.5f
+			timeUnit *= 5f
 			
 			height = 300
 			width = 400
@@ -311,9 +305,8 @@ object ConfsForStudy {
 			sourceIds.forEach { id ->
 				sinSourceInteractor {
 					nodeId = id
-					period = 40f
 					repeat = 70f
-					amplitude = 3f
+					amplitude /= 2
 				}
 			}
 			
@@ -325,17 +318,17 @@ object ConfsForStudy {
 	}
 	
 	/**
-	 * 波束 & 反射和折射 【计算量大！！】
+	 * 抛物面 （计算量大！！）
 	 */
-	fun planeWave() = conf {
+	fun paraboloid() = conf {
 		rectPhysics {
 			
-			timeUnit = 1f
+			timeUnit *= 10f
+			processCount *= 20
 			timeOffset = 4000f
-			processCount = 100
 			
 			height = 600
-			width = 2500
+			width = 1500
 			
 			/**
 			 * 凹面反射镜的焦距（s越小就越越弯）
@@ -378,9 +371,9 @@ object ConfsForStudy {
 	 */
 	fun zonePlate() = conf {
 		rectPhysics {
+			timeUnit *= 3f
+			processCount *= 2
 			timeOffset = 400f
-			timeUnit = 0.3f
-			processCount = 10
 			
 			height = 250
 			width = 400
@@ -419,7 +412,7 @@ object ConfsForStudy {
 			gpuWorld()
 		}
 		rectVisual {
-			intensity = 2.0
+			intensity *= 0.5
 			energyPainter()
 		}
 	}
@@ -429,36 +422,51 @@ object ConfsForStudy {
 	 */
 	fun resonate2D() = conf {
 		rectPhysics {
-			timeUnit = 0.5f
-			processCount = 10
+			timeUnit *= 5f
+			processCount *= 2
 			
 			height = 250
 			width = 400
 			boarderAbsorb { }
 			
-			val k = 5f
-			val n = 0.5f
-			val wavelength = 30
-			val waveSpeed = sqrt(defaultLink.strength * k / defaultNode.mass)
+			val km = 3f
+			val kl = 10f
+			val n = 1.5f
+			val wavePeriod = 50f
+			val waveSpeed = sqrt(defaultLink.strength * kl / defaultNode.mass / km)
+			val wavelength = waveSpeed * wavePeriod
 			
 			val startX = width / 2
 			val endX = startX + (wavelength * n).roundToInt()
 			val startY = height / 3
 			val endY = height * 2 / 3
 			
-			linkDrafter { (x, y, _) ->
-				if (y in startY until endY) {
-					if (x in startX until endX) {
-						strength *= k
+			nodeDrafter { (x, y) ->
+				if (y in startY..endY) {
+					if (x in startX..endX) {
+						mass *= km
 					}
 				}
 			}
 			
-			cosSourceInteractor {
-				nodeId = RectNodeId(width / 4, height / 2)
-				period = wavelength / waveSpeed
-				repeat = 10f
+			linkDrafter { (x, y, _) ->
+				if (y in startY until endY) {
+					if (x in startX until endX) {
+						strength *= kl
+					}
+				}
 			}
+			
+			
+			for (y in 50 until 200) {
+				cosSourceInteractor {
+					nodeId = RectNodeId(width / 4, y)
+					period = wavePeriod
+					repeat = 10f
+					amplitude *= 0.05f
+				}
+			}
+			
 			
 			gpuWorld()
 		}
@@ -482,7 +490,10 @@ object ConfsForVideo {
 	fun firstOutput() = conf {
 		linePhysics {
 			length = 100
-			sinSourceInteractor { nodeId = LineNodeId(0) }
+			sinSourceInteractor {
+				nodeId = LineNodeId(0)
+				amplitude *= 0.5f
+			}
 			cpuWorld()
 		}
 		lineVisual {
@@ -501,7 +512,7 @@ object ConfsForVideo {
 	fun independentPropagation() = conf {
 		linePhysics {
 			length = 200
-			defaultNode.mass = 1.1f
+			defaultNode.mass *= 1.1f
 			sinSourceInteractor {
 				nodeId = LineNodeId(0)
 				amplitude *= 1.5f
@@ -633,7 +644,7 @@ object ConfsForVideo {
 			cpuWorld()
 		}
 		lineVisual {
-			sceneWidth =1500.0
+			sceneWidth = 3000.0
 		}
 		export {
 			exportDir = File("D:/scienceFX/beatFrequency")
@@ -651,7 +662,7 @@ object ConfsForVideo {
 	 */
 	fun diffraction() = conf {
 		rectPhysics {
-			timeUnit = 0.5f
+			timeUnit *= 5f
 			
 			height = 300
 			width = 400
@@ -675,7 +686,7 @@ object ConfsForVideo {
 			gpuWorld()
 		}
 		rectVisual {
-			intensity = 3.0
+			intensity *= 3.0
 			energyPainter()
 		}
 		export {
@@ -690,28 +701,26 @@ object ConfsForVideo {
 	 */
 	fun interference() = conf {
 		rectPhysics {
-			timeUnit = 0.5f
-			timeOffset = 100.0f
+			timeUnit *= 2f
 			
 			height = 200
 			width = 200
 			
+			boarderAbsorb { }
 			val sourceIds = arrayOf(
 				RectNodeId(width / 3, height / 3),
 				RectNodeId(width / 2 + 3, height / 2))
 			sourceIds.forEach { id ->
 				sinSourceInteractor {
 					nodeId = id
-					period = 30f
 					repeat = 70f
-					amplitude = 5f
+					amplitude /= 2
 				}
 			}
 			
 			gpuWorld()
 		}
 		rectVisual {
-			intensity = 0.7
 			energyPainter()
 		}
 		export {
@@ -726,16 +735,18 @@ object ConfsForVideo {
 	 */
 	fun zonePlate() = conf {
 		rectPhysics {
-			timeUnit = 0.2f
-			processCount = 10
+			timeUnit *= 5f
+			processCount *= 2
+			
 			height = 250
 			width = 400
+			boarderAbsorb { }
+			
 			/**
 			 * 波源和接收点到波带片的距离
 			 */
 			val distance = 53.0f
 			val wavelength = 21.0f
-			
 			val sourceUnitId = RectNodeId(width / 2 - distance.toInt(), height / 2)
 			val waveSpeed = Math.sqrt((defaultLink.strength / defaultNode.mass).toDouble()).toFloat()
 			val zeroPoints = ArrayList<Int>().apply {
@@ -764,7 +775,7 @@ object ConfsForVideo {
 			gpuWorld()
 		}
 		rectVisual {
-			intensity = 1.5
+			intensity *= 0.5
 			energyPainter()
 		}
 		export {
