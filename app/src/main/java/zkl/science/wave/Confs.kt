@@ -371,8 +371,7 @@ object ConfsForStudy {
 	 */
 	fun zonePlate() = conf {
 		rectPhysics {
-			timeUnit *= 3f
-			processCount *= 2
+			timeUnit *= 5f
 			timeOffset = 400f
 			
 			height = 250
@@ -736,7 +735,6 @@ object ConfsForVideo {
 	fun zonePlate() = conf {
 		rectPhysics {
 			timeUnit *= 5f
-			processCount *= 2
 			
 			height = 250
 			width = 400
