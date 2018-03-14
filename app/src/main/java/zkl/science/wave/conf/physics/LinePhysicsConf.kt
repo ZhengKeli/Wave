@@ -15,7 +15,7 @@ fun Conf.linePhysics(body: LinePhysicsConf.() -> Unit) {
 
 open class LinePhysicsConf : PhysicsConf<LineNodeId, LineLinkId>(), LineWorldDraft {
 	
-	override var length: Int = 0
+	override var length: Int = 100
 	
 	override fun getNode(x: Int): NodeProperties {
 		return defaultNode.copy().apply { nodeDrafters.forEach { it(LineNodeId(x)) } }

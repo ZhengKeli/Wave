@@ -17,7 +17,6 @@ import kotlinx.coroutines.experimental.javafx.JavaFx
 import kotlinx.coroutines.experimental.sync.Mutex
 import kotlinx.coroutines.experimental.sync.withLock
 import tornadofx.*
-import zkl.science.wave.CONF
 import zkl.science.wave.conf.export.autoExport
 import zkl.science.wave.exporter.FileExporter
 import zkl.science.wave.exporter.SnapshotTaker

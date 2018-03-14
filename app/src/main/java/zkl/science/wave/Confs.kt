@@ -18,13 +18,11 @@ import kotlin.math.floor
 import kotlin.math.roundToInt
 import kotlin.math.sqrt
 
-val CONF by lazy { ConfsForVideo.interference() }
-//todo optimize confs
 /**
  * 用于研究的配置
  */
 object ConfsForStudy {
-
+	
 	//一维
 	
 	/**
@@ -32,12 +30,15 @@ object ConfsForStudy {
 	 */
 	fun simpleLine() = conf {
 		linePhysics {
-			length = 50
+			length = 70
+			nodeDrafter { (x) ->
+				if (x == length) setAsWall()
+			}
 			sinSourceInteractor { nodeId = LineNodeId(0) }
 			cpuWorld()
 		}
 		lineVisual {
-			intensity = 0.3
+			intensity = 0.7
 		}
 	}
 	
@@ -46,6 +47,7 @@ object ConfsForStudy {
 	 */
 	fun multiMedia(direction: Boolean = true, massScale: Float = 5.0f) = conf {
 		linePhysics {
+			length = 100
 			nodeDrafter { (x) ->
 				if ((x > length / 2) == direction) {
 					mass *= massScale
@@ -55,7 +57,7 @@ object ConfsForStudy {
 			sinSourceInteractor { nodeId = LineNodeId(0) }
 			cpuWorld()
 		}
-		lineVisual { }
+		lineVisual {}
 	}
 	
 	/**
@@ -69,17 +71,18 @@ object ConfsForStudy {
 			val waveLength = waveSpeed * wavePeriod
 			val resonateLength = (waveLength * resonateCount / 2.0).roundToInt()
 			
-			length =
-				if (doResonate) resonateLength
-				else resonateLength + 4 //加上4就不共振了
+			length = when {
+				doResonate -> resonateLength
+				else -> resonateLength + 4 //加上4就不共振了
+			}
 			
 			cosSourceInteractor {
+				nodeId = LineNodeId(0)
 				period = wavePeriod
 				repeat = 1000f
 			}
 			cpuWorld()
 		}
-		
 		lineVisual { }
 	}
 	
@@ -90,7 +93,7 @@ object ConfsForStudy {
 		linePhysics {
 			length = 100
 			defaultNode.damping = 0.02f
-			cosSourceInteractor { }
+			cosSourceInteractor { nodeId = LineNodeId(0) }
 			cpuWorld()
 		}
 		lineVisual { }
@@ -112,7 +115,8 @@ object ConfsForStudy {
 				}
 			}
 			sinSourceInteractor {
-				amplitude = 70f
+				nodeId = LineNodeId(0)
+				amplitude = 10f
 				period = 20f
 			}
 			cpuWorld()
@@ -172,7 +176,8 @@ object ConfsForStudy {
 			}
 			
 			squareSourceInteractor {
-				amplitude = 150f
+				nodeId = LineNodeId(0)
+				amplitude = 100f
 				period = 400f
 				repeat = 10f
 			}
@@ -180,7 +185,6 @@ object ConfsForStudy {
 			cpuWorld()
 		}
 		lineVisual { }
-		
 	}
 	
 	/**
@@ -208,11 +212,12 @@ object ConfsForStudy {
 	 */
 	fun simpleRect() = conf {
 		rectPhysics {
-			width = 200
-			height = 200
+			width = 100
+			height = 100
 			cosSourceInteractor {
-				nodeId = RectNodeId(0, 0)
-				period = 20f
+				nodeId = RectNodeId(31, 43)
+				period = 30f
+				repeat =4f
 			}
 			cpuWorld()
 		}
@@ -418,6 +423,9 @@ object ConfsForStudy {
 		}
 	}
 	
+	/**
+	 * 二维共振（未完成）
+	 */
 	fun resonate2D() = conf {
 		rectPhysics {
 			timeUnit = 0.5f
@@ -702,7 +710,7 @@ object ConfsForVideo {
 			val sourceIds = arrayOf(
 				RectNodeId(width / 3, height / 3),
 				RectNodeId(width / 2 + 3, height / 2))
-			sourceIds.forEach { id->
+			sourceIds.forEach { id ->
 				sinSourceInteractor {
 					nodeId = id
 					period = 20f
