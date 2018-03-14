@@ -36,6 +36,7 @@ class MainView : View("Wave") {
 	
 	//views
 	override val root: Pane = vbox {
+		//todo optimize layout
 		hbox {
 			startButton = button("start")
 			interactButton = button("interact")
