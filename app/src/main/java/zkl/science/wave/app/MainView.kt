@@ -1,10 +1,13 @@
 package zkl.science.wave.app
 
 import javafx.application.Application
+import javafx.geometry.Insets
+import javafx.geometry.Pos
 import javafx.scene.canvas.Canvas
 import javafx.scene.control.Button
 import javafx.scene.control.Label
 import javafx.scene.layout.Pane
+import javafx.scene.layout.Priority
 import javafx.stage.Screen
 import kotlinx.coroutines.experimental.*
 import kotlinx.coroutines.experimental.channels.Channel
@@ -37,18 +40,44 @@ class MainView : View("Wave") {
 	
 	//views
 	override val root: Pane = vbox {
-		//todo optimize layout
 		hbox {
-			startButton = button("start")
-			interactButton = button("interact")
-			exportButton = button("export")
-			mainLabel = label("nothing to show")
+			padding = Insets(10.0, 10.0, 10.0, 10.0)
+			alignment = Pos.CENTER_LEFT
+			
+			button("start") {
+				hboxConstraints {
+					hboxConstraints { marginLeftRight(10.0) }
+				}
+			}.let {
+				this@MainView.startButton = it
+			}
+			button("interact") {
+				hboxConstraints { marginLeftRight(10.0) }
+			}.let {
+				this@MainView.interactButton = it
+			}
+			button("export") {
+				hboxConstraints { marginLeftRight(10.0) }
+			}.let {
+				this@MainView.exportButton = it
+			}
+			label {
+				text = "nothing to show"
+				hgrow = Priority.ALWAYS
+				hboxConstraints {
+					marginLeftRight(10.0)
+				}
+			}.let {
+				this@MainView.mainLabel = it
+			}
 		}
-		canvasPane = pane {
+		pane {
 			val screenBounds = Screen.getPrimary().visualBounds
 			prefWidth = screenBounds.width * 0.7
 			prefHeight = screenBounds.height * 0.7
 			canvas = canvas { }
+		}.let {
+			this@MainView.canvasPane = it
 		}
 	}
 	private lateinit var startButton: Button
@@ -108,11 +137,11 @@ class MainView : View("Wave") {
 	}
 	
 	private suspend fun CoroutineScope.doInit() {
-		if(!isActive) return
+		if (!isActive) return
 		launch(JavaFx) { mainLabel.text = "world initializing" }
 		this@MainView.world
 		
-		if(!isActive) return
+		if (!isActive) return
 		launch(JavaFx) { mainLabel.text = "painter initializing" }
 		this@MainView.painter
 		launch(JavaFx) {
@@ -154,9 +183,9 @@ class MainView : View("Wave") {
 		if (exportConf.autoExport) interactWorld()
 		
 		val startSignal = Channel<Unit>(1)
-		if(start) startSignal.offer(Unit)
+		if (start) startSignal.offer(Unit)
 		while (isActive) {
-			if(startSignal.poll()==null){
+			if (startSignal.poll() == null) {
 				launch(JavaFx) {
 					startButton.run {
 						text = "resume"
