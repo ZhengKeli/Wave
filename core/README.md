@@ -1,1 +1,0 @@
-A simulation of wave.
