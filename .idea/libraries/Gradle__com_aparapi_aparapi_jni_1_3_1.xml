@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="Gradle: com.aparapi:aparapi-jni:1.3.1">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.aparapi/aparapi-jni/1.3.1/6a83ae9ab391e0de9a895b8666ceadfe3665a18d/aparapi-jni-1.3.1.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.aparapi/aparapi-jni/1.3.1/840d965212b1b99563b820df053bc0e2e7cbf016/aparapi-jni-1.3.1-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

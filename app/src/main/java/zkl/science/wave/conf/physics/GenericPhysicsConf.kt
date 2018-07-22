@@ -41,6 +41,6 @@ fun GenericPhysicsConf.cpuWorld() {
 	world = { CPUGenericWorld(this) }
 }
 
-fun GenericPhysicsConf.gpuWorld() {
-	world = { GPUGenericWorld(this) }
+fun GenericPhysicsConf.aparapiWorld() {
+	world = { AparapiGenericWorld(this) }
 }

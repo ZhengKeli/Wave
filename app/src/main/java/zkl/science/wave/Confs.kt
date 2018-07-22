@@ -248,7 +248,7 @@ object ConfsForStudy {
 				repeat = 100f
 			}
 			
-			gpuWorld()
+			aparapiWorld()
 		}
 		rectVisual {
 			energyPainter()
@@ -282,7 +282,7 @@ object ConfsForStudy {
 				period = (wavelength / Math.sqrt(defaultLink.strength.toDouble())).toFloat()
 				repeat = 100f
 			}
-			gpuWorld()
+			aparapiWorld()
 		}
 		rectVisual {
 			energyPainter()
@@ -310,7 +310,7 @@ object ConfsForStudy {
 				}
 			}
 			
-			gpuWorld()
+			aparapiWorld()
 		}
 		rectVisual {
 			energyPainter()
@@ -359,7 +359,7 @@ object ConfsForStudy {
 				period = 20f
 			}
 			
-			gpuWorld()
+			aparapiWorld()
 		}
 		rectVisual {
 			energyPainter()
@@ -408,7 +408,7 @@ object ConfsForStudy {
 				repeat = 1000f
 			}
 			
-			gpuWorld()
+			aparapiWorld()
 		}
 		rectVisual {
 			intensity *= 0.5
@@ -467,7 +467,7 @@ object ConfsForStudy {
 			}
 			
 			
-			gpuWorld()
+			aparapiWorld()
 		}
 		rectVisual {
 			energyPainter()
@@ -682,7 +682,7 @@ object ConfsForVideo {
 				repeat = 100f
 			}
 			
-			gpuWorld()
+			aparapiWorld()
 		}
 		rectVisual {
 			intensity *= 3.0
@@ -717,7 +717,7 @@ object ConfsForVideo {
 				}
 			}
 			
-			gpuWorld()
+			aparapiWorld()
 		}
 		rectVisual {
 			energyPainter()
@@ -770,7 +770,7 @@ object ConfsForVideo {
 				repeat = 1000f
 			}
 			
-			gpuWorld()
+			aparapiWorld()
 		}
 		rectVisual {
 			intensity *= 0.5

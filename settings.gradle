@@ -1,1 +1,1 @@
-include ':core', ':app', 'jni'
+include ':core', ':app', 'core-native','core-aparapi','core-nd4j'

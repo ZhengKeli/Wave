@@ -11,7 +11,9 @@
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/app" />
             <option value="$PROJECT_DIR$/core" />
-            <option value="$PROJECT_DIR$/jni" />
+            <option value="$PROJECT_DIR$/core-aparapi" />
+            <option value="$PROJECT_DIR$/core-native" />
+            <option value="$PROJECT_DIR$/core-nd4j" />
           </set>
         </option>
         <option name="resolveModulePerSourceSet" value="false" />

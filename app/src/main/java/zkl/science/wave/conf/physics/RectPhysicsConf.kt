@@ -44,7 +44,7 @@ fun RectPhysicsConf.cpuWorld() {
 	world = { CPURectWorld(this) }
 }
 
-fun RectPhysicsConf.gpuWorld() {
+fun RectPhysicsConf.aparapiWorld() {
 	world = { CPURectWorld(this) }
 	println("GPU for RectWorld is not supported yet! Drown down to CPU.")
 	//todo "support GPU for RectWorld"
