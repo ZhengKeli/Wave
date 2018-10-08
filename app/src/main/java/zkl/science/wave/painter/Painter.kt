@@ -1,7 +1,7 @@
 package zkl.science.wave.painter
 
 import javafx.scene.canvas.GraphicsContext
-import javafx.scene.paint.Paint
+import javafx.scene.paint.Color
 
 
 interface PainterDraft {
@@ -19,6 +19,7 @@ abstract class Painter(draft: PainterDraft) : PainterDraft {
 	override val intensity: Double = draft.intensity
 	
 	abstract fun paint(gc: GraphicsContext)
-	abstract val background: Paint
+	abstract val backgroundColor: Color
+	abstract val foregroundColor: Color
 }
 

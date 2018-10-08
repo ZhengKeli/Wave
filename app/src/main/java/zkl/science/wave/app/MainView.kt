@@ -25,9 +25,10 @@ import zkl.science.wave.world.processUntil
 import kotlin.math.min
 
 fun main(args: Array<String>) {
-	class WaveApp : App(MainView::class)
 	Application.launch(WaveApp::class.java, *args)
 }
+
+class WaveApp : App(MainView::class)
 
 class MainView : View("Wave") {
 	
@@ -152,7 +153,7 @@ class MainView : View("Wave") {
 			val scale = min(canvasPane.width / canvas.width, canvasPane.height / canvas.height)
 			canvas.scaleX = scale
 			canvas.scaleY = scale
-			canvasPane.background = Background(BackgroundFill(painter.background, null, null))
+			canvasPane.background = Background(BackgroundFill(painter.backgroundColor, null, null))
 			painter.paint(canvas.graphicsContext2D)
 		}.join()
 		

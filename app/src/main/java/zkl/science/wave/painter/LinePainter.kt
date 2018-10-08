@@ -2,7 +2,6 @@ package zkl.science.wave.painter
 
 import javafx.scene.canvas.GraphicsContext
 import javafx.scene.paint.Color
-import javafx.scene.paint.Paint
 import javafx.scene.shape.StrokeLineCap
 import zkl.science.wave.world.line.LineWorld
 
@@ -20,7 +19,8 @@ class LinePainter(draft: LinePainterDraft, val world: LineWorld) : Painter(draft
 	override val sceneWidth: Double = draft.sceneWidth
 	override val sceneHeight: Double = draft.sceneHeight
 	override val scenePadding: Double = draft.scenePadding
-	override val background: Paint = Color.BLACK
+	override val backgroundColor: Color = Color.WHITE
+	override val foregroundColor: Color = Color.BLACK
 	
 	private val interval: Double = (draft.sceneWidth - scenePadding * 2.0) / world.length
 	private val radius: Double = if (interval > 12.0) interval / 3.0 else 0.0
@@ -30,7 +30,7 @@ class LinePainter(draft: LinePainterDraft, val world: LineWorld) : Painter(draft
 	override fun paint(gc: GraphicsContext) {
 		gc.save()
 		gc.run {
-			fill = background
+			fill = backgroundColor
 			fillRect(0.0, 0.0, sceneWidth, sceneHeight)
 		}
 		gc.translate(-viewportX, -viewportY)
@@ -46,7 +46,7 @@ class LinePainter(draft: LinePainterDraft, val world: LineWorld) : Painter(draft
 				val node2X = +link.nodeId2.x * interval
 				val node2Y = -node2.offset * offsetScale
 				
-				gc.stroke = colorMix(node1.color ?: Color.WHITE, node2.color ?: Color.WHITE)
+				gc.stroke = colorMix(node1.color ?: foregroundColor, node2.color ?: foregroundColor)
 				gc.lineWidth = lineWidth
 				gc.lineCap = StrokeLineCap.ROUND
 				gc.strokeLine(node1X, node1Y, node2X, node2Y)
@@ -57,7 +57,7 @@ class LinePainter(draft: LinePainterDraft, val world: LineWorld) : Painter(draft
 				val nodeX = +id * interval
 				val nodeY = -node.offset * offsetScale
 				
-				gc.fill = node.color ?: Color.WHITE
+				gc.fill = node.color ?: foregroundColor
 				gc.fillOval(nodeX - radius, nodeY - radius, radius * 2, radius * 2)
 			}
 		}
