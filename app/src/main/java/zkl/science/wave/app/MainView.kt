@@ -10,13 +10,13 @@ import javafx.scene.layout.BackgroundFill
 import javafx.scene.layout.Pane
 import javafx.scene.layout.Priority
 import javafx.stage.Screen
-import kotlinx.coroutines.experimental.*
-import kotlinx.coroutines.experimental.channels.Channel
-import kotlinx.coroutines.experimental.channels.ReceiveChannel
-import kotlinx.coroutines.experimental.channels.produce
-import kotlinx.coroutines.experimental.javafx.JavaFx
-import kotlinx.coroutines.experimental.sync.Mutex
-import kotlinx.coroutines.experimental.sync.withLock
+import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.ReceiveChannel
+import kotlinx.coroutines.channels.produce
+import kotlinx.coroutines.javafx.JavaFx
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import tornadofx.*
 import zkl.science.wave.conf.export.autoExport
 import zkl.science.wave.exporter.FileExporter
@@ -30,21 +30,20 @@ fun main(args: Array<String>) {
 
 class WaveApp : App(MainView::class)
 
-class MainView : View("Wave") {
-	
+class MainView : View("Wave"), CoroutineScope by CoroutineScope(Job()) {
+
 	//conf
 	private val conf = CONF
 	private val physicsConf = conf.physicsConf
 	private val visualConf = conf.visualConf!!
 	private val exportConf = conf.exportConf
-	
-	
+
 	//views
 	override val root: Pane = vbox {
 		hbox {
 			paddingAll = 10.0
 			alignment = Pos.CENTER_LEFT
-			
+
 			button("start") {
 				hboxConstraints {
 					marginLeftRight(10.0)
@@ -87,17 +86,19 @@ class MainView : View("Wave") {
 	private lateinit var mainLabel: Label
 	private lateinit var canvasPane: Pane
 	private lateinit var canvas: Canvas
-	
-	
+
+
 	//life
+
+
 	override fun onDock() {
 		super.onDock()
-		
+
 		var mainJob: Job? = null
 		startButton.run {
 			isDisable = false
 			setOnMouseClicked {
-				mainJob = launch(CommonPool) { doMain() }
+				mainJob = launch { doMain() }
 			}
 		}
 		interactButton.run {
@@ -112,40 +113,41 @@ class MainView : View("Wave") {
 				setOnMouseClicked { isExporting = !isExporting }
 			}
 		}
-		
+
 		currentStage!!.setOnCloseRequest { e ->
 			if (mainJob?.isCompleted == false) {
 				launch {
 					mainJob?.cancelAndJoin()
-					launch(JavaFx) { primaryStage.close() }
+					launch(Dispatchers.JavaFx) { primaryStage.close() }
 				}
 				e.consume()
 			}
 		}
-		
+
 	}
-	
-	private suspend fun CoroutineScope.doMain() {
-		
-		launch(coroutineContext) { doInit() }.join()
-		
+
+	override fun onDelete() {
+		super.onDelete()
+		cancel()
+	}
+
+	private suspend fun doMain() = coroutineScope {
+		launch { doInit() }.join()
 		val needOffset = physicsConf.timeOffset > 0f
-		if (needOffset) launch(coroutineContext) { doOffset() }.join()
-		
+		if (needOffset) launch { doOffset() }.join()
 		val start = !needOffset || exportConf.autoExport
-		launch(coroutineContext) { doProcess(start) }.join()
-		
+		launch { doProcess(start) }.join()
 	}
-	
-	private suspend fun CoroutineScope.doInit() {
-		if (!isActive) return
-		launch(JavaFx) { mainLabel.text = "world initializing" }
+
+	private suspend fun doInit() = coroutineScope {
+		if (!isActive) return@coroutineScope
+		launch(Dispatchers.JavaFx) { mainLabel.text = "world initializing" }
 		this@MainView.world
-		
-		if (!isActive) return
-		launch(JavaFx) { mainLabel.text = "painter initializing" }
+
+		if (!isActive) return@coroutineScope
+		launch(Dispatchers.JavaFx) { mainLabel.text = "painter initializing" }
 		this@MainView.painter
-		launch(JavaFx) {
+		launch(Dispatchers.JavaFx) {
 			canvas.width = visualConf.canvasWidth
 			canvas.height = visualConf.canvasHeight
 			canvas.layoutX = (canvasPane.width - canvas.width) / 2.0
@@ -156,52 +158,52 @@ class MainView : View("Wave") {
 			canvasPane.background = Background(BackgroundFill(painter.backgroundColor, null, null))
 			painter.paint(canvas.graphicsContext2D)
 		}.join()
-		
+
 	}
-	
-	private suspend fun CoroutineScope.doOffset() {
-		
-		launch(JavaFx) { startButton.isDisable = true }
-		
-		val tickJob = launch(coroutineContext) {
+
+	private suspend fun doOffset() = coroutineScope {
+
+		launch(Dispatchers.JavaFx) { startButton.isDisable = true }
+
+		val tickJob = launch {
 			while (isActive) {
 				delay(1000)
 				val message = worldTimeMessage("offsetting")
-				launch(JavaFx) { mainLabel.text = message }
+				launch(Dispatchers.JavaFx) { mainLabel.text = message }
 			}
 		}
 		physicsConf.interact(world)
 		world.processUntil(physicsConf.timeUnit, physicsConf.timeOffset)
-		launch(JavaFx) { painter.paint(canvas.graphicsContext2D) }.join()
-		
+		launch(Dispatchers.JavaFx) { painter.paint(canvas.graphicsContext2D) }.join()
+
 		tickJob.cancelAndJoin()
 	}
-	
-	private suspend fun CoroutineScope.doProcess(start: Boolean) {
-		launch(JavaFx) {
+
+	private suspend fun doProcess(start: Boolean) = coroutineScope {
+		launch(Dispatchers.JavaFx) {
 			interactButton.isDisable = false
 			interactButton.setOnMouseClicked { interactWorld() }
 		}
 		if (exportConf.autoExport) interactWorld()
-		
+
 		val startSignal = Channel<Unit>(1)
-		if (start) startSignal.offer(Unit)
+		if (start) startSignal.trySend(Unit)
 		while (isActive) {
-			if (startSignal.poll() == null) {
-				launch(JavaFx) {
+			if (startSignal.tryReceive().isFailure) {
+				launch(Dispatchers.JavaFx) {
 					startButton.run {
 						text = "resume"
 						isDisable = false
 						setOnMouseClicked {
 							isDisable = true
-							startSignal.offer(Unit)
+							startSignal.trySend(Unit)
 						}
 					}
 					mainLabel.text = worldTimeMessage("paused")
 				}
 				startSignal.receive()
 			}
-			
+
 			val drawSignal = produce {
 				var lastDrawTime = System.currentTimeMillis()
 				while (isActive) {
@@ -213,14 +215,14 @@ class MainView : View("Wave") {
 				}
 			}
 			val loopRoutines = Array(3) {
-				launch(coroutineContext) {
+				launch {
 					while (isActive) {
 						doLoop(drawSignal)
 					}
 				}
 			}
-			
-			launch(JavaFx) {
+
+			launch(Dispatchers.JavaFx) {
 				startButton.run {
 					text = "pause"
 					isDisable = false
@@ -235,13 +237,13 @@ class MainView : View("Wave") {
 		}
 		startSignal.cancel()
 	}
-	
+
 	private suspend fun doLoop(drawSignal: ReceiveChannel<Long>) {
 		withContext(NonCancellable) {
 			//world process
 			physicsMutex.lock()
 			world.process(physicsConf.timeUnit, physicsConf.processCount)
-			
+
 			//paint
 			val delayTime = drawSignal.receive()
 			val message = worldTimeMessage(kotlin.run {
@@ -252,12 +254,12 @@ class MainView : View("Wave") {
 				}
 			})
 			canvasMutex.lock()
-			launch(JavaFx) {
+			launch(Dispatchers.JavaFx) {
 				painter.paint(canvas.graphicsContext2D)
 				mainLabel.text = message
 			}.join()
 			physicsMutex.unlock()
-			
+
 			//check export
 			exportConf?.exportTimeRange?.run {
 				isExporting = contains(world.time)
@@ -269,7 +271,7 @@ class MainView : View("Wave") {
 			if (exportConf == null) {
 				isExporting = false
 				canvasMutex.unlock()
-				launch(JavaFx) {
+				launch(Dispatchers.JavaFx) {
 					dialog("Error!") {
 						text = "The exportConf is null!"
 						autosize()
@@ -277,10 +279,10 @@ class MainView : View("Wave") {
 				}
 				return@withContext
 			}
-			
+
 			//export
 			snapshotMutex.lock()
-			launch(JavaFx) { snapshotTaker.takeSnapshot(canvas) }.join()
+			launch(Dispatchers.JavaFx) { snapshotTaker.takeSnapshot(canvas) }.join()
 			canvasMutex.unlock()
 			exporterMutex.lock()
 			fileExporter?.exportImage(snapshotTaker.bufferedImage!!)
@@ -288,39 +290,39 @@ class MainView : View("Wave") {
 			exporterMutex.unlock()
 		}
 	}
-	
+
 	private val physicsMutex = Mutex()
 	private val canvasMutex = Mutex()
 	private val snapshotMutex = Mutex()
 	private val exporterMutex = Mutex()
-	
-	
+
+
 	//business
 	private val world by lazy { physicsConf.world() }
 	private val painter by lazy { visualConf.painter(world) }
 	private val snapshotTaker by lazy { SnapshotTaker() }
 	private val fileExporter by lazy { exportConf?.run { FileExporter(exportDir, exportPrefix) } }
-	
+
 	private var isExporting = false
 		set(value) {
 			if (value == field) return
 			field = value
-			
+
 			if (exportConf.autoExport) return
-			launch(JavaFx) {
+			launch(Dispatchers.JavaFx) {
 				exportButton.text = if (value) "stop export" else "export"
 			}
-			
+
 		}
-	
+
 	private fun interactWorld() {
 		launch { physicsMutex.withLock { physicsConf.interact(world) } }
 	}
-	
+
 	private fun worldTimeMessage(message: String? = null): String {
 		val addition = message?.let { "($it)" } ?: ""
 		return "time: ${String.format("%.2f", world.time)} $addition"
 	}
-	
-	
+
+
 }
